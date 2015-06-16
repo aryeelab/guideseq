@@ -4,7 +4,7 @@ Installation
 
 At the command line::
 
-    $ easy_install guideseq
+    $ pip guideseq
 
 Or, if you have virtualenvwrapper installed::
 
