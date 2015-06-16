@@ -5,7 +5,8 @@ GUIDE-Seq
 .. image:: https://img.shields.io/travis/vedtopkar/guideseq.svg
         :target: https://travis-ci.org/vedtopkar/guideseq
 
-.. image:: https://coveralls.io/repos/vedtopkar/guideseq/badge.svg?branch=master :target: https://coveralls.io/r/vedtopkar/guideseq?branch=master
+.. image:: https://coveralls.io/repos/vedtopkar/guideseq/badge.svg?branch=master 
+        :target: https://coveralls.io/r/vedtopkar/guideseq?branch=master
 
 .. image:: https://img.shields.io/pypi/v/guideseq.svg
         :target: https://pypi.python.org/pypi/guideseq
