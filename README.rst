@@ -16,18 +16,31 @@ GUIDE-Seq
         :alt: Documentation Status
 
 
-An easy to use bioinformatic pipeline for the GUIDE-seq assay.
+GUIDE-Seq An easy to use bioinformatic pipeline for the GUIDE-seq assay.
 
-* Free software: BSD license
+* Free software: License not yet determined.
 * Documentation: https://guideseq.readthedocs.org.
 
 Features
---------
+=======
 
 * TODO
 
 
+What is GUIDE-Seq?
+========
+
+Genome-wide, Unbiased Identification of DSBs Enabled by Sequencing (GUIDE-seq) is a
+
 The Pipeline
+========
+
+Demultiplexing
+--------
+
+The demultiplexing step splits the four FASTQ input files into FASTQ files for each sample (as specified in the manifest.yaml file).
+
+Consolidation
 --------
 
 We start with the 4 FastQ files. The demultiplixer splits these into FastQs for each sample. Consolidation consolidates by molecular index. Aligning is BWA. Then we use the identifyofftarget.py to identify all cleavage sites. Then we bedtools subtract from the control sample to find the actual offtargets (filtering). Finally, we do read sorting and read metrics.
