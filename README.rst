@@ -12,7 +12,7 @@ GUIDE-Seq
         :target: https://pypi.python.org/pypi/guideseq
 
 .. image:: https://readthedocs.org/projects/guideseq/badge/?version=latest
-        :target: https://readthedocs.org/projects/guideseq/?badge=latest
+        :target: http://guideseq.readthedocs.org/en/latest/
         :alt: Documentation Status
 
 
