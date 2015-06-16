@@ -8,6 +8,10 @@ GUIDE-Seq
 .. image:: https://img.shields.io/pypi/v/guideseq.svg
         :target: https://pypi.python.org/pypi/guideseq
 
+.. image:: https://readthedocs.org/projects/guideseq/badge/?version=latest
+        :target: https://readthedocs.org/projects/guideseq/?badge=latest
+        :alt: Documentation Status
+
 
 An easy to use bioinformatic pipeline for the GUIDE-seq assay.
 
