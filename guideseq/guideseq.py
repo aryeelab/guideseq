@@ -5,7 +5,9 @@ guideseq.py serves as the wrapper
 
 """
 
+import os
 import yaml
+from alignReads import alignReads
 
 
 class GuideSeq:
@@ -15,13 +17,16 @@ class GuideSeq:
 
     def parseManifest(self, manifest_path):
 
+        print 'Loading manifest...'
+
         with open(manifest_path, 'r') as f:
             manifest_data = yaml.load(f)
 
         try:
-            self.BWA_path  = manifest_data['BWA']
-            self.HG19_path = manifest_data['HG19']
+            self.BWA_path  = manifest_data['bwa']
+            self.HG19_path = manifest_data['hg19']
             self.samples   = manifest_data['samples']
+            self.output_path = manifest_data['output']
         except:
             print 'Incomplete or incorrect manifest file. Please ensure your manifest contains all required fields.'
 
@@ -31,10 +36,14 @@ class GuideSeq:
         if len(self.samples.keys()) < 2:
             raise AssertionError('Your manifest must have at least one control and one treatment sample.')
 
+        print 'Successfully loaded manifest.'
+
 
     def alignReads(self):
-        import alignReads
-        
+        print 'Aligning reads...'
+        alignReads(self.BWA_path, self.HG19_path, self.samples, self.output_path)
+        print 'Finished aligning reads to genome.'
+
 
     def demultiplex(self):
         pass
@@ -49,8 +58,11 @@ class GuideSeq:
         pass
 
 def main():
+    print os.path.dirname(os.path.realpath(__file__))
+
     g = GuideSeq()
     g.parseManifest('../tests/manifest.yaml')
+    g.alignReads()
 
     print g.samples
 
