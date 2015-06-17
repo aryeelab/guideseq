@@ -5,7 +5,7 @@ import os
 def alignReads(BWA_path, HG19_path, samples, output_path):
 
     # Check if genome is already indexed by bwa
-    index_files_extensions = ['.pac', '.amb', '.ann']
+    index_files_extensions = ['.pac', '.amb', '.ann', '.bwt', '.sa']
 
     genome_indexed = True
     for extension in index_files_extensions:
