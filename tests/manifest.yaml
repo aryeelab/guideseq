@@ -1,7 +1,7 @@
-bwa: ../../bwa/bwa
+bwa: /Users/VedTopkar/code/bwa/bwa
 hg19: /Volumes/Media/hg38/hg38.fa
 
-output: output
+output: ../tests/output
 
 samples:
     control:

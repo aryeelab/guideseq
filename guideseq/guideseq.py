@@ -7,7 +7,12 @@ guideseq.py serves as the wrapper
 
 import os
 import yaml
+import argparse
 from alignReads import alignReads
+
+parser = argparse.ArgumentParser()
+parser.add_argument('--manifest', '-m', help='Specify the manifest Path', required=True)
+args = parser.parse_args()
 
 
 class GuideSeq:
@@ -57,14 +62,15 @@ class GuideSeq:
     def identifyOfftargetSites(self):
         pass
 
-def main():
-    print os.path.dirname(os.path.realpath(__file__))
 
-    g = GuideSeq()
-    g.parseManifest('../tests/manifest.yaml')
-    g.alignReads()
-
-    print g.samples
 
 if __name__ == '__main__':
-    main()
+
+    print '../tests/manifest.yaml'
+
+    if args.manifest:
+        g = GuideSeq()
+        g.parseManifest('../tests/manifest.yaml')
+        g.alignReads()
+
+        print g.samples
