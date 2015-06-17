@@ -27,11 +27,17 @@ Features
 * TODO
 
 
+Usage
+=======
+
+TODO
+
+
 
 What is GUIDE-Seq?
 ========
 
-Genome-wide, Unbiased Identification of DSBs Enabled by Sequencing (GUIDE-seq) is a
+Genome-wide, Unbiased Identification of DSBs Enabled by Sequencing (GUIDE-seq) is a method for ...
 
 
 The Pipeline

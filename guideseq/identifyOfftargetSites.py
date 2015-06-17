@@ -10,7 +10,7 @@
 # 2014.09.17 Add feature to align sequence with off-target site
 # 2014.01.22 Reconfigure to remove need for experimental design file, all options specified as arguments
 
-__author__ = 'shengdar'
+__author__ = 'Shengdar Q Tsai'
 
 import argparse
 import collections
