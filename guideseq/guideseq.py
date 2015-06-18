@@ -42,7 +42,11 @@ class GuideSeq:
 
     def alignReads(self):
         print 'Aligning reads...'
-        alignReads(self.BWA_path, self.HG19_path, self.samples, self.output_path)
+        sample_alignment_paths = alignReads(self.BWA_path, self.HG19_path, self.samples, self.output_path)
+
+        for (sample_name, alignment_path) in sample_alignment_paths.items():
+            self.samples[sample_name]['alignment_path'] = alignment_path
+
         print 'Finished aligning reads to genome.'
 
 

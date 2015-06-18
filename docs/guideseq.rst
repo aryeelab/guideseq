@@ -28,6 +28,14 @@ guideseq.identifyOfftargetSites module
     :undoc-members:
     :show-inheritance:
 
+guideseq.installBinaries module
+-------------------------------
+
+.. automodule:: guideseq.installBinaries
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 
 Module contents
 ---------------

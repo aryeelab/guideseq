@@ -1,4 +1,5 @@
 bwa: /Users/VedTopkar/code/bwa/bwa
+bedtools: bedtools
 hg19: /Volumes/Media/hg38/hg38.fa
 
 output: ../tests/output
