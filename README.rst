@@ -34,8 +34,27 @@ Dependencies
 Usage
 =======
 
-Using this tool is simple, just create a 
+Using this tool is simple, just create a ``.yaml`` manifest file referencing the dependencies and sample ``.fastq.gz`` file paths. Below is an example::
 
+    bwa: /Users/VedTopkar/bwa/bwa
+    bedtools: /Users/VedTopkar/bedtools/bedtools
+    hg19: /Users/VedTopkar/hg38/hg38.fa
+
+    output: /Users/VedTopkar/guideseq/output
+
+    samples:
+        control:
+            forward: /Users/VedTopkar/data/control.r1.fastq.gz
+            reverse: /Users/VedTopkar/data/control.r2.fastq.gz
+
+        EMX1:
+            forward: /Users/VedTopkar/data/emx1.r1.fastq.gz
+            reverse: /Users/VedTopkar/data/emx2.r2.fastq.gz
+
+
+Absolute paths are recommended. Be sure to point the ``bwa`` and ``bedtools`` paths directly to their respective executables.
+
+Once you have a manifest file created, you can simply execute ``python guideseq.py -m PATH/TO/MANIFEST.YAML`` to run the entire pipeline.
 
 What is GUIDE-Seq?
 ========
