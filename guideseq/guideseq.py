@@ -10,10 +10,6 @@ import yaml
 import argparse
 from alignReads import alignReads
 
-parser = argparse.ArgumentParser()
-parser.add_argument('--manifest', '-m', help='Specify the manifest Path', required=True)
-args = parser.parse_args()
-
 
 class GuideSeq:
 
@@ -63,8 +59,14 @@ class GuideSeq:
         pass
 
 
+def parse_args():
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--manifest', '-m', help='Specify the manifest Path', required=True)
+    return parser.parse_args()
 
-if __name__ == '__main__':
+
+def main():
+    args = parse_args()
 
     print '../tests/manifest.yaml'
 
@@ -74,3 +76,6 @@ if __name__ == '__main__':
         g.alignReads()
 
         print g.samples
+
+if __name__ == '__main__':
+    main()
