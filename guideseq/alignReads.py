@@ -23,11 +23,12 @@ def alignReads(BWA_path, HG19_path, samples, output_path):
     # Run paired end alignment against the genome for each sample
     for (sample_name, sample_paths) in samples.items():
         print 'Running paired end mapping for {0} sample'.format(sample_name)
-        bwa_alignment_command = '{0} mem {1} {2} {3} > {4}'.format(BWA_path, HG19_path,
+        bwa_alignment_command = '{0} mem {1} {2} {3}'.format(BWA_path, HG19_path,
                                                             sample_paths['forward'],
-                                                            sample_paths['reverse'],
-                                                            os.path.join(output_path, sample_name + '.sam'))
+                                                            sample_paths['reverse'])
 
-        print 'Aligning with command "{0}"'.format(bwa_alignment_command)
-        subprocess.call(bwa_alignment_command.split())
+
+        with open(os.path.join(output_path, sample_name + '.sam')) as outfile_path:
+            subprocess.call(bwa_alignment_command.split(), stdout=outfile_path)
+
         print 'Paired end mapping for {0} sample completed.'.format(sample_name)
