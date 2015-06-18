@@ -29,7 +29,9 @@ def alignReads(BWA_path, HG19_path, samples, output_path):
 
         # Open the outfile and redirect the output of the alignment to it.
         outfile_path = os.path.join(output_path, sample_name + '.sam')
-        with open(outfile_path) as outfile:
+        print outfile_path
+
+        with open(outfile_path, 'w') as outfile:
             subprocess.call(bwa_alignment_command.split(), stdout=outfile)
 
         print 'Paired end mapping for {0} sample completed.'.format(sample_name)
