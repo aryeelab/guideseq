@@ -26,10 +26,10 @@ GUIDE-Seq An easy to use bioinformatic pipeline for the GUIDE-seq assay.
 Dependencies
 =======
 
-* Python (2.6, 2.7, PyPy)
+* Python (2.6, 2.7, or PyPy)
 * `bwa <http://bio-bwa.sourceforge.net/>`_ alignment tool
 * `bedtools <http://bedtools.readthedocs.org/en/latest/>`_.
-* Reference genome .fasta file (we recommend HG19)
+* Reference genome .fasta file (we recommend `hg19 <http://genome.ucsc.edu/cgi-bin/hgGateway?hgsid=431825753_a0WJjTe0PI8wUUlzy80AAMLzPJg4&clade=mammal&org=Human&db=hg19>`_)
 
 Usage
 =======
