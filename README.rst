@@ -36,21 +36,21 @@ Usage
 
 Using this tool is simple, just create a ``.yaml`` manifest file referencing the dependencies and sample ``.fastq.gz`` file paths. Below is an example::
 
-    bwa: /Users/VedTopkar/bwa/bwa
-    bedtools: /Users/VedTopkar/bedtools/bedtools
-    hg19: /Users/VedTopkar/hg38/hg38.fa
+    reference_genome: /Volumes/Media/hg38/hg38.fa
+    output_folder: ../tests/output
 
-    output: /Users/VedTopkar/guideseq/output
+    bwa: /Users/VedTopkar/code/bwa/bwa
+    bedtools: bedtools
 
-    samples:
-        control:
-            forward: /Users/VedTopkar/data/control.r1.fastq.gz
-            reverse: /Users/VedTopkar/data/control.r2.fastq.gz
+    undemultiplexed:
+        forward: ../tests/data/undemux.r1.fastq.gz
+        reverse: ../tests/data/undemux.r2.fastq.gz
+        index1: ../tests/data/undemux.i1.fastq.gz
+        index2: ../tests/data/undemux.i2.fastq.gz
 
-        EMX1:
-            forward: /Users/VedTopkar/data/emx1.r1.fastq.gz
-            reverse: /Users/VedTopkar/data/emx2.r2.fastq.gz
-
+    sample_barcodes:
+        control: AGGCATGAGATCGC
+        EMX1: GACTCCTGCGATAT
 
 Absolute paths are recommended. Be sure to point the ``bwa`` and ``bedtools`` paths directly to their respective executables.
 
