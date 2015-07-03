@@ -6,7 +6,7 @@ def filterBackgroundSites(bedtools_path, samples, output_folder_path):
 
     sample_filtered_paths = {}
 
-    
+    for (sample_name, )
 
     # Run paired end alignment against the genome for each sample
     for (sample_name, sample_paths) in samples.items():

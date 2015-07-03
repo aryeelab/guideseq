@@ -9,6 +9,7 @@ import os
 import yaml
 import argparse
 from alignReads import alignReads
+from demultiplex import demultiplex
 
 
 class GuideSeq:
@@ -25,19 +26,33 @@ class GuideSeq:
 
         try:
             self.BWA_path  = manifest_data['bwa']
-            self.HG19_path = manifest_data['hg19']
-            self.samples   = manifest_data['samples']
-            self.output_path = manifest_data['output']
-        except:
+            self.reference_genome = manifest_data['reference_genome']
+            self.output_folder = manifest_data['output_folder']
+            self.sample_barcodes = manifest_data['sample_barcodes']
+            self.undemultiplexed = manifest_data['undemultiplexed']
+        except Exception as e:
             print 'Incomplete or incorrect manifest file. Please ensure your manifest contains all required fields.'
+            quit()
 
-        if 'control' not in self.samples.keys():
+        if 'control' not in self.sample_barcodes.keys():
             raise AssertionError('Your manifest must have a control sample specified.')
-
-        if len(self.samples.keys()) < 2:
+        if len(self.sample_barcodes) < 2:
             raise AssertionError('Your manifest must have at least one control and one treatment sample.')
 
         print 'Successfully loaded manifest.'
+
+
+    def demultiplex(self):
+
+        print 'Demultiplexing undemultiplexed files...'
+
+        self.undemultiplexed = demultiplex(self.undemultiplexed['forward'], self.undemultiplexed['reverse'],
+                                                                             self.undemultiplexed['index1'],
+                                                                             self.undemultiplexed['index2'],
+                                                                             self.output_folder,
+                                                                             self.sample_barcodes)
+
+        print 'Successfully demultiplexed files.'
 
 
     def alignReads(self):
@@ -49,9 +64,6 @@ class GuideSeq:
 
         print 'Finished aligning reads to genome.'
 
-
-    def demultiplex(self):
-        pass
 
     def consolidate(self):
         pass
@@ -77,6 +89,7 @@ def main():
     if args.manifest:
         g = GuideSeq()
         g.parseManifest('../tests/manifest.yaml')
+        g.demultiplex()
         g.alignReads()
 
         print g.samples

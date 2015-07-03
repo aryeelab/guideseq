@@ -1,14 +1,15 @@
+reference_genome: /Volumes/Media/hg38/hg38.fa
+output_folder: ../tests/output
+
 bwa: /Users/VedTopkar/code/bwa/bwa
 bedtools: bedtools
-hg19: /Volumes/Media/hg38/hg38.fa
 
-output: ../tests/output
+undemultiplexed:
+    forward: ../tests/data/undemux.r1.fastq.gz
+    reverse: ../tests/data/undemux.r2.fastq.gz
+    index1: ../tests/data/undemux.i1.fastq.gz
+    index2: ../tests/data/undemux.i2.fastq.gz
 
-samples:
-    control:
-        forward: data/control.r1.fastq.gz
-        reverse: data/control.r2.fastq.gz
-
-    EMX1:
-        forward: data/emx1.r1.fastq.gz
-        reverse: data/emx2.r2.fastq.gz
+sample_barcodes:
+    control: AGGCATGAGATCGC
+    EMX1: GACTCCTGCGATAT
