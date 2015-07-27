@@ -11,5 +11,5 @@ undemultiplexed:
     index2: ../tests/data/undemux.i2.fastq.gz
 
 sample_barcodes:
-    control: AGGCATGAGATCGC
-    EMX1: GACTCCTGCGATAT
+    control: TCTCTACTCTCTAT
+    EMX1: AGGCATGAGATCGC

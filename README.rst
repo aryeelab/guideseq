@@ -56,37 +56,4 @@ Absolute paths are recommended. Be sure to point the ``bwa`` and ``bedtools`` pa
 
 Once you have a manifest file created, you can simply execute ``python guideseq.py -m PATH/TO/MANIFEST.YAML`` to run the entire pipeline.
 
-What is GUIDE-Seq?
-========
-
-Genome-wide, Unbiased Identification of DSBs Enabled by Sequencing (GUIDE-seq) is a method for ...
-
-
-The Pipeline
-========
-
-.. Demultiplexing
-.. --------
-
-.. The demultiplexing step splits the four FASTQ input files into FASTQ files for each sample (as specified in the manifest.yaml file).
-
-
-.. Consolidation
-.. --------
-
-.. The consolidation step consolidates reads by their molecular indices.
-
-
-.. Alignment
-.. --------
-
-.. In this step, the reads are aliged to HG19 (as provided) to map the detected DSBs. This step requires the BWA alignment program.
-
-
-.. Identify Offtargets
-
-.. Filtering
-.. ---------
-
-
-We start with the 4 FastQ files. The demultiplixer splits these into FastQs for each sample. Consolidation consolidates by molecular index. Aligning is BWA. Then we use the identifyofftarget.py to identify all cleavage sites. Then we bedtools subtract from the control sample to find the actual offtargets (filtering). Finally, we do read sorting and read metrics.
+You cannot run steps of the pipeline individually, though this functionality is planned for future releases.

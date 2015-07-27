@@ -46,23 +46,28 @@ class GuideSeq:
 
         print 'Demultiplexing undemultiplexed files...'
 
-        self.undemultiplexed = demultiplex(self.undemultiplexed['forward'], self.undemultiplexed['reverse'],
-                                                                             self.undemultiplexed['index1'],
-                                                                             self.undemultiplexed['index2'],
-                                                                             self.output_folder,
-                                                                             self.sample_barcodes)
+        try:
+            self.undemux_sample_paths = demultiplex(self.undemultiplexed['forward'], self.undemultiplexed['reverse'],
+                                                                                     self.undemultiplexed['index1'],
+                                                                                     self.undemultiplexed['index2'],
+                                                                                     self.output_folder,
+                                                                                     self.sample_barcodes)
 
-        print 'Successfully demultiplexed files.'
+            print 'Successfully demultiplexed files.'
+        except:
+            print 'Error demultiplexing files.'
+            quit()
 
 
     def alignReads(self):
         print 'Aligning reads...'
-        sample_alignment_paths = alignReads(self.BWA_path, self.HG19_path, self.samples, self.output_path)
 
+        sample_alignment_paths = alignReads(self.BWA_path, self.reference_genome, self.undemux_sample_paths, self.output_folder)
         for (sample_name, alignment_path) in sample_alignment_paths.items():
             self.samples[sample_name]['alignment_path'] = alignment_path
-
         print 'Finished aligning reads to genome.'
+
+        # print 'Error aligning reads.'
 
 
     def consolidate(self):
@@ -92,7 +97,6 @@ def main():
         g.demultiplex()
         g.alignReads()
 
-        print g.samples
 
 if __name__ == '__main__':
     main()

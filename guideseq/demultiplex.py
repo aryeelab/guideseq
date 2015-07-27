@@ -144,6 +144,7 @@ def demultiplex(read1, read2, index1, index2, out_dir, sample_barcodes, min_read
     num_fastqs = len([v for k,v in count.iteritems() if v >= min_reads])
     print('Wrote FASTQs for the %d sample barcodes out of %d with at least %d reads.' % (num_fastqs, len(count), min_reads))
 
+    print (outfiles_r1, outfiles_r2, outfiles_i1, outfiles_i2)
     return (outfiles_r1, outfiles_r2, outfiles_i1, outfiles_i2)
 
 

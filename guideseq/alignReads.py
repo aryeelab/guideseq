@@ -5,7 +5,7 @@ import os
 alignReads
 """
 
-def alignReads(BWA_path, HG19_path, sample_paths, output_path):
+def alignReads(BWA_path, HG19_path, undemux_sample_paths, output_path):
 
     sample_alignment_paths = {}
 
