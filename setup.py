@@ -28,8 +28,8 @@ setup(
     version='0.1.0',
     description="An easy to use bioinformatic pipeline for the GUIDE-seq assay.",
     long_description=readme + '\n\n' + history,
-    author="Shengdar Q Tsai, Martin Aryee, Ved Topkar",
-    author_email='STSAI4@mgh.harvard.edu, Aryee.Martin@mgh.harvard.edu, vedtopkar@college.harvard.edu',
+    author="Shengdar Q Tsai, Martin Aryee, Ved V Topkar",
+    author_email='STSAI4@mgh.harvard.edu, Aryee.Martin@mgh.harvard.edu, vedtopkar@gmail.com',
     url='https://github.com/vedtopkar/guideseq',
     packages=[
         'guideseq',

@@ -89,11 +89,9 @@ def parse_args():
 def main():
     args = parse_args()
 
-    print '../tests/manifest.yaml'
-
     if args.manifest:
         g = GuideSeq()
-        g.parseManifest('../tests/manifest.yaml')
+        g.parseManifest(args.manifest)
         g.demultiplex()
         g.alignReads()
 
