@@ -29,8 +29,9 @@ class GuideSeq:
             self.BWA_path  = manifest_data['bwa']
             self.reference_genome = manifest_data['reference_genome']
             self.output_folder = manifest_data['output_folder']
-            self.sample_barcodes = manifest_data['sample_barcodes']
             self.undemultiplexed = manifest_data['undemultiplexed']
+            self.sample_barcodes = manifest_data['sample_barcodes']
+
         except Exception as e:
             print 'Incomplete or incorrect manifest file. Please ensure your manifest contains all required fields.'
             quit()
@@ -51,20 +52,49 @@ class GuideSeq:
     def demultiplex(self):
 
         print 'Demultiplexing undemultiplexed files...'
+        swapped_sample_barcodes = dict((value, key) for key, value in self.sample_barcodes.iteritems())
 
         try:
             demultiplex.demultiplex(self.undemultiplexed['forward'], 
                                     self.undemultiplexed['reverse'],
                                     self.undemultiplexed['index1'],
                                     self.undemultiplexed['index2'],
-                                    self.sample_barcodes
-                                    self.output_folder,
+                                    swapped_sample_barcodes,
+                                    os.path.join(self.output_folder, 'undemultiplexed'),
                                     min_reads=self.demultiplex_min_reads)
 
+            self.demultiplexed = {}
+            for sample in self.sample_barcodes:
+                self.demultiplexed[sample] = {}
+                self.demultiplexed[sample]['read1'] = os.path.join(self.output_folder, 'undemultiplexed', sample + '.r1.fastq')
+                self.demultiplexed[sample]['read2'] = os.path.join(self.output_folder, 'undemultiplexed', sample + '.r2.fastq')
+                self.demultiplexed[sample]['index1'] = os.path.join(self.output_folder, 'undemultiplexed', sample + '.i1.fastq')
+                self.demultiplexed[sample]['index2'] = os.path.join(self.output_folder, 'undemultiplexed', sample + '.i2.fastq')
+
             print 'Successfully demultiplexed files.'
-        except:
+        except Exception as e:
             print 'Error demultiplexing files.'
+            print e
             quit()
+
+    def umitag(self):
+        print 'umitagging reads...'
+
+        try:
+            for sample in self.sample_barcodes:    
+                umitag.umitag(self.demultiplexed[sample]['read1'],
+                              self.demultiplexed[sample]['read2'],
+                              self.demultiplexed[sample]['index1'],
+                              self.demultiplexed[sample]['index2'],
+                              os.path.join(self.output_folder, 'umitagged', sample + '.r1.umitagged.fastq'),
+                              os.path.join(self.output_folder, 'umitagged', sample + '.r2.umitagged.fastq'),
+                              os.path.join(self.output_folder, 'umitagged'))
+
+
+
+        except Exception as e:
+            print 'Error umitagging'
+            print e
 
 
     def alignReads(self):

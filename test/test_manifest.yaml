@@ -1,5 +1,5 @@
 reference_genome: /Volumes/Media/hg38/hg38.fa
-output_folder: ../tests/output
+output_folder: ../test/output
 
 bwa: bwa
 bedtools: bedtools
