@@ -56,4 +56,4 @@ Absolute paths are recommended. Be sure to point the ``bwa`` and ``bedtools`` pa
 
 Once you have a manifest file created, you can simply execute ``python guideseq.py -m PATH/TO/MANIFEST.YAML`` to run the entire pipeline.
 
-You cannot run steps of the pipeline individually, though this functionality is planned for future releases.
+You cannot yet run steps of the pipeline individually, though this functionality is planned for future releases.

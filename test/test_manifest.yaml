@@ -5,10 +5,10 @@ bwa: /Users/VedTopkar/code/bwa/bwa
 bedtools: bedtools
 
 undemultiplexed:
-    forward: ../tests/data/undemux.r1.fastq.gz
-    reverse: ../tests/data/undemux.r2.fastq.gz
-    index1: ../tests/data/undemux.i1.fastq.gz
-    index2: ../tests/data/undemux.i2.fastq.gz
+    forward: ../test/data/undemux.r1.fastq.gz
+    reverse: ../test/data/undemux.r2.fastq.gz
+    index1: ../test/data/undemux.i1.fastq.gz
+    index2: ../test/data/undemux.i2.fastq.gz
 
 sample_barcodes:
     control: TCTCTACTCTCTAT

@@ -10,6 +10,7 @@ import yaml
 import argparse
 from alignReads import alignReads
 from demultiplex import demultiplex
+from umi import demultiplex, umitag, consolidate
 
 
 class GuideSeq:
@@ -93,7 +94,10 @@ def main():
         g = GuideSeq()
         g.parseManifest(args.manifest)
         g.demultiplex()
+        g.umitag()
+        g.consolidate()
         g.alignReads()
+
 
 
 if __name__ == '__main__':

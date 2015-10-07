@@ -8,29 +8,23 @@
 # 2014.09.17 Add feature to get sequence from local genome fasta
 # 2014.09.17 Add targets argument (for experimental design file) to argparse
 # 2014.09.17 Add feature to align sequence with off-target site
-# 2014.01.22 Reconfigure to remove need for experimental design file, all options specified as arguments
+# 2015.10.05 Replaced swalign with regex matching
 
-__author__ = 'Shengdar Q Tsai'
+__author__ = 'shengdar'
 
 import argparse
 import collections
 import numpy
-import operator
 import os
+import regex
+import sys
+import string
+import operator
 import pyfaidx
 import re
-import string
-import swalign
-
-parser = argparse.ArgumentParser(description='Identify off-target candidates from Illumina short read sequencing data.')
-parser.add_argument('--ref', help='Reference Genome Fasta', required=True)
-parser.add_argument('--targetsite', help='Targetsite Sequence', required=True)
-parser.add_argument('--samfile', help='SAM file', required=True)
-parser.add_argument('--nofilter', help='Turn off filter for bidirectional sites', required=False, action='store_false')
-args = parser.parse_args()
 
 
-# chromosomePosition keeps track of barcode positions
+# chromosomePosition defines a class to keep track of the positions.
 class chromosomePosition():
 
     def __init__(self, reference_genome):
@@ -95,7 +89,7 @@ class chromosomePosition():
                                           for position in sorted(self.chromosome_barcode_dict[chromosome]) ]
         return self.barcode_position_summary
 
-    # Summarizes the chromosome, positions within a sliding 10 bp window
+    # Summarizes the chromosome, positions within a 10 bp window
     def SummarizeBarcodeIndex(self):
         last_chromosome, last_position, window_index = 0, 0, 0
         index_summary = []
@@ -151,67 +145,141 @@ class chromosomePosition():
                                                total_plus, total_minus, total_sum, total_geometric_mean,
                                                primer1, primer2, primer_geometric_mean, position_std] ]
 
-            if (barcode_geometric_mean > 0 or primer_geometric_mean > 0 or not args.nofilter):
+            if (barcode_geometric_mean > 0 or primer_geometric_mean > 0):
                 index_summary.append(summary_list)
         return index_summary    # WindowIndex, Chromosome, Position, Plus.mi, Minus.mi,
                                 # BidirectionalArithmeticMean.mi, BidirectionalGeometricMean.mi,
                                 # Plus, Minus,
                                 # BidirectionalArithmeticMean, BidirectionalGeometricMean,
 
+def regexFromSequence(seq, lookahead=True, mismatches=2):
+    """
+    Given a sequence with ambiguous base characters, returns a regex that matches for
+    the explicit (unambiguous) base characters
+    """
+    IUPAC_notation_regex = {'N': '[ATCGN]',
+                            'Y': '[CTY]',
+                            'R': '[AGR]',
+                            'W': '[ATW]',
+                            'S': '[CGS]',
+                            'A': 'A',
+                            'T': 'T',
+                            'C': 'C',
+                            'G': 'G'}
 
-def alignSequences(ref_seq, query_seq):
-    match = 2
-    mismatch = -1
-    ref_length = len(ref_seq)
-    matches_required = len(ref_seq) - 1 - 7 # allow up to 8 mismatches
-    scoring = swalign.NucleotideScoringMatrix(match, mismatch)
-    sw = swalign.LocalAlignment(scoring, gap_penalty=-100, gap_extension_penalty=-100, prefer_gap_runs=True)  # you can also choose gap penalties, etc...
-    forward_alignment = sw.align(ref_seq, query_seq)
-    reverse_alignment = sw.align(ref_seq, reverseComplement(query_seq))
-    if forward_alignment.matches >= matches_required and forward_alignment.matches > reverse_alignment.matches:
-        start_pad = forward_alignment.r_pos
-        start = forward_alignment.q_pos - start_pad
-        end_pad = ref_length - forward_alignment.r_end
-        end = forward_alignment.q_end + end_pad
-        strand = "+"
-        return [forward_alignment.query[start:end], ref_length - forward_alignment.matches - 1, end - start, strand, start, end]
-    elif reverse_alignment.matches >= matches_required and reverse_alignment.matches > forward_alignment.matches:
-        start_pad = reverse_alignment.r_pos
-        start = reverse_alignment.q_pos - start_pad
-        end_pad = ref_length - reverse_alignment.r_end
-        end = reverse_alignment.q_end + end_pad
-        strand = "-"
-        return [reverse_alignment.query[start:end], ref_length - reverse_alignment.matches - 1, end - start, strand, start, end]
+    pattern = ''
+
+    for c in seq:
+        pattern += IUPAC_notation_regex[c]
+
+    if lookahead:
+        pattern = '(?:' + pattern + ')'
+    if mismatches > 0:
+        pattern = pattern + '{{s<={}}}'.format(mismatches)
+
+    return pattern
+
+
+
+def alignSequences(targetsite_sequence, window_sequence, max_mismatches = args.mismatches):
+    """
+    Given a targetsite and window, use a fuzzy regex to align the targetsite to
+    the window. Returns the best match.
+    """
+
+    # Try both strands
+    query_regex = regexFromSequence(targetsite_sequence, mismatches=max_mismatches)
+    forward_alignment = regex.search(query_regex, window_sequence, regex.BESTMATCH)
+
+    # reverse_regex = regexFromSequence(reverseComplement(targetsite_sequence), mismatches=max_mismatches)
+    reverse_alignment = regex.search(query_regex, reverseComplement(window_sequence), regex.BESTMATCH)
+
+    if forward_alignment is None and reverse_alignment is None:
+        return ['', '', '', '', '', '']
     else:
-        return ["", "", "", "", "", ""]
+        if forward_alignment is None and reverse_alignment is not None:
+            strand = '-'
+            alignment = reverse_alignment
+        elif reverse_alignment is None and forward_alignment is not None:
+            strand = '+'
+            alignment = forward_alignment
+        elif forward_alignment is not None and reverse_alignment is not None:
+            forward_mismatches = forward_alignment.fuzzy_counts[0]
+            reverse_mismatches = reverse_alignment.fuzzy_counts[0]
+
+            if forward_mismatches > reverse_mismatches:
+                strand = '-'
+                alignment = reverse_alignment
+            else:
+                strand = '+'
+                alignment = forward_alignment
+
+        match_sequence = alignment.group()
+        mismatches = alignment.fuzzy_counts[0]
+        length = len(match_sequence)
+        start = alignment.start()
+        end = alignment.end()
+
+        return [match_sequence, mismatches, length, strand, start, end]
 
 
-def analyze(sam_filename, target_sequence, reference_genome):
-    with open(sam_filename) as file:
-        __, filename_tail = os.path.split(sam_filename)
-        chromosome_position = chromosomePosition(reference_genome)
-        for line in file:
-            fields = line.split('\t')
-            if len(fields) >= 10:
-                # Strings need to be cast as ints for comparisons
-                full_read_name, sam_flag, chromosome, position, mapq, cigar, name_of_mate, position_of_mate, template_length, read_sequence, read_quality = fields[:11]
-                if int(mapq) >= 50 and int(sam_flag) & 128 and not int(sam_flag) & 2048:
-                # Second read in pair
-                    barcode, count = parseReadName(full_read_name)
-                    primer = assignPrimerstoReads(read_sequence, sam_flag)
-                    if int(template_length) < 0:                  #Reverse read
-                        read_position = int(position_of_mate) + abs(int(template_length)) - 1
-                        strand = "-"
-                        chromosome_position.addPositionBarcode(chromosome, read_position, strand, barcode, primer, count)
-                    elif int(template_length) > 0:                #Forward read
-                        read_position = int(position)
-                        strand = "+"
-                        chromosome_position.addPositionBarcode(chromosome, read_position, strand, barcode, primer, count)
+def analyze(sam_filename, experimental_design_dict, reference_genome):
+    sys.stderr.write("Processing SAM file . . ." + sam_filename + '\n')
+    file = open( sam_filename, 'rU')
+    __, filename_tail = os.path.split(sam_filename)
+    chromosome_position = chromosomePosition(reference_genome)
+    for line in file:
+        fields = line.split('\t')
+        if len(fields) >= 10:
+            # These are strings--need to be cast as ints for comparisons.
+            full_read_name, sam_flag, chromosome, position, mapq, cigar, name_of_mate, position_of_mate, template_length, read_sequence, read_quality = fields[:11]
+            if int(mapq) >= 50 and int(sam_flag) & 128 and not int(sam_flag) & 2048:
+            # Second read in pair
+                barcode, count = parseReadName(full_read_name)
+                primer = assignPrimerstoReads(read_sequence, sam_flag)
+                if int(template_length) < 0:                  #Reverse read
+                    read_position = int(position_of_mate) + abs(int(template_length)) - 1
+                    strand = "-"
+                    chromosome_position.addPositionBarcode(chromosome, read_position, strand, barcode, primer, count)
+                elif int(template_length) > 0:                #Forward read
+                    read_position = int(position)
+                    strand = "+"
+                    chromosome_position.addPositionBarcode(chromosome, read_position, strand, barcode, primer, count)
 
-        # Output summary of each window
-        stacked_summary = chromosome_position.SummarizeBarcodePositions()
-        summary = chromosome_position.SummarizeBarcodeIndex()
-        outputSiteSummary(summary, target_sequence, filename_tail)
+# # # Output summary of each position
+    stacked_summary = chromosome_position.SummarizeBarcodePositions()
+    # print '\t'.join(['Chromosome', 'Position', '+.mi', '-.mi', '+.total', '-.total', '+.primer1.mi', '+.primer2.mi', '-.primer1.mi', '-.primer2.mi'])
+    # for row in stacked_summary:
+    #     print '\t'.join([filename_tail] + [str(x) for x in row])
+
+    # Output summary of each window
+    summary = chromosome_position.SummarizeBarcodeIndex()
+    target_sequence = experimental_design_dict[filename_tail]["Sequence"]
+    annotation = [ experimental_design_dict[filename_tail]['Description'],
+                   experimental_design_dict[filename_tail]['Treatment'],
+                   experimental_design_dict[filename_tail]['Cells'],
+                   experimental_design_dict[filename_tail]['Targetsite'],
+                   experimental_design_dict[filename_tail]['Sequence']]
+    for row in summary:
+        window_sequence = row[3]
+        if target_sequence:
+            sequence, mismatches, length, strand,  target_start_relative, target_end_relative = alignSequences(target_sequence, window_sequence)
+            BED_chromosome = row[4]
+            BED_name = row[7]
+            BED_score = 1
+            if strand == "+":
+                target_start_absolute = target_start_relative + int(row[2]) - 25
+                target_end_absolute = target_end_relative + int(row[2]) - 25
+            elif strand == "-":
+                target_start_absolute = int(row[2]) + 25 - target_end_relative
+                target_end_absolute = int(row[2]) + 25 - target_start_relative
+            else:
+                BED_chromosome, target_start_absolute, target_end_absolute, BED_score, BED_name = [""] * 5
+            print '\t'.join( row[4:8] + [filename_tail] + row[0:4] + row[8:] +
+                        [str(x) for x in [sequence, mismatches, length,  BED_chromosome, target_start_absolute,
+                                          target_end_absolute, BED_name, BED_score, strand]] + annotation)
+        else:
+            print '\t'.join(row[4:8] + [filename_tail] + row[0:4] + row[8:] + [""]*9 + annotation)
 
 
 def assignPrimerstoReads(read_sequence, sam_flag):
@@ -228,37 +296,19 @@ def assignPrimerstoReads(read_sequence, sam_flag):
         return "nomatch"
 
 
-def outputStackedSummary(stacked_summary, filename_tail):
-        print '\t'.join(['Chromosome', 'Position', '+.mi', '-.mi', '+.total', '-.total', '+.primer1.mi', '+.primer2.mi', '-.primer1.mi', '-.primer2.mi'])
-        for row in stacked_summary:
-             print '\t'.join([filename_tail] + [str(x) for x in row])
-
-
-def outputSiteSummary(summary, target_sequence, filename_tail):
-    for row in summary:
-            window_sequence = row[3]
-            if target_sequence:
-                sequence, mismatches, length, strand,  target_start_relative, target_end_relative = alignSequences(target_sequence, window_sequence)
-                BED_chromosome = row[4]
-                BED_name = row[7]
-                BED_score = 1
-                if strand == "+":
-                    target_start_absolute = target_start_relative + int(row[2]) - 25
-                    target_end_absolute = target_end_relative + int(row[2]) - 25
-                elif strand == "-":
-                    target_start_absolute = int(row[2]) + 25 - target_end_relative
-                    target_end_absolute = int(row[2]) + 25 - target_start_relative
-                else:
-                    BED_chromosome, target_start_absolute, target_end_absolute, BED_score, BED_name = [""] * 5
-                print '\t'.join( row[4:8] + [filename_tail] + row[0:4] + row[8:] +
-                            [str(x) for x in [sequence, mismatches, length,  BED_chromosome, target_start_absolute,
-                                              target_end_absolute, BED_name, BED_score, strand]])
-            else:
-                print '\t'.join(row[4:8] + [filename_tail] + row[0:4] + row[8:] + [""]*9)
+def loadFileIntoArray(filename):
+    with open(filename, 'rU') as f:
+        keys = f.readline().rstrip('\r\n').split('\t')[1:]
+        data = collections.defaultdict(dict)
+        for line in f:
+            filename, rest = processLine(line)
+            line_to_dict = dict(zip(keys, rest))
+            data[filename] = line_to_dict
+    return data
 
 
 def parseReadName(read_name):
-    m = re.search(r'([ACGTN]{8}_[ACGTN]{6})_([0-9]*)', read_name)
+    m = re.search(r'([ACGTN]{8}_[ACGTN]{6}_[ACGTN]{6})_([0-9]*)', read_name)
     if m:
         molecular_index, count  =  m.group(1), m.group(2)
         return molecular_index, int(count)
@@ -280,20 +330,29 @@ def reverseComplement(sequence):
 
 
 def main():
+    # This sets up the command line components of the program.
+    parser = argparse.ArgumentParser(description='Identify off-target candidates from Illumina short read sequencing data.')
+    parser.add_argument('--ref', help='Reference Genome Fasta', required=True)
+    parser.add_argument('--targets', help='Experimental Design File with Targetsites (tab-delimited)', required=True)
+    parser.add_argument('--mismatches', help='', type=int, required='True')
+    parser.add_argument('SamFileName', help='SAM file', nargs='*')
+
+    args = parser.parse_args()
+
+    # Load experimental design file
+    experimental_design_dict = loadFileIntoArray(args.targets)
     # Print header
     print '\t'.join(['#BED Chromosome', 'BED Min.Position',
-                     'BED Max.Position', 'BED Name', 'Filename', 'WindowIndex', 'Chromosome', 'Position', 'Sequence',
-                     '+.mi', '-.mi', 'bi.sum.mi', 'bi.geometric_mean.mi', '+.total', '-.total', 'total.sum',
-                     'total.geometric_mean', 'primer1.mi', 'primer2.mi', 'primer.geometric_mean',
-                     'position.stdev', 'Off-Target Sequence', 'Mismatches', 'Length',
-                     'BED off-target Chromosome', 'BED off-target start', 'BED off-target end', 'BED off-target name',
-                     'BED Score', 'Strand' ])
-
-    analyze(args.samfile, args.targetsite, args.ref)
+                     'BED Max.Position', 'BED Name', 'Filename', 'WindowIndex', 'Chromosome', 'Position', 'Sequence', '+.mi', '-.mi', 'bi.sum.mi', 'bi.geometric_mean.mi', '+.total',
+                     '-.total', 'total.sum', 'total.geometric_mean', 'primer1.mi', 'primer2.mi', 'primer.geometric_mean',
+                     'position.stdev', 'Off-Target Sequence', 'Mismatches', 'Length', 'BED off-target Chromosome', 'BED off-target start', 'BED off-target end', 'BED off-target name', 'BED Score', 'Strand', 'Description', 'Treatment', 'Cells', 'Targetsite', 'Target Sequence'])
+    # Run main analysis code on input SamFiles
+    for filename in args.SamFileName:
+        __, filename_tail = os.path.split(filename)
+        analyze(filename, experimental_design_dict, args.ref)
 
 
 if __name__ == "__main__":
 
     # Run main program
     main()
-

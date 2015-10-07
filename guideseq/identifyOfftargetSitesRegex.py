@@ -20,7 +20,6 @@ import os
 import pyfaidx
 import re
 import string
-import swalign
 import regex
 
 parser = argparse.ArgumentParser(description='Identify off-target candidates from Illumina short read sequencing data.')
