@@ -18,9 +18,6 @@ GUIDE-Seq
 
 GUIDE-Seq An easy to use bioinformatic pipeline for the GUIDE-seq assay.
 
-* Free software: License not yet determined.
-* Documentation: https://guideseq.readthedocs.org.
-
 
 
 Dependencies
@@ -28,10 +25,10 @@ Dependencies
 
 * Python (2.6, 2.7, or PyPy)
 * `bwa <http://bio-bwa.sourceforge.net/>`_ alignment tool
-* `bedtools <http://bedtools.readthedocs.org/en/latest/>`_.
+* `bedtools <http://bedtools.readthedocs.org/en/latest/>`_
 * Reference genome .fasta file (we recommend `hg19 <http://genome.ucsc.edu/cgi-bin/hgGateway?hgsid=431825753_a0WJjTe0PI8wUUlzy80AAMLzPJg4&clade=mammal&org=Human&db=hg19>`_)
 
-Usage
+Usage with Manifest File
 =======
 
 Using this tool is simple, just create a ``.yaml`` manifest file referencing the dependencies and sample ``.fastq.gz`` file paths. Below is an example::
@@ -57,3 +54,4 @@ Absolute paths are recommended. Be sure to point the ``bwa`` and ``bedtools`` pa
 Once you have a manifest file created, you can simply execute ``python guideseq.py -m PATH/TO/MANIFEST.YAML`` to run the entire pipeline.
 
 You cannot yet run steps of the pipeline individually, though this functionality is planned for future releases.
+

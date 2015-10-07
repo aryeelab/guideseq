@@ -9,9 +9,9 @@ import os
 import yaml
 import argparse
 from alignReads import alignReads
-from demultiplex import demultiplex
 from umi import demultiplex, umitag, consolidate
 
+DEFAILT_DEMULTIPLEX_MIN_READS = 10000
 
 class GuideSeq:
 
@@ -35,6 +35,11 @@ class GuideSeq:
             print 'Incomplete or incorrect manifest file. Please ensure your manifest contains all required fields.'
             quit()
 
+        if 'demultiplex_min_reads' in manifest_data:
+            self.demultiplex_min_reads = manifest_data['demultiplex_min_reads']
+        else:
+            self.demultiplex_min_reads = DEFAILT_DEMULTIPLEX_MIN_READS
+
         if 'control' not in self.sample_barcodes.keys():
             raise AssertionError('Your manifest must have a control sample specified.')
         if len(self.sample_barcodes) < 2:
@@ -48,11 +53,13 @@ class GuideSeq:
         print 'Demultiplexing undemultiplexed files...'
 
         try:
-            self.undemux_sample_paths = demultiplex(self.undemultiplexed['forward'], self.undemultiplexed['reverse'],
-                                                                                     self.undemultiplexed['index1'],
-                                                                                     self.undemultiplexed['index2'],
-                                                                                     self.output_folder,
-                                                                                     self.sample_barcodes)
+            demultiplex.demultiplex(self.undemultiplexed['forward'], 
+                                    self.undemultiplexed['reverse'],
+                                    self.undemultiplexed['index1'],
+                                    self.undemultiplexed['index2'],
+                                    self.sample_barcodes
+                                    self.output_folder,
+                                    min_reads=self.demultiplex_min_reads)
 
             print 'Successfully demultiplexed files.'
         except:
