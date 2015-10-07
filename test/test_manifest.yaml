@@ -1,7 +1,7 @@
 reference_genome: /Volumes/Media/hg38/hg38.fa
 output_folder: ../tests/output
 
-bwa: /Users/VedTopkar/code/bwa/bwa
+bwa: bwa
 bedtools: bedtools
 
 undemultiplexed:
