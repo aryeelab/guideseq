@@ -1,4 +1,5 @@
 *.py[cod]
+test/output
 
 # C extensions
 *.so

@@ -71,9 +71,9 @@ class GuideSeq:
                 self.demultiplexed[sample]['index1'] = os.path.join(self.output_folder, 'undemultiplexed', sample + '.i1.fastq')
                 self.demultiplexed[sample]['index2'] = os.path.join(self.output_folder, 'undemultiplexed', sample + '.i2.fastq')
 
-            print 'Successfully demultiplexed files.'
+            print 'Successfully demultiplexed reads.'
         except Exception as e:
-            print 'Error demultiplexing files.'
+            print 'Error demultiplexing reads.'
             print e
             quit()
 
@@ -90,8 +90,32 @@ class GuideSeq:
                               os.path.join(self.output_folder, 'umitagged', sample + '.r2.umitagged.fastq'),
                               os.path.join(self.output_folder, 'umitagged'))
 
+            print 'Successfully umitagged reads.'
+        except Exception as e:
+            print 'Error umitagging'
+            print e
 
+    def consolidate(self):
+        print 'Consolidating reads...'
 
+        try:
+            self.consolidated = {}
+
+            for sample in self.sample_barcodes:    
+                umitag.umitag(self.demultiplexed[sample]['read1'],
+                              self.demultiplexed[sample]['read2'],
+                              self.demultiplexed[sample]['index1'],
+                              self.demultiplexed[sample]['index2'],
+                              os.path.join(self.output_folder, 'umitagged', sample + '.r1.umitagged.fastq'),
+                              os.path.join(self.output_folder, 'umitagged', sample + '.r2.umitagged.fastq'),
+                              os.path.join(self.output_folder, 'umitagged'))
+
+                self.consolidated[sample] = {}
+                self.consolidated[sample]['read1'] = os.path.join(self.output_folder, 'umitagged', sample + '.r1.umitagged.fastq')
+                self.consolidated[sample]['read2'] = os.path.join(self.output_folder, 'umitagged', sample + '.r2.umitagged.fastq')
+
+            print self.consolidated
+            print 'Successfully consolidated reads.'
         except Exception as e:
             print 'Error umitagging'
             print e
@@ -107,9 +131,6 @@ class GuideSeq:
 
         # print 'Error aligning reads.'
 
-
-    def consolidate(self):
-        pass
 
     def filter(self):
         pass
