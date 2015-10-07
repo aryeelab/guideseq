@@ -5,7 +5,10 @@ import os
 alignReads
 """
 
-def alignReads(BWA_path, HG19_path, undemux_sample_paths, output_path):
+def alignReads(BWA_path, HG19_path, sample_name, read1, read2, output_folder):
+
+    if not os.path.exists(output_folder):
+        os.makedirs(output_folder)
 
     sample_alignment_paths = {}
 
@@ -24,21 +27,25 @@ def alignReads(BWA_path, HG19_path, undemux_sample_paths, output_path):
         bwa_index_command = '{0} index {1}'.format(BWA_path, HG19_path)
         subprocess.call(bwa_index_command.split())
         print 'BWA genome index generated'
+    else:
+        print 'BWA genome index found.'
 
-    # Run paired end alignment against the genome for each sample
-    for (sample_name, sample_paths) in samples.items():
-        print 'Running paired end mapping for {0} sample'.format(sample_name)
-        bwa_alignment_command = '{0} mem {1} {2} {3}'.format(BWA_path, HG19_path,
-                                                             sample_paths['forward'],
-                                                             sample_paths['reverse'])
 
-        # Open the outfile and redirect the output of the alignment to it.
-        outfile_path = os.path.join(output_path, sample_name + '.sam')
 
-        with open(outfile_path, 'w') as outfile:
-            subprocess.call(bwa_alignment_command.split(), stdout=outfile)
-            sample_alignment_paths[sample_name] = outfile_path
 
-        print 'Paired end mapping for {0} sample completed.'.format(sample_name)
+    # Run paired end alignment against the genome
+    print 'Running paired end mapping for {0} sample'.format(sample_name)
+    bwa_alignment_command = '{0} mem {1} {2} {3}'.format(BWA_path,
+                                                         HG19_path,
+                                                         read1,
+                                                         read2)
 
-    return sample_alignment_paths
+    # Open the outfile and redirect the output of the alignment to it.
+    outfile_path = os.path.join(output_folder, sample_name + '.sam')
+
+    with open(outfile_path, 'w') as outfile:
+        subprocess.call(bwa_alignment_command.split(), stdout=outfile)
+
+    print 'Paired end mapping for {0} sample completed.'.format(sample_name)
+
+    return outfile_path

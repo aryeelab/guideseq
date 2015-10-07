@@ -10,6 +10,7 @@ import yaml
 import argparse
 from alignReads import alignReads
 from umi import demultiplex, umitag, consolidate
+import identifyOfftargetSites
 
 DEFAILT_DEMULTIPLEX_MIN_READS = 10000
 
@@ -94,6 +95,7 @@ class GuideSeq:
         except Exception as e:
             print 'Error umitagging'
             print e
+            quit()
 
     def consolidate(self):
         print 'Consolidating reads...'
@@ -119,23 +121,49 @@ class GuideSeq:
         except Exception as e:
             print 'Error umitagging'
             print e
+            quit()
 
 
     def alignReads(self):
         print 'Aligning reads...'
 
-        sample_alignment_paths = alignReads(self.BWA_path, self.reference_genome, self.undemux_sample_paths, self.output_folder)
-        for (sample_name, alignment_path) in sample_alignment_paths.items():
-            self.samples[sample_name]['alignment_path'] = alignment_path
-        print 'Finished aligning reads to genome.'
+        try:
+            self.aligned = {}
+            for sample in self.sample_barcodes:
+                sample_alignment_path = alignReads(self.BWA_path, self.reference_genome, sample,
+                                                                                         self.consolidated[sample]['read1'],
+                                                                                         self.consolidated[sample]['read1'],
+                                                                                         os.path.join(self.output_folder, 'aligned'))
+                self.aligned[sample] = sample_alignment_path
+                print 'Finished aligning reads to genome.'
 
-        # print 'Error aligning reads.'
-
-
-    def filter(self):
-        pass
+        except Exception as e:
+            print 'Error aligning'
+            print e
+            quit()
 
     def identifyOfftargetSites(self):
+        print 'Identifying offtarget sites...'
+
+        try:
+
+            for sample in self.sample_barcodes:
+                old_stdout = sys.stdout
+                offtargets_log = open(os.path.join(self.output_folder, 'offtargets', sample + '.txt'))
+                sys.stdout = offtargets_log
+
+                samfile = self.aligned[sample]
+                experimental_design_dict = {}
+                identifyOfftargetSites.analyze(samfile, experimental_design_dict, self.reference_genome)
+
+                sys.stdout = old_stdout
+                offtargets_log.close()
+
+        except Exception as e:
+            print 
+        pass
+
+    def filter(self):
         pass
 
 
