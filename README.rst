@@ -16,7 +16,15 @@ GUIDE-Seq
 ..         :alt: Documentation Status
 
 
-GUIDE-Seq An easy to use bioinformatic pipeline for the GUIDE-seq assay.
+
+The guideseq package implements our data preprocessing and analysis pipeline for GUIDE-Seq data. It takes raw sequencing reads (FASTQ) as input and produces a table of annotated off-target sites as output.
+
+
+Features
+=========
+The package implements a pipeline consisting of a read preprocessing module followed by an off-target identification module. The preprocessing module takes raw reads (FASTQ) from a pooled multi-sample sequencing run as input. Reads are demultiplexed into sample-specific FASTQs and PCR duplicates are removed using unique molecular index (UMI) barcode information.
+
+.. image:: guideseq_flowchart.png
 
 
 
@@ -28,7 +36,8 @@ Dependencies
 * `bedtools <http://bedtools.readthedocs.org/en/latest/>`_
 * Reference genome .fasta file (we recommend `hg19 <http://genome.ucsc.edu/cgi-bin/hgGateway?hgsid=431825753_a0WJjTe0PI8wUUlzy80AAMLzPJg4&clade=mammal&org=Human&db=hg19>`_)
 
-Usage with Manifest File
+
+Usage
 =======
 
 Using this tool is simple, just create a ``.yaml`` manifest file referencing the dependencies and sample ``.fastq.gz`` file paths. Below is an example::
