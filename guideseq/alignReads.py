@@ -30,9 +30,6 @@ def alignReads(BWA_path, HG19_path, sample_name, read1, read2, output_folder):
     else:
         print 'BWA genome index found.'
 
-
-
-
     # Run paired end alignment against the genome
     print 'Running paired end mapping for {0} sample'.format(sample_name)
     bwa_alignment_command = '{0} mem {1} {2} {3}'.format(BWA_path,

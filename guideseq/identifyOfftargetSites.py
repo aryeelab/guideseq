@@ -189,9 +189,9 @@ def alignSequences(targetsite_sequence, window_sequence, max_mismatches = args.m
 
     # Try both strands
     query_regex = regexFromSequence(targetsite_sequence, mismatches=max_mismatches)
-    forward_alignment = regex.search(query_regex, window_sequence, regex.BESTMATCH)
 
     # reverse_regex = regexFromSequence(reverseComplement(targetsite_sequence), mismatches=max_mismatches)
+    forward_alignment = regex.search(query_regex, window_sequence, regex.BESTMATCH)
     reverse_alignment = regex.search(query_regex, reverseComplement(window_sequence), regex.BESTMATCH)
 
     if forward_alignment is None and reverse_alignment is None:

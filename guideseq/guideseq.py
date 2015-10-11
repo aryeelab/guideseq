@@ -160,8 +160,9 @@ class GuideSeq:
                 offtargets_log.close()
 
         except Exception as e:
-            print 
-        pass
+            print 'Error identifying offtarget sites.'
+            print e
+            quit()
 
     def filter(self):
         pass

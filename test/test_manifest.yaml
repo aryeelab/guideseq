@@ -4,8 +4,6 @@ output_folder: ../test/output
 bwa: bwa
 bedtools: bedtools
 
-demultiplex_min_reads: 1000
-
 undemultiplexed:
     forward: ../test/data/undemux.r1.fastq.gz
     reverse: ../test/data/undemux.r2.fastq.gz
@@ -15,3 +13,9 @@ undemultiplexed:
 sample_barcodes:
     control: TCTCTACTCTCTAT
     EMX1: AGGCATGAGATCGC
+
+# OPTIONAL PARAMETERS
+demultiplex_min_reads: 1000
+
+filtering_datasets:
+- 
