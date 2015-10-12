@@ -71,10 +71,19 @@ Below is an example ``manifest.yaml`` file::
 
     samples:
         control:
+            target: 
             barcode: TCTCTACTCTCTAT
+            description: Control
+            treatment: No Nuclease
+            cell_type: 293
+
         EMX1:
             target: GAGTCCGAGCAGAAGAAGAANGG
             barcode: AGGCATGAGATCGC
+            description: Round 3 Adli
+            treatment: discovery
+            cell_type: 293
+
 
 Absolute paths are recommended. Be sure to point the ``bwa`` and ``bedtools`` paths directly to their respective executables.
 
