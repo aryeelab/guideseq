@@ -37,26 +37,44 @@ Dependencies
 * Reference genome .fasta file (we recommend `hg19 <http://genome.ucsc.edu/cgi-bin/hgGateway?hgsid=431825753_a0WJjTe0PI8wUUlzy80AAMLzPJg4&clade=mammal&org=Human&db=hg19>`_)
 
 
+Getting Set Up
+==============
+
+Using this software is easy, just make sure you have all of the dependencies installed and then grab a copy of this repository.
+
+1. Download the ``bwa`` executable from their `website<http://bio-bwa.sourceforge.net/>`_. Extract the file and make sure you can run it by typing ``/path/to/bwa`` and getting the program's usage page.
+
+2. Download the ``bedtools`` package by following directions from their `website<http://bedtools.readthedocs.org/en/latest/content/installation.html>`_. Make sure you can run it by typing ``/path/to/bedtools`` or just ``bedtools`` and get the program's usage page.
+
+3. Download and extract the ``guideseq`` package. You can do this either by downloading the zip and extracting it manually, or by cloning the repository ``git clone https://github.com/aryeelab/guideseq.git``.
+
+
 Usage
 =======
 
-Using this tool is simple, just create a ``.yaml`` manifest file referencing the dependencies and sample ``.fastq.gz`` file paths. Below is an example::
+Using this tool is simple, just create a ``.yaml`` manifest file referencing the dependencies and sample ``.fastq.gz`` file paths. Then, run ``python /path/to/guideseq.py -m /path/to/manifest.yaml``
+
+
+Below is an example ``manifest.yaml`` file::
 
     reference_genome: /Volumes/Media/hg38/hg38.fa
-    output_folder: ../tests/output
+    output_folder: ../test/output
 
-    bwa: /Users/VedTopkar/code/bwa/bwa
+    bwa: bwa
     bedtools: bedtools
 
     undemultiplexed:
-        forward: ../tests/data/undemux.r1.fastq.gz
-        reverse: ../tests/data/undemux.r2.fastq.gz
-        index1: ../tests/data/undemux.i1.fastq.gz
-        index2: ../tests/data/undemux.i2.fastq.gz
+        forward: ../test/data/undemux.r1.fastq.gz
+        reverse: ../test/data/undemux.r2.fastq.gz
+        index1: ../test/data/undemux.i1.fastq.gz
+        index2: ../test/data/undemux.i2.fastq.gz
 
-    sample_barcodes:
-        control: AGGCATGAGATCGC
-        EMX1: GACTCCTGCGATAT
+    samples:
+        control:
+            barcode: TCTCTACTCTCTAT
+        EMX1:
+            target: GAGTCCGAGCAGAAGAAGAANGG
+            barcode: AGGCATGAGATCGC
 
 Absolute paths are recommended. Be sure to point the ``bwa`` and ``bedtools`` paths directly to their respective executables.
 
@@ -64,3 +82,11 @@ Once you have a manifest file created, you can simply execute ``python guideseq.
 
 You cannot yet run steps of the pipeline individually, though this functionality is planned for future releases.
 
+
+License
+========
+[License Information]
+
+Disclaimer
+==========
+[Disclaimer]

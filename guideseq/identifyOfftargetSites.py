@@ -223,7 +223,7 @@ def alignSequences(targetsite_sequence, window_sequence, max_mismatches = args.m
         return [match_sequence, mismatches, length, strand, start, end]
 
 
-def analyze(sam_filename, experimental_design_dict, reference_genome):
+def analyze(sam_filename, experimental_design_dict, reference_genome, outfile):
     sys.stderr.write("Processing SAM file . . ." + sam_filename + '\n')
     file = open( sam_filename, 'rU')
     __, filename_tail = os.path.split(sam_filename)
@@ -252,34 +252,41 @@ def analyze(sam_filename, experimental_design_dict, reference_genome):
     # for row in stacked_summary:
     #     print '\t'.join([filename_tail] + [str(x) for x in row])
 
-    # Output summary of each window
-    summary = chromosome_position.SummarizeBarcodeIndex()
-    target_sequence = experimental_design_dict[filename_tail]["Sequence"]
-    annotation = [ experimental_design_dict[filename_tail]['Description'],
-                   experimental_design_dict[filename_tail]['Treatment'],
-                   experimental_design_dict[filename_tail]['Cells'],
-                   experimental_design_dict[filename_tail]['Targetsite'],
-                   experimental_design_dict[filename_tail]['Sequence']]
-    for row in summary:
-        window_sequence = row[3]
-        if target_sequence:
-            sequence, mismatches, length, strand,  target_start_relative, target_end_relative = alignSequences(target_sequence, window_sequence)
-            BED_chromosome = row[4]
-            BED_name = row[7]
-            BED_score = 1
-            if strand == "+":
-                target_start_absolute = target_start_relative + int(row[2]) - 25
-                target_end_absolute = target_end_relative + int(row[2]) - 25
-            elif strand == "-":
-                target_start_absolute = int(row[2]) + 25 - target_end_relative
-                target_end_absolute = int(row[2]) + 25 - target_start_relative
+    with open(outfile, 'w') as f:
+        # Write header
+        f.write('\t'.join(['#BED Chromosome', 'BED Min.Position',
+                         'BED Max.Position', 'BED Name', 'Filename', 'WindowIndex', 'Chromosome', 'Position', 'Sequence', '+.mi', '-.mi', 'bi.sum.mi', 'bi.geometric_mean.mi', '+.total',
+                         '-.total', 'total.sum', 'total.geometric_mean', 'primer1.mi', 'primer2.mi', 'primer.geometric_mean',
+                         'position.stdev', 'Off-Target Sequence', 'Mismatches', 'Length', 'BED off-target Chromosome', 'BED off-target start', 'BED off-target end', 'BED off-target name', 'BED Score', 'Strand', 'Description', 'Treatment', 'Cells', 'Targetsite', 'Target Sequence']))
+
+        # Output summary of each window
+        summary = chromosome_position.SummarizeBarcodeIndex()
+        target_sequence = experimental_design_dict[filename_tail]["Sequence"]
+        annotation = [ experimental_design_dict[filename_tail]['Description'],
+                       experimental_design_dict[filename_tail]['Treatment'],
+                       experimental_design_dict[filename_tail]['Cells'],
+                       experimental_design_dict[filename_tail]['Targetsite'],
+                       experimental_design_dict[filename_tail]['Sequence']]
+        for row in summary:
+            window_sequence = row[3]
+            if target_sequence:
+                sequence, mismatches, length, strand,  target_start_relative, target_end_relative = alignSequences(target_sequence, window_sequence)
+                BED_chromosome = row[4]
+                BED_name = row[7]
+                BED_score = 1
+                if strand == "+":
+                    target_start_absolute = target_start_relative + int(row[2]) - 25
+                    target_end_absolute = target_end_relative + int(row[2]) - 25
+                elif strand == "-":
+                    target_start_absolute = int(row[2]) + 25 - target_end_relative
+                    target_end_absolute = int(row[2]) + 25 - target_start_relative
+                else:
+                    BED_chromosome, target_start_absolute, target_end_absolute, BED_score, BED_name = [""] * 5
+                f.write('\t'.join( row[4:8] + [filename_tail] + row[0:4] + row[8:] +
+                            [str(x) for x in [sequence, mismatches, length,  BED_chromosome, target_start_absolute,
+                                              target_end_absolute, BED_name, BED_score, strand]] + annotation) + '\n')
             else:
-                BED_chromosome, target_start_absolute, target_end_absolute, BED_score, BED_name = [""] * 5
-            print '\t'.join( row[4:8] + [filename_tail] + row[0:4] + row[8:] +
-                        [str(x) for x in [sequence, mismatches, length,  BED_chromosome, target_start_absolute,
-                                          target_end_absolute, BED_name, BED_score, strand]] + annotation)
-        else:
-            print '\t'.join(row[4:8] + [filename_tail] + row[0:4] + row[8:] + [""]*9 + annotation)
+                f.write('\t'.join(row[4:8] + [filename_tail] + row[0:4] + row[8:] + [""]*9 + annotation) + '\n')
 
 
 def assignPrimerstoReads(read_sequence, sam_flag):
@@ -336,20 +343,17 @@ def main():
     parser.add_argument('--targets', help='Experimental Design File with Targetsites (tab-delimited)', required=True)
     parser.add_argument('--mismatches', help='', type=int, required='True')
     parser.add_argument('SamFileName', help='SAM file', nargs='*')
+    parser.add_argument('--outfile', help='File to output identified sites to.', required=True)
 
     args = parser.parse_args()
 
     # Load experimental design file
     experimental_design_dict = loadFileIntoArray(args.targets)
-    # Print header
-    print '\t'.join(['#BED Chromosome', 'BED Min.Position',
-                     'BED Max.Position', 'BED Name', 'Filename', 'WindowIndex', 'Chromosome', 'Position', 'Sequence', '+.mi', '-.mi', 'bi.sum.mi', 'bi.geometric_mean.mi', '+.total',
-                     '-.total', 'total.sum', 'total.geometric_mean', 'primer1.mi', 'primer2.mi', 'primer.geometric_mean',
-                     'position.stdev', 'Off-Target Sequence', 'Mismatches', 'Length', 'BED off-target Chromosome', 'BED off-target start', 'BED off-target end', 'BED off-target name', 'BED Score', 'Strand', 'Description', 'Treatment', 'Cells', 'Targetsite', 'Target Sequence'])
+
     # Run main analysis code on input SamFiles
     for filename in args.SamFileName:
         __, filename_tail = os.path.split(filename)
-        analyze(filename, experimental_design_dict, args.ref)
+        analyze(filename, experimental_design_dict, args.ref, args.outfile)
 
 
 if __name__ == "__main__":
