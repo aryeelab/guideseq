@@ -10,9 +10,12 @@ undemultiplexed:
     index1: ../test/data/undemux.i1.fastq.gz
     index2: ../test/data/undemux.i2.fastq.gz
 
-samples:
-    control:
-        barcode: TCTCTACTCTCTAT
-    EMX1:
-        target: GAGTCCGAGCAGAAGAAGAANGG
-        barcode: AGGCATGAGATCGC
+sample_barcodes:
+    control: TCTCTACTCTCTAT
+    EMX1: AGGCATGAGATCGC
+
+# OPTIONAL PARAMETERS
+demultiplex_min_reads: 1000
+
+filtering_datasets:
+- 
