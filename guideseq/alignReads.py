@@ -25,6 +25,7 @@ def alignReads(BWA_path, HG19_path, sample_name, read1, read2, output_folder):
     if not genome_indexed:
         print 'Genome index files not detected. Running BWA to generate indices.'
         bwa_index_command = '{0} index {1}'.format(BWA_path, HG19_path)
+        print bwa_index_command
         subprocess.call(bwa_index_command.split())
         print 'BWA genome index generated'
     else:
@@ -36,6 +37,8 @@ def alignReads(BWA_path, HG19_path, sample_name, read1, read2, output_folder):
                                                          HG19_path,
                                                          read1,
                                                          read2)
+
+    print bwa_alignment_command
 
     # Open the outfile and redirect the output of the alignment to it.
     outfile_path = os.path.join(output_folder, sample_name + '.sam')

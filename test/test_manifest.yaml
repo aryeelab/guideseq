@@ -12,7 +12,7 @@ undemultiplexed:
 
 samples:
     control:
-        target: 
+        target:  
         barcode: TCTCTACTCTCTAT
         description: Control
         treatment: No Nuclease

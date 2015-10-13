@@ -12,9 +12,13 @@ import argparse
 from alignReads import alignReads
 from umi import demultiplex, umitag, consolidate
 import identifyOfftargetSites
+import traceback
 
 DEFAILT_DEMULTIPLEX_MIN_READS = 10000
 MAX_MISMATCHES = 6
+
+CONSOLIDATE_MIN_QUAL = 15
+CONSOLIDATE_MIN_FREQ = 0.9
 
 class GuideSeq:
 
@@ -88,26 +92,31 @@ class GuideSeq:
             print 'Successfully demultiplexed reads.'
         except Exception as e:
             print 'Error demultiplexing reads.'
-            print e
+            print traceback.format_exc()
             quit()
 
     def umitag(self):
         print 'umitagging reads...'
 
         try:
+            self.umitagged = {}
             for sample in self.samples:
+                self.umitagged[sample] = {}
+                self.umitagged[sample]['read1'] = os.path.join(self.output_folder, 'umitagged', sample + '.r1.umitagged.fastq')
+                self.umitagged[sample]['read2'] = os.path.join(self.output_folder, 'umitagged', sample + '.r2.umitagged.fastq')
+
                 umitag.umitag(self.demultiplexed[sample]['read1'],
                               self.demultiplexed[sample]['read2'],
                               self.demultiplexed[sample]['index1'],
                               self.demultiplexed[sample]['index2'],
-                              os.path.join(self.output_folder, 'umitagged', sample + '.r1.umitagged.fastq'),
-                              os.path.join(self.output_folder, 'umitagged', sample + '.r2.umitagged.fastq'),
+                              self.umitagged[sample]['read1'],
+                              self.umitagged[sample]['read2'],
                               os.path.join(self.output_folder, 'umitagged'))
 
             print 'Successfully umitagged reads.'
         except Exception as e:
             print 'Error umitagging'
-            print e
+            print traceback.format_exc()
             quit()
 
     def consolidate(self):
@@ -116,24 +125,19 @@ class GuideSeq:
         try:
             self.consolidated = {}
 
-            for sample in self.samples:    
-                umitag.umitag(self.demultiplexed[sample]['read1'],
-                              self.demultiplexed[sample]['read2'],
-                              self.demultiplexed[sample]['index1'],
-                              self.demultiplexed[sample]['index2'],
-                              os.path.join(self.output_folder, 'umitagged', sample + '.r1.umitagged.fastq'),
-                              os.path.join(self.output_folder, 'umitagged', sample + '.r2.umitagged.fastq'),
-                              os.path.join(self.output_folder, 'umitagged'))
-
+            for sample in self.samples:
                 self.consolidated[sample] = {}
-                self.consolidated[sample]['read1'] = os.path.join(self.output_folder, 'umitagged', sample + '.r1.umitagged.fastq')
-                self.consolidated[sample]['read2'] = os.path.join(self.output_folder, 'umitagged', sample + '.r2.umitagged.fastq')
+                self.consolidated[sample]['read1'] = os.path.join(self.output_folder, 'consolidated', sample + '.r1.consolidated.fastq')
+                self.consolidated[sample]['read2'] = os.path.join(self.output_folder, 'consolidated', sample + '.r2.consolidated.fastq')
+
+                consolidate.consolidate(self.umitagged[sample]['read1'], self.consolidated[sample]['read1'], CONSOLIDATE_MIN_QUAL, CONSOLIDATE_MIN_FREQ)
+                consolidate.consolidate(self.umitagged[sample]['read2'], self.consolidated[sample]['read2'], CONSOLIDATE_MIN_QUAL, CONSOLIDATE_MIN_FREQ)
 
             print self.consolidated
             print 'Successfully consolidated reads.'
         except Exception as e:
             print 'Error umitagging'
-            print e
+            print traceback.format_exc()
             quit()
 
 
@@ -145,14 +149,14 @@ class GuideSeq:
             for sample in self.samples:
                 sample_alignment_path = alignReads(self.BWA_path, self.reference_genome, sample,
                                                                                          self.consolidated[sample]['read1'],
-                                                                                         self.consolidated[sample]['read1'],
+                                                                                         self.consolidated[sample]['read2'],
                                                                                          os.path.join(self.output_folder, 'aligned'))
                 self.aligned[sample] = sample_alignment_path
                 print 'Finished aligning reads to genome.'
 
         except Exception as e:
             print 'Error aligning'
-            print e
+            print traceback.format_exc()
             quit()
 
     def identifyOfftargetSites(self):
@@ -170,30 +174,20 @@ class GuideSeq:
                 annotations['Cells'] = sample_data['cell_type']
                 annotations['Targetsite'] = sample
 
-                if target is 'control':
-                    annotations['Sequence'] = 'N/A'
+                if sample is 'control':
+                    annotations['Sequence'] = ''
                 else:
                     annotations['Sequence'] = sample_data['target']
 
-                # Only identify offtargets for non-control samples
-                if sample is not 'control':
-                    old_stdout = sys.stdout
-                    offtargets_log = open(os.path.join(self.output_folder, 'offtargets', sample + '.txt'))
-                    sys.stdout = offtargets_log
 
-                    samfile = self.aligned[sample]
-                    experimental_design_dict = {}
-                    identifyOfftargetSites.analyze(samfile, experimental_design_dict, self.reference_genome,
-                                                                                      MAX_MISMATCHES,
-                                                                                      os.path.join(self.output_folder, 'identifiedOfftargets.txt'),
-                                                                                      annotations)
-
-                    sys.stdout = old_stdout
-                    offtargets_log.close()
+                print annotations
+                samfile = self.aligned[sample]
+                identifyOfftargetSites.analyze(samfile, self.reference_genome, os.path.join(self.output_folder, sample + '_identifiedOfftargets.txt'),
+                                                                               annotations)
 
         except Exception as e:
             print 'Error identifying offtarget sites.'
-            print e
+            print traceback.format_exc()
             quit()
 
     def filter(self):
