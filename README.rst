@@ -42,9 +42,9 @@ Getting Set Up
 
 Using this software is easy, just make sure you have all of the dependencies installed and then grab a copy of this repository.
 
-1. Download the ``bwa`` executable from their `website<http://bio-bwa.sourceforge.net/>`_. Extract the file and make sure you can run it by typing ``/path/to/bwa`` and getting the program's usage page.
+1. Download the ``bwa`` executable from their `website <http://bio-bwa.sourceforge.net/>`_. Extract the file and make sure you can run it by typing ``/path/to/bwa`` and getting the program's usage page.
 
-2. Download the ``bedtools`` package by following directions from their `website<http://bedtools.readthedocs.org/en/latest/content/installation.html>`_. Make sure you can run it by typing ``/path/to/bedtools`` or just ``bedtools`` and get the program's usage page.
+2. Download the ``bedtools`` package by following directions from their `website <http://bedtools.readthedocs.org/en/latest/content/installation.html>`_. Make sure you can run it by typing ``/path/to/bedtools`` or just ``bedtools`` and get the program's usage page.
 
 3. Download and extract the ``guideseq`` package. You can do this either by downloading the zip and extracting it manually, or by cloning the repository ``git clone https://github.com/aryeelab/guideseq.git``.
 
