@@ -235,7 +235,7 @@ def main():
         g.consolidate()
         g.alignReads()
         g.identifyOfftargetSites()
-
+        g.filterBackgroundSites()
 
 
 if __name__ == '__main__':
