@@ -244,10 +244,11 @@ def analyze(sam_filename, reference_genome, outfile, annotations):
                 else:
                     BED_chromosome, target_start_absolute, target_end_absolute, BED_score, BED_name = [""] * 5
                 f.write('\t'.join( row[4:8] + [filename_tail] + row[0:4] + row[8:] +
-                            [str(x) for x in [sequence, mismatches, length,  BED_chromosome, target_start_absolute,
-                                              target_end_absolute, BED_name, BED_score, strand]] + [str(x) for x in annotation] + ['\n']))
+                            [str(x) for x in sequence, mismatches, length,  BED_chromosome, target_start_absolute,
+                                              target_end_absolute, BED_name, BED_score, strand] + [str(x) for x in annotation] + ['\n']))
             else:
-                f.write('\t'.join([str(x) for x in [row[4:8] + [filename_tail] + row[0:4] + row[8:] + [""]*9 + annotation]]) + '\n')
+                print [str(x) for x in row[4:8] + [filename_tail] + row[0:4] + row[8:] + [""]*9 + annotation] + ['\n']
+                f.write('\t'.join([str(x) for x in row[4:8] + [filename_tail] + row[0:4] + row[8:] + [""]*9 + annotation] + ['\n']))
 
 
 def assignPrimerstoReads(read_sequence, sam_flag):
@@ -304,7 +305,7 @@ def main():
     parser.add_argument('--samfile', help='SAM file', nargs='*')
     parser.add_argument('--outfile', help='File to output identified sites to.', required=True)
     parser.add_argument('--demo')
-    parser.add_argument('--target')
+    parser.add_argument('--target', default='')
 
     args = parser.parse_args()
 

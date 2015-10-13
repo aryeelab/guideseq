@@ -10,6 +10,7 @@ import sys
 import yaml
 import argparse
 from alignReads import alignReads
+from filterBackgroundSites import filterBackgroundSites
 from umi import demultiplex, umitag, consolidate
 import identifyOfftargetSites
 import traceback
@@ -163,6 +164,8 @@ class GuideSeq:
         print 'Identifying offtarget sites...'
 
         try:
+            self.identified = {}
+
             # Identify offtarget sites for each sample
             for sample in self.samples:
 
@@ -182,16 +185,37 @@ class GuideSeq:
 
                 print annotations
                 samfile = self.aligned[sample]
-                identifyOfftargetSites.analyze(samfile, self.reference_genome, os.path.join(self.output_folder, sample + '_identifiedOfftargets.txt'),
-                                                                               annotations)
+
+                self.identified[sample] = os.path.join(self.output_folder, sample + '_identifiedOfftargets.txt')
+
+                identifyOfftargetSites.analyze(samfile, self.reference_genome, self.identified[sample], annotations)
+
+            print 'Finished identifying offtarget sites.'
 
         except Exception as e:
             print 'Error identifying offtarget sites.'
             print traceback.format_exc()
             quit()
 
-    def filter(self):
-        pass
+    def filterBackgroundSites(self):
+        print 'Filtering background sites'
+
+        try:
+            self.filtered = {}
+
+            # Filter background in each sample
+            for sample in self.samples:
+                if sample is not 'control':
+                    self.filtered[sample] = os.path.join(self.output_folder, sample + '_backgroundFiltered.txt')
+
+                    filterBackgroundSites(self.bedtools, sample, self.identified[sample], self.identified['control'], self.filtered[sample])
+
+            print 'Finished filtering background sites.'
+
+        except Exception as e:
+            print 'Error filtering background sites.'
+            print traceback.format_exc()
+            quit()
 
 
 def parse_args():
