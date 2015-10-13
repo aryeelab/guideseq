@@ -46,7 +46,11 @@ Using this software is easy, just make sure you have all of the dependencies ins
 
 2. Download the ``bedtools`` package by following directions from their `website <http://bedtools.readthedocs.org/en/latest/content/installation.html>`_. Make sure you can run it by typing ``/path/to/bedtools`` or just ``bedtools`` and get the program's usage page.
 
-3. Download and extract the ``guideseq`` package. You can do this either by downloading the zip and extracting it manually, or by cloning the repository ``git clone https://github.com/aryeelab/guideseq.git``.
+3. Make sure you have a copy of a reference genome ``.fasta`` file. We recommend `hg19 <http://genome.ucsc.edu/cgi-bin/hgGateway?hgsid=431825753_a0WJjTe0PI8wUUlzy80AAMLzPJg4&clade=mammal&org=Human&db=hg19>`_.
+
+4. Download and extract the ``guideseq`` package. You can do this either by downloading the zip and extracting it manually, or by cloning the repository ``git clone https://github.com/aryeelab/guideseq.git``.
+
+5. Install the ``guideseq`` dependencies by entering the ``guideseq`` directory and running ``pip install -r requirements.txt``.
 
 
 Usage
@@ -57,21 +61,21 @@ Using this tool is simple, just create a ``.yaml`` manifest file referencing the
 
 Below is an example ``manifest.yaml`` file::
 
-    reference_genome: /Volumes/Media/hg38/hg38.fa
-    output_folder: ../test/output
+    reference_genome: /hg38/hg38.fa
+    output_folder: /output
 
-    bwa: bwa
-    bedtools: bedtools
+    bwa: /bin/bwa
+    bedtools: /bin/bedtools
 
     undemultiplexed:
-        forward: ../test/data/undemux.r1.fastq.gz
-        reverse: ../test/data/undemux.r2.fastq.gz
-        index1: ../test/data/undemux.i1.fastq.gz
-        index2: ../test/data/undemux.i2.fastq.gz
+        forward: /data/undemux.r1.fastq.gz
+        reverse: /data/undemux.r2.fastq.gz
+        index1: /data/undemux.i1.fastq.gz
+        index2: /data/undemux.i2.fastq.gz
 
     samples:
         control:
-            target: 
+            target:  
             barcode: TCTCTACTCTCTAT
             description: Control
             treatment: No Nuclease
@@ -80,16 +84,14 @@ Below is an example ``manifest.yaml`` file::
         EMX1:
             target: GAGTCCGAGCAGAAGAAGAANGG
             barcode: AGGCATGAGATCGC
-            description: Round 3 Adli
+            description: EMX1 Round 3
             treatment: discovery
             cell_type: 293
 
 
 Absolute paths are recommended. Be sure to point the ``bwa`` and ``bedtools`` paths directly to their respective executables.
 
-Once you have a manifest file created, you can simply execute ``python guideseq.py -m PATH/TO/MANIFEST.YAML`` to run the entire pipeline.
-
-You cannot yet run steps of the pipeline individually, though this functionality is planned for future releases.
+Once you have a manifest file created, you can simply execute ``python PATH/TO/guideseq.py -m PATH/TO/MANIFEST.YAML`` to run the entire pipeline. All output files, including the results of each individual step, will be placed in the ``output_folder``.
 
 
 License
