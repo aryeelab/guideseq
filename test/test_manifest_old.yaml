@@ -10,9 +10,17 @@ undemultiplexed:
     index1: ../test/data/undemux.i1.fastq.gz
     index2: ../test/data/undemux.i2.fastq.gz
 
-sample_barcodes:
-    control: TCTCTACTCTCTAT
-    EMX1: AGGCATGAGATCGC
+samples:
+    control:
+        target:  
+        barcode: TCTCTACTCTCTAT
+        description: Control
+        treatment: No Nuclease
+        cell_type: 293
 
-# OPTIONAL PARAMETERS
-demultiplex_min_reads: 1000
+    EMX1:
+        target: GAGTCCGAGCAGAAGAAGAANGG
+        barcode: AGGCATGAGATCGC
+        description: Round 3 Adli
+        treatment: discovery
+        cell_type: 293

@@ -68,9 +68,12 @@ class GuideSeq:
 
         print self.samples
 
+        # Take our two barcodes and concatenate them
         swapped_sample_barcodes = {}
         for sample in self.samples:
-            barcode = self.samples[sample]['barcode']
+            barcode1 = self.samples[sample]['barcode1']
+            barcode2 = self.samples[sample]['barcode2']
+            barcode = barcode1[1:8] + barcode2[1:8]
             swapped_sample_barcodes[barcode] = sample
 
         try:
