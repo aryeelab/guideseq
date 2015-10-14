@@ -61,32 +61,30 @@ Using this tool is simple, just create a ``.yaml`` manifest file referencing the
 
 Below is an example ``manifest.yaml`` file::
 
-    reference_genome: /Volumes/Media/hg38/hg38.fa
-    output_folder: ../test/output
+    reference_genome: /hg19/hg19.fa
+    output_folder: /output
 
-    bwa: bwa
-    bedtools: bedtools
+    bwa: /bin/bwa
+    bedtools: /bin/bedtools
 
     undemultiplexed:
-        forward: ../test/data/undemux.r1.fastq.gz
-        reverse: ../test/data/undemux.r2.fastq.gz
-        index1: ../test/data/undemux.i1.fastq.gz
-        index2: ../test/data/undemux.i2.fastq.gz
+        forward: /data/undemux.r1.fastq.gz
+        reverse: /data/undemux.r2.fastq.gz
+        index1: /data/undemux.i1.fastq.gz
+        index2: /data/undemux.i2.fastq.gz
 
     samples:
         control:
             target:  
-            barcode1: CTCTCTAC
-            barcode2: CTCTCTAT
+            barcode: TCTCTACTCTCTAT
             description: Control
             treatment: No Nuclease
             cell_type: 293
 
         EMX1:
             target: GAGTCCGAGCAGAAGAAGAANGG
-            barcode1: TAGGCATG
-            barcode2: TAGATCGC
-            description: Round 3 Adli
+            barcode: AGGCATGAGATCGC
+            description: EMX1 Round 3
             treatment: discovery
             cell_type: 293
 
