@@ -33,7 +33,7 @@ Dependencies
 
 * Python (2.6, 2.7, or PyPy)
 * `bwa <http://bio-bwa.sourceforge.net/>`_ alignment tool
-* `bedtools <http://bedtools.readthedocs.org/en/latest/>`_
+* `bedtools <http://bedtools.readthedocs.org/en/latest/>`_ genome arithmetic utility
 * Reference genome .fasta file (we recommend `hg19 <http://genome.ucsc.edu/cgi-bin/hgGateway?hgsid=431825753_a0WJjTe0PI8wUUlzy80AAMLzPJg4&clade=mammal&org=Human&db=hg19>`_)
 
 
