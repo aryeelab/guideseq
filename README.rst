@@ -61,7 +61,7 @@ Using this tool is simple, just create a ``.yaml`` manifest file referencing the
 
 Below is an example ``manifest.yaml`` file::
 
-    reference_genome: /hg38/hg38.fa
+    reference_genome: /hg19/hg19.fa
     output_folder: /output
 
     bwa: /bin/bwa
