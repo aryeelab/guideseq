@@ -48,7 +48,7 @@ Using this software is easy, just make sure you have all of the dependencies ins
 
 3. Make sure you have a copy of a reference genome ``.fasta`` file. We recommend `hg19 <http://genome.ucsc.edu/cgi-bin/hgGateway?hgsid=431825753_a0WJjTe0PI8wUUlzy80AAMLzPJg4&clade=mammal&org=Human&db=hg19>`_.
 
-4. Download and extract the ``guideseq`` package. You can do this either by downloading the zip and extracting it manually, or by cloning the repository ``git clone https://github.com/aryeelab/guideseq.git``.
+4. Download and extract the ``guideseq`` package. You can do this either by downloading the zip and extracting it manually, or by cloning the repository ``git clone --recursive https://github.com/aryeelab/guideseq.git``.
 
 5. Install the ``guideseq`` dependencies by entering the ``guideseq`` directory and running ``pip install -r requirements.txt``.
 
