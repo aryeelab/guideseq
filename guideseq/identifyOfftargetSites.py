@@ -218,14 +218,12 @@ def analyze(sam_filename, reference_genome, outfile, annotations):
         f.write('\t'.join(['#BED Chromosome', 'BED Min.Position',
                          'BED Max.Position', 'BED Name', 'Filename', 'WindowIndex', 'Chromosome', 'Position', 'Sequence', '+.mi', '-.mi', 'bi.sum.mi', 'bi.geometric_mean.mi', '+.total',
                          '-.total', 'total.sum', 'total.geometric_mean', 'primer1.mi', 'primer2.mi', 'primer.geometric_mean',
-                         'position.stdev', 'Off-Target Sequence', 'Mismatches', 'Length', 'BED off-target Chromosome', 'BED off-target start', 'BED off-target end', 'BED off-target name', 'BED Score', 'Strand', 'Description', 'Treatment', 'Cells', 'Targetsite', 'Target Sequence']))
+                         'position.stdev', 'Off-Target Sequence', 'Mismatches', 'Length', 'BED off-target Chromosome', 'BED off-target start', 'BED off-target end', 'BED off-target name', 'BED Score', 'Strand', 'Cells', 'Targetsite', 'Target Sequence']))
 
         # Output summary of each window
         summary = chromosome_position.SummarizeBarcodeIndex()
         target_sequence = annotations["Sequence"]
         annotation = [ annotations['Description'],
-                       annotations['Treatment'],
-                       annotations['Cells'],
                        annotations['Targetsite'],
                        annotations['Sequence']]
         for row in summary:

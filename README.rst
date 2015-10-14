@@ -79,16 +79,12 @@ Below is an example ``manifest.yaml`` file::
             barcode1: CTCTCTAC
             barcode2: CTCTCTAT
             description: Control
-            treatment: No Nuclease
-            cell_type: 293
 
         EMX1:
             target: GAGTCCGAGCAGAAGAAGAANGG
             barcode1: TAGGCATG
             barcode2: TAGATCGC
             description: Round 3 Adli
-            treatment: discovery
-            cell_type: 293
 
 
 
