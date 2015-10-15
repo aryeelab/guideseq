@@ -34,8 +34,7 @@ Dependencies
 * Python (2.6, 2.7, or PyPy)
 * `bwa <http://bio-bwa.sourceforge.net/>`_ alignment tool
 * `bedtools <http://bedtools.readthedocs.org/en/latest/>`_ genome arithmetic utility
-* Reference genome .fasta file (we recommend `hg19 <http://genome.ucsc.edu/cgi-bin/hgGateway?hgsid=431825753_a0WJjTe0PI8wUUlzy80AAMLzPJg4&clade=mammal&org=Human&db=hg19>`_)
-
+* Reference genome fasta file (`Example <http://ftp.ensembl.org/pub/release-82/fasta/homo_sapiens/dna/Homo_sapiens.GRCh38.dna_sm.primary_assembly.fa.gz>`_)
 
 Getting Set Up
 ==============
@@ -46,7 +45,7 @@ Using this software is easy, just make sure you have all of the dependencies ins
 
 2. Download the ``bedtools`` package by following directions from their `website <http://bedtools.readthedocs.org/en/latest/content/installation.html>`_. Make sure you can run it by typing ``/path/to/bedtools`` or just ``bedtools`` and get the program's usage page.
 
-3. Make sure you have a copy of a reference genome ``.fasta`` file. We recommend `hg19 <http://genome.ucsc.edu/cgi-bin/hgGateway?hgsid=431825753_a0WJjTe0PI8wUUlzy80AAMLzPJg4&clade=mammal&org=Human&db=hg19>`_.
+3. Make sure you have a copy of a reference genome fasta file. (`Example <http://ftp.ensembl.org/pub/release-82/fasta/homo_sapiens/dna/Homo_sapiens.GRCh38.dna_sm.primary_assembly.fa.gz>`_)
 
 4. Download and extract the ``guideseq`` package. You can do this either by downloading the zip and extracting it manually, or by cloning the repository ``git clone --recursive https://github.com/aryeelab/guideseq.git``.
 
