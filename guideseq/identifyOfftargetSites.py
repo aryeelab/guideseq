@@ -16,7 +16,6 @@ import argparse
 import collections
 import numpy
 import os
-import regex
 import sys
 import string
 import operator
