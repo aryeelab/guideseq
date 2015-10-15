@@ -208,7 +208,6 @@ class GuideSeq:
             for sample in self.samples:
                 if sample is not 'control':
                     self.filtered[sample] = os.path.join(self.output_folder, sample + '_backgroundFiltered.txt')
-
                     filterBackgroundSites(self.bedtools, sample, self.identified[sample], self.identified['control'], self.filtered[sample])
 
             print 'Finished filtering background sites.'
@@ -222,14 +221,32 @@ class GuideSeq:
 def parse_args():
     parser = argparse.ArgumentParser()
     parser.add_argument('--manifest', '-m', help='Specify the manifest Path', required=True)
-    parser.add_argument('--stage2')
+    parser.add_argument('--identifyAndFilter', action='store_true', default=False)
     return parser.parse_args()
 
 
 def main():
     args = parse_args()
 
-    if args.manifest:
+    if args.identifyAndFilter:
+        try:
+            g = GuideSeq()
+            g.parseManifest(args.manifest)
+
+            # Bootstrap the aligned samfile paths
+            g.aligned = {}
+            for sample in g.samples:
+                g.aligned[sample] = os.path.join(g.output_folder, 'aligned', sample + '.sam')
+
+            g.identifyOfftargetSites()
+            g.filterBackgroundSites()
+
+        except Exception as e:
+            print 'Error running only identify and filter.'
+            print traceback.format_exc()
+            quit()
+
+    elif args.manifest:
         g = GuideSeq()
         g.parseManifest(args.manifest)
         g.demultiplex()
@@ -238,12 +255,6 @@ def main():
         g.alignReads()
         g.identifyOfftargetSites()
         g.filterBackgroundSites()
-
-    elif args.stage2:
-        g = GuideSeq()
-        g.parseManifest(args.manifest)
-
-
 
 
 if __name__ == '__main__':
