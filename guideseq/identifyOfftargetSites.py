@@ -307,7 +307,7 @@ def main():
     args = parser.parse_args()
 
     if 'demo' in args:
-        annotations = {'Description': 'test description', 'Treatment': 'test treatment', 'Cells': 'cells type', 'Targetsite': 'dummy targetsite', 'Sequence': args.target}
+        annotations = {'Description': 'test description', 'Targetsite': 'dummy targetsite', 'Sequence': args.target}
         print annotations
         print args
         analyze(args.samfile[0], args.ref, args.outfile, annotations)

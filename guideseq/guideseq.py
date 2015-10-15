@@ -15,7 +15,7 @@ from umi import demultiplex, umitag, consolidate
 import identifyOfftargetSites
 import traceback
 
-DEFAILT_DEMULTIPLEX_MIN_READS = 10000
+DEFAULT_DEMULTIPLEX_MIN_READS = 10000
 MAX_MISMATCHES = 6
 
 CONSOLIDATE_MIN_QUAL = 15
@@ -49,7 +49,7 @@ class GuideSeq:
         if 'demultiplex_min_reads' in manifest_data:
             self.demultiplex_min_reads = manifest_data['demultiplex_min_reads']
         else:
-            self.demultiplex_min_reads = DEFAILT_DEMULTIPLEX_MIN_READS
+            self.demultiplex_min_reads = DEFAULT_DEMULTIPLEX_MIN_READS
 
         # Make sure the user has specified a control barcode
         if 'control' not in self.samples.keys():
@@ -176,8 +176,6 @@ class GuideSeq:
                 sample_data = self.samples[sample]
                 annotations = {}
                 annotations['Description'] = sample_data['description']
-                annotations['Treatment'] = sample_data['treatment']
-                annotations['Cells'] = sample_data['cell_type']
                 annotations['Targetsite'] = sample
 
                 if sample is 'control':
@@ -224,6 +222,7 @@ class GuideSeq:
 def parse_args():
     parser = argparse.ArgumentParser()
     parser.add_argument('--manifest', '-m', help='Specify the manifest Path', required=True)
+    parser.add_argument('--stage2')
     return parser.parse_args()
 
 
@@ -239,6 +238,12 @@ def main():
         g.alignReads()
         g.identifyOfftargetSites()
         g.filterBackgroundSites()
+
+    elif args.stage2:
+        g = GuideSeq()
+        g.parseManifest(args.manifest)
+
+
 
 
 if __name__ == '__main__':
