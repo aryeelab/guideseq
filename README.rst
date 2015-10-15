@@ -95,7 +95,3 @@ Once you have a manifest file created, you can simply execute ``python PATH/TO/g
 License
 ========
 [License Information]
-
-Disclaimer
-==========
-[Disclaimer]
