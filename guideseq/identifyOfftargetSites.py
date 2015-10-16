@@ -306,11 +306,10 @@ def main():
 
     args = parser.parse_args()
 
-    if 'demo' in args:
-        annotations = {'Description': 'test description', 'Targetsite': 'dummy targetsite', 'Sequence': args.target}
-        print annotations
-        print args
-        analyze(args.samfile[0], args.ref, args.outfile, annotations)
+    annotations = {'Description': 'test description', 'Targetsite': 'dummy targetsite', 'Sequence': args.target}
+    print annotations
+    print args
+    analyze(args.samfile[0], args.ref, args.outfile, annotations)
 
 
 if __name__ == "__main__":

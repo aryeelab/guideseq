@@ -204,11 +204,15 @@ class GuideSeq:
         try:
             self.filtered = {}
 
+            print self.samples
+
             # Filter background in each sample
             for sample in self.samples:
-                if sample is not 'control':
+                if sample != 'control':
+                    print 'Running background filtering for {0} sample'.format(sample)
                     self.filtered[sample] = os.path.join(self.output_folder, sample + '_backgroundFiltered.txt')
-                    filterBackgroundSites(self.bedtools, sample, self.identified[sample], self.identified['control'], self.filtered[sample])
+                    filterBackgroundSites(self.bedtools, self.identified[sample], self.identified['control'], self.filtered[sample])
+                    print 'Finished background filtering for {0} sample'.format(sample)
 
             print 'Finished filtering background sites.'
 
