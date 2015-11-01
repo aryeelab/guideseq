@@ -9,11 +9,12 @@
 ##     molecular barcode have been consolidated).
 ##
 ## Raw input dataset:
-## /data/joung/sequencing_bcl/131007_M01326_0075_000000000-A6B33/Data/Intensities/BaseCalls
-## -rw-rw----. 1 st680 joung  125062340 Jan  8 15:57 Undetermined_S0_L001_I1_001.fastq.gz
-## -rw-rw----. 1 st680 joung  231588668 Jan  8 15:57 Undetermined_S0_L001_I2_001.fastq.gz
-## -rw-rw----. 1 st680 joung 1157629591 Jan  8 16:02 Undetermined_S0_L001_R1_001.fastq.gz
-## -rw-rw----. 1 st680 joung 1320703763 Jan  8 16:02 Undetermined_S0_L001_R2_001.fastq.gz
+## /data/joung/sequencing_fastq/131007_M01326_0075_000000000-A6B33/fastq_with_indexes
+## -rw-rw----. 1 ma695 aryee 2.7G Oct 31 12:44 guideseq_test_fastq.zip
+## -rw-rw----. 1 st680 joung 120M Oct 14 14:52 Undetermined_S0_L001_I1_001.fastq.gz
+## -rw-rw----. 1 st680 joung 221M Oct 14 14:53 Undetermined_S0_L001_I2_001.fastq.gz
+## -rw-rw----. 1 st680 joung 1.1G Oct 14 14:58 Undetermined_S0_L001_R1_001.fastq.gz
+## -rw-rw----. 1 st680 joung 1.3G Oct 14 14:59 Undetermined_S0_L001_R2_001.fastq.gz
 ##
 ## EMX1 has barcode P706 (TAGGCATG), A01 (TAGATCGC).
 ## Ignoring the first base and concatenating gives AGGCATGAGATCGC.
@@ -26,10 +27,10 @@ ON_TARGET="2:73160981-73161004"
 OFF_TARGET="15:44109746-44109769 6:9118792-9118815 2:218378101-218378124"
 DSB_HOTSPOTS="1:236260170-236260754 3:197900267-197900348"
 
-UMI_PKG_DIR="/PHShome/ma695/work/projects/umi"
+UMI_PKG_DIR="../../guideseq/umi"
 
 # Align reads
-INPUT_DIR="/data/joung/sequencing_bcl/131007_M01326_0075_000000000-A6B33/Data/Intensities/BaseCalls"
+INPUT_DIR="/data/joung/sequencing_fastq/131007_M01326_0075_000000000-A6B33/fastq_with_indexes"
 BWA_INDEX="/data/aryee/pub/genomes/Homo_sapiens/Ensembl/GRCh37/Sequence/BWAIndex/genome.fa"
 module load aryee/bwa-0.7.9a 
 time bwa mem $BWA_INDEX $INPUT_DIR/Undetermined_S0_L001_R1_001.fastq.gz $INPUT_DIR/Undetermined_S0_L001_R2_001.fastq.gz > undemux.sam
@@ -54,7 +55,7 @@ zcat $INPUT_DIR/Undetermined_S0_L001_I1_001.fastq.gz | grep -F -A3 --no-group-se
 zcat $INPUT_DIR/Undetermined_S0_L001_I2_001.fastq.gz | grep -F -A3 --no-group-separator -f read_names.txt | gzip -c > undemux_all.i2.fastq.gz
 
 # Demultiplex full target region FASTQs
-python $UMI_PKG_DIR/demultiplex.py --min_reads 1000 --read1 undemux_all.r1.fastq.gz --read2 undemux_all.r2.fastq.gz --index1 undemux_all.i1.fastq.gz --index2 undemux_all.i2.fastq.gz --sample_barcodes data/samplekey.txt
+python $UMI_PKG_DIR/demultiplex.py --min_reads 1000 --read1 undemux_all.r1.fastq.gz --read2 undemux_all.r2.fastq.gz --index1 undemux_all.i1.fastq.gz --index2 undemux_all.i2.fastq.gz --sample_barcodes samplekey.txt
 
 # Choose a subset of EMX1 and control read names:
 cat emx1.r1.fastq  | grep ^@M01326 | cut -f1 -d ' ' | sort | uniq | shuf --random-source emx1.r1.fastq -n 6000 > read_names_sample.txt
@@ -67,7 +68,7 @@ zcat $INPUT_DIR/Undetermined_S0_L001_I1_001.fastq.gz | grep -F -A3 --no-group-se
 zcat $INPUT_DIR/Undetermined_S0_L001_I2_001.fastq.gz | grep -F -A3 --no-group-separator -f read_names_sample.txt | gzip -c > undemux.i2.fastq.gz
 
 # Demultiplex sub-sampled target region FASTQs
-python $UMI_PKG_DIR/demultiplex.py --min_reads 1000 --read1 undemux.r1.fastq.gz --read2 undemux.r2.fastq.gz --index1 undemux.i1.fastq.gz --index2 undemux.i2.fastq.gz --sample_barcodes data/samplekey.txt
+python $UMI_PKG_DIR/demultiplex.py --min_reads 1000 --read1 undemux.r1.fastq.gz --read2 undemux.r2.fastq.gz --index1 undemux.i1.fastq.gz --index2 undemux.i2.fastq.gz --sample_barcodes samplekey.txt
 
 # Consolidate reads with the same molecular index
 for SAMPLE in emx1 control
