@@ -1,8 +1,10 @@
-reference_genome: /Volumes/Media/hg38/hg38.fa
+reference_genome: /data/aryee/pub/genomes/Homo_sapiens/Ensembl/GRCh37/Sequence/BWAIndex/genome.fa
 output_folder: ../test/output
 
 bwa: bwa
 bedtools: bedtools
+
+demultiplex_min_reads: 1000
 
 undemultiplexed:
     forward: ../test/data/undemux.r1.fastq.gz
@@ -21,4 +23,4 @@ samples:
         target: GAGTCCGAGCAGAAGAAGAANGG
         barcode1: TAGGCATG
         barcode2: TAGATCGC
-        description: Round 3 Adli
+        description: EMX_site1
