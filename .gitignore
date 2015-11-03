@@ -4,6 +4,9 @@ test/output
 # C extensions
 *.so
 
+# Idea folder
+.idea
+
 # Packages
 *.egg
 *.egg-info
