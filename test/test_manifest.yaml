@@ -1,5 +1,5 @@
-reference_genome: /data/aryee/pub/genomes/Homo_sapiens/Ensembl/GRCh37/Sequence/BWAIndex/genome.fa
-output_folder: ../test/output
+reference_genome: /Volumes/Media/hg38/hg38.fa
+output_folder: data/output
 
 bwa: bwa
 bedtools: bedtools
@@ -7,10 +7,10 @@ bedtools: bedtools
 demultiplex_min_reads: 1000
 
 undemultiplexed:
-    forward: ../test/data/undemux.r1.fastq.gz
-    reverse: ../test/data/undemux.r2.fastq.gz
-    index1: ../test/data/undemux.i1.fastq.gz
-    index2: ../test/data/undemux.i2.fastq.gz
+    forward: data/undemux.r1.fastq.gz
+    reverse: data/undemux.r2.fastq.gz
+    index1: data/undemux.i1.fastq.gz
+    index2: data/undemux.i2.fastq.gz
 
 samples:
     control:
