@@ -3,7 +3,7 @@
 
 from distutils.core import setup
 
-requirements = [line.strip() for line in open('./requirements.txt')]
+requirements = [line.strip() for line in open('requirements.txt')]
 
 setup(
     name='guideseq',
