@@ -17,7 +17,6 @@ setup(
     ],
     package_dir={'guideseq':
                  'guideseq'},
-    include_package_data=True,
     install_requires=requirements,
     license="AGPL",
     keywords='guideseq',

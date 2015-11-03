@@ -2,6 +2,7 @@
 AUTHORS.rst
 LICENSE
 README.rst
+requirements.txt
 setup.py
 guideseq/__init__.py
 guideseq/alignReads.py
