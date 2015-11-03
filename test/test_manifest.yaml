@@ -7,10 +7,10 @@ bedtools: bedtools
 demultiplex_min_reads: 1000
 
 undemultiplexed:
-    forward: data/undemultiplexed/undemux.r1.fastq.gz
-    reverse: data/undemultiplexed/undemux.r2.fastq.gz
-    index1: data/undemultiplexed/undemux.i1.fastq.gz
-    index2: data/undemultiplexed/undemux.i2.fastq.gz
+    forward: test/data/undemultiplexed/undemux.r1.fastq.gz
+    reverse: test/data/undemultiplexed/undemux.r2.fastq.gz
+    index1: test/data/undemultiplexed/undemux.i1.fastq.gz
+    index2: test/data/undemultiplexed/undemux.i2.fastq.gz
 
 samples:
     control:
