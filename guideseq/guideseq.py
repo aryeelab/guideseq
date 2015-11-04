@@ -280,9 +280,11 @@ def parse_args():
     align_parser.add_argument('--outfolder', required=True)
 
     identify_parser = subparsers.add_parser('identify', help='Identify GUIDE-seq offtargets')
-    identify_parser.add_argument('--alignment', required=True)
+    identify_parser.add_argument('--aligned', required=True)
     identify_parser.add_argument('--genome', required=True)
-    identify_parser.add_argument('--outfile', required=True)
+    identify_parser.add_argument('--outfolder', required=True)
+    identify_parser.add_argument('--target_sequence', required=True)
+    identify_parser.add_argument('--description', required=False)
 
     filter_parser = subparsers.add_parser('filter', help='Filter identified sites from control sites')
     filter_parser.add_argument('--bedtools', required=True)
@@ -377,6 +379,7 @@ def main():
     elif args.command == 'align':
         """
         Run just the alignment step
+        python guideseq/guideseq.py align --bwa bwa --read1 test/data/consolidated/EMX1.r1.consolidated.fastq --read2 test/data/consolidated/EMX1.r2.consolidated.fastq --genome /Volumes/Media/hg38/hg38.fa --outfolder test/output/
         """
         sample = os.path.basename(args.read1).split('.')[0]
         g = GuideSeq()
@@ -390,7 +393,24 @@ def main():
         g.alignReads()
 
     elif args.command == 'identify':
-        pass
+        """
+        Run just the identify step
+        python guideseq/guideseq.py identify --genome /Volumes/Media/hg38/hg38.fa --aligned test/output/aligned/EMX1.sam --outfolder test/output/ --target_sequence GAGTCCGAGCAGAAGAAGAANGG
+        """
+        if 'description' in args:
+            description = args.description
+        else:
+            description = ''
+
+        g = GuideSeq()
+        g.output_folder = args.outfolder
+        g.reference_genome = args.genome
+        sample = os.path.basename(args.aligned).split('.')[0]
+        g.samples = {sample: {'description': description, 'target': args.target_sequence}}
+        g.aligned = {sample: args.aligned}
+        g.identifyOfftargetSites()
+
+
     elif args.command == 'filter':
         pass
 
