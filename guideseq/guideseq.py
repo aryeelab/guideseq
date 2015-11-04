@@ -67,6 +67,30 @@ class GuideSeq:
 
         logger.info('Successfully loaded manifest.')
 
+    def parseManifestDemultiplex(self, manifest_path):
+        logger.info('Loading manifest for demultiplexing...')
+
+        with open(manifest_path, 'r') as f:
+            manifest_data = yaml.load(f)
+
+            try:
+                self.output_folder = manifest_data['output_folder']
+                self.undemultiplexed = manifest_data['undemultiplexed']
+                self.samples = manifest_data['samples']
+
+            except Exception as e:
+                logger.error('Incomplete or incorrect manifest file. Please ensure your manifest contains all required fields.')
+                quit()
+
+        # Allow the user to specify min reads for demultiplex if they want
+        if 'demultiplex_min_reads' in manifest_data:
+            self.demultiplex_min_reads = manifest_data['demultiplex_min_reads']
+        else:
+            self.demultiplex_min_reads = DEFAULT_DEMULTIPLEX_MIN_READS
+
+        logger.info('Successfully loaded manifest for single-step demultiplexing.')
+
+
     def demultiplex(self):
 
         logger.info('Demultiplexing undemultiplexed files...')
@@ -224,7 +248,8 @@ def parse_args():
     parser = argparse.ArgumentParser()
 
     subparsers = parser.add_subparsers(description='Individual Step Commands',
-                                       help='Use this to run individual steps of the pipeline')
+                                       help='Use this to run individual steps of the pipeline',
+                                       dest='command')
 
     all_parser = subparsers.add_parser('all', help='Run all steps of the pipeline')
     all_parser.add_argument('--manifest', '-m', help='Specify the manifest Path', required=True)
@@ -265,40 +290,57 @@ def parse_args():
     filter_parser.add_argument('--control', required=True)
     filter_parser.add_argument('--outfile', required=True)
 
-
     return parser.parse_args()
 
 
 def main():
     args = parse_args()
 
-    if args.identifyAndFilter:
-        try:
+    if args.command == 'all':
+
+        if args.identifyAndFilter:
+            try:
+                g = GuideSeq()
+                g.parseManifest(args.manifest)
+
+                # Bootstrap the aligned samfile paths
+                g.aligned = {}
+                for sample in g.samples:
+                    g.aligned[sample] = os.path.join(g.output_folder, 'aligned', sample + '.sam')
+
+                g.identifyOfftargetSites()
+                g.filterBackgroundSites()
+
+            except Exception as e:
+                print 'Error running only identify and filter.'
+                print traceback.format_exc()
+                quit()
+        else:
             g = GuideSeq()
             g.parseManifest(args.manifest)
-
-            # Bootstrap the aligned samfile paths
-            g.aligned = {}
-            for sample in g.samples:
-                g.aligned[sample] = os.path.join(g.output_folder, 'aligned', sample + '.sam')
-
+            g.demultiplex()
+            g.umitag()
+            g.consolidate()
+            g.alignReads()
             g.identifyOfftargetSites()
             g.filterBackgroundSites()
 
-        except Exception as e:
-            print 'Error running only identify and filter.'
-            print traceback.format_exc()
-            quit()
-
-    elif args.manifest:
+    elif args.command == 'demultiplex':
         g = GuideSeq()
-        g.parseManifest(args.manifest)
+        g.parseManifestDemultiplex(args.manifest)
         g.demultiplex()
-        g.umitag()
-        g.consolidate()
-        g.alignReads()
-        g.identifyOfftargetSites()
-        g.filterBackgroundSites()
+
+    elif args.command == 'umitag':
+        g = GuideSeq()
+        pass
+    elif args.command == 'consolidate':
+        pass
+    elif args.command == 'align':
+        pass
+    elif args.command == 'identify':
+        pass
+    elif args.command == 'filter':
+        pass
 
 
 if __name__ == '__main__':
