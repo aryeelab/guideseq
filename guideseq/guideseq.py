@@ -289,8 +289,8 @@ def parse_args():
     filter_parser = subparsers.add_parser('filter', help='Filter identified sites from control sites')
     filter_parser.add_argument('--bedtools', required=True)
     filter_parser.add_argument('--identified', required=True)
-    filter_parser.add_argument('--control', required=True)
-    filter_parser.add_argument('--outfile', required=True)
+    filter_parser.add_argument('--background', required=True)
+    filter_parser.add_argument('--outfolder', required=True)
 
     return parser.parse_args()
 
@@ -412,8 +412,19 @@ def main():
 
 
     elif args.command == 'filter':
-        pass
+        """
+        Run just the filter step
 
+        """
+        sample = os.path.basename(args.identified).split('.')[0]
+        g = GuideSeq()
+        g.output_folder = args.outfolder
+        g.bedtools = args.bedtools
+        g.samples = {sample: {}, 'control': {}}
+        g.identified = {}
+        g.identified[sample] = args.identified
+        g.identified['control'] = args.background
+        g.filterBackgroundSites()
 
 if __name__ == '__main__':
     main()
