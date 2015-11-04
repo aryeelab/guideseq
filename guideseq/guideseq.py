@@ -9,7 +9,10 @@ import os
 import yaml
 import argparse
 import traceback
-import logging
+
+# Set up logger
+import log
+logger = log.createCustomLogger('root')
 
 from alignReads import alignReads
 from filterBackgroundSites import filterBackgroundSites
@@ -22,9 +25,6 @@ MAX_MISMATCHES = 6
 CONSOLIDATE_MIN_QUAL = 15
 CONSOLIDATE_MIN_FREQ = 0.9
 
-# Set up logger
-logging.basicConfig(level=logging.INFO, format='[%(asctime)s][%(levelname)s] %(message)s', datefmt='%m/%d %I:%M:%S%p')
-logger = logging.getLogger('root')
 
 class GuideSeq:
 
