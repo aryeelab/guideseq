@@ -259,6 +259,12 @@ def parse_args():
     identify_parser.add_argument('--genome', required=True)
     identify_parser.add_argument('--outfile', required=True)
 
+    filter_parser = subparsers.add_parser('filter', help='Filter identified sites from control sites')
+    filter_parser.add_argument('--bedtools', required=True)
+    filter_parser.add_argument('--identified', required=True)
+    filter_parser.add_argument('--control', required=True)
+    filter_parser.add_argument('--outfile', required=True)
+
 
     return parser.parse_args()
 
