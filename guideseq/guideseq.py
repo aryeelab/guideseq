@@ -1,7 +1,9 @@
 # -*- coding: utf-8 -*-
 """
 
-guideseq.py serves as the wrapper
+guideseq.py
+===========
+serves as the wrapper for all guideseq pipeline
 
 """
 
@@ -65,6 +67,30 @@ class GuideSeq:
 
         logger.info('Successfully loaded manifest.')
 
+    def parseManifestDemultiplex(self, manifest_path):
+        logger.info('Loading manifest for demultiplexing...')
+
+        with open(manifest_path, 'r') as f:
+            manifest_data = yaml.load(f)
+
+            try:
+                self.output_folder = manifest_data['output_folder']
+                self.undemultiplexed = manifest_data['undemultiplexed']
+                self.samples = manifest_data['samples']
+
+            except Exception as e:
+                logger.error('Incomplete or incorrect manifest file. Please ensure your manifest contains all required fields.')
+                quit()
+
+        # Allow the user to specify min reads for demultiplex if they want
+        if 'demultiplex_min_reads' in manifest_data:
+            self.demultiplex_min_reads = manifest_data['demultiplex_min_reads']
+        else:
+            self.demultiplex_min_reads = DEFAULT_DEMULTIPLEX_MIN_READS
+
+        logger.info('Successfully loaded manifest for single-step demultiplexing.')
+
+
     def demultiplex(self):
 
         logger.info('Demultiplexing undemultiplexed files...')
@@ -124,7 +150,7 @@ class GuideSeq:
             logger.error(traceback.format_exc())
             quit()
 
-    def consolidate(self):
+    def consolidate(self, min_freq=CONSOLIDATE_MIN_FREQ, min_qual=CONSOLIDATE_MIN_QUAL):
         logger.info('Consolidating reads...')
 
         try:
@@ -135,8 +161,8 @@ class GuideSeq:
                 self.consolidated[sample]['read1'] = os.path.join(self.output_folder, 'consolidated', sample + '.r1.consolidated.fastq')
                 self.consolidated[sample]['read2'] = os.path.join(self.output_folder, 'consolidated', sample + '.r2.consolidated.fastq')
 
-                consolidate.consolidate(self.umitagged[sample]['read1'], self.consolidated[sample]['read1'], CONSOLIDATE_MIN_QUAL, CONSOLIDATE_MIN_FREQ)
-                consolidate.consolidate(self.umitagged[sample]['read2'], self.consolidated[sample]['read2'], CONSOLIDATE_MIN_QUAL, CONSOLIDATE_MIN_FREQ)
+                consolidate.consolidate(self.umitagged[sample]['read1'], self.consolidated[sample]['read1'], min_qual, min_freq)
+                consolidate.consolidate(self.umitagged[sample]['read2'], self.consolidated[sample]['read2'], min_qual, min_freq)
 
             logger.info('Successfully consolidated reads.')
         except Exception as e:
@@ -144,17 +170,18 @@ class GuideSeq:
             logger.error(traceback.format_exc())
             quit()
 
-
     def alignReads(self):
         logger.info('Aligning reads...')
 
         try:
             self.aligned = {}
             for sample in self.samples:
-                sample_alignment_path = alignReads(self.BWA_path, self.reference_genome, sample,
-                                                                                         self.consolidated[sample]['read1'],
-                                                                                         self.consolidated[sample]['read2'],
-                                                                                         os.path.join(self.output_folder, 'aligned'))
+                sample_alignment_path = os.path.join(self.output_folder, 'aligned', sample + '.sam')
+                alignReads(self.BWA_path,
+                           self.reference_genome,
+                           self.consolidated[sample]['read1'],
+                           self.consolidated[sample]['read2'],
+                           sample_alignment_path)
                 self.aligned[sample] = sample_alignment_path
                 logger.info('Finished aligning reads to genome.')
 
@@ -183,8 +210,6 @@ class GuideSeq:
                 else:
                     annotations['Sequence'] = sample_data['target']
 
-
-                print annotations
                 samfile = self.aligned[sample]
 
                 self.identified[sample] = os.path.join(self.output_folder, sample + '_identifiedOfftargets.txt')
@@ -207,7 +232,6 @@ class GuideSeq:
             # Filter background in each sample
             for sample in self.samples:
                 if sample != 'control':
-                    logger.info('Running background filtering for {0} sample'.format(sample))
                     self.filtered[sample] = os.path.join(self.output_folder, sample + '_backgroundFiltered.txt')
                     filterBackgroundSites(self.bedtools, self.identified[sample], self.identified['control'], self.filtered[sample])
                     logger.info('Finished background filtering for {0} sample'.format(sample))
@@ -221,42 +245,186 @@ class GuideSeq:
 
 def parse_args():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--manifest', '-m', help='Specify the manifest Path', required=True)
-    parser.add_argument('--identifyAndFilter', action='store_true', default=False)
+
+    subparsers = parser.add_subparsers(description='Individual Step Commands',
+                                       help='Use this to run individual steps of the pipeline',
+                                       dest='command')
+
+    all_parser = subparsers.add_parser('all', help='Run all steps of the pipeline')
+    all_parser.add_argument('--manifest', '-m', help='Specify the manifest Path', required=True)
+    all_parser.add_argument('--identifyAndFilter', action='store_true', default=False)
+
+
+    demultiplex_parser = subparsers.add_parser('demultiplex', help='Demultiplex undemultiplexed FASTQ files')
+    demultiplex_parser.add_argument('--manifest', '-m', help='Specify the manifest path', required=True)
+
+    umitag_parser = subparsers.add_parser('umitag', help='UMI tag demultiplexed FASTQ files for consolidation')
+    umitag_parser.add_argument('--read1', required=True)
+    umitag_parser.add_argument('--read2', required=True)
+    umitag_parser.add_argument('--index1', required=True)
+    umitag_parser.add_argument('--index2', required=True)
+    umitag_parser.add_argument('--outfolder', required=True)
+
+    consolidate_parser = subparsers.add_parser('consolidate', help='Consolidate UMI tagged FASTQs')
+    consolidate_parser.add_argument('--read1', required=True)
+    consolidate_parser.add_argument('--read2', required=True)
+    consolidate_parser.add_argument('--outfolder', required=True)
+    consolidate_parser.add_argument('--min_quality', required=False, type=float)
+    consolidate_parser.add_argument('--min_frequency', required=False, type=float)
+
+    align_parser = subparsers.add_parser('align', help='Paired end read mapping to genome')
+    align_parser.add_argument('--bwa', required=True)
+    align_parser.add_argument('--genome', required=True)
+    align_parser.add_argument('--read1', required=True)
+    align_parser.add_argument('--read2', required=True)
+    align_parser.add_argument('--outfolder', required=True)
+
+    identify_parser = subparsers.add_parser('identify', help='Identify GUIDE-seq offtargets')
+    identify_parser.add_argument('--aligned', required=True)
+    identify_parser.add_argument('--genome', required=True)
+    identify_parser.add_argument('--outfolder', required=True)
+    identify_parser.add_argument('--target_sequence', required=True)
+    identify_parser.add_argument('--description', required=False)
+
+    filter_parser = subparsers.add_parser('filter', help='Filter identified sites from control sites')
+    filter_parser.add_argument('--bedtools', required=True)
+    filter_parser.add_argument('--identified', required=True)
+    filter_parser.add_argument('--background', required=True)
+    filter_parser.add_argument('--outfolder', required=True)
+
     return parser.parse_args()
 
 
 def main():
     args = parse_args()
 
-    if args.identifyAndFilter:
-        try:
+    if args.command == 'all':
+
+        if args.identifyAndFilter:
+            try:
+                g = GuideSeq()
+                g.parseManifest(args.manifest)
+
+                # Bootstrap the aligned samfile paths
+                g.aligned = {}
+                for sample in g.samples:
+                    g.aligned[sample] = os.path.join(g.output_folder, 'aligned', sample + '.sam')
+
+                g.identifyOfftargetSites()
+                g.filterBackgroundSites()
+
+            except Exception as e:
+                print 'Error running only identify and filter.'
+                print traceback.format_exc()
+                quit()
+        else:
             g = GuideSeq()
             g.parseManifest(args.manifest)
-
-            # Bootstrap the aligned samfile paths
-            g.aligned = {}
-            for sample in g.samples:
-                g.aligned[sample] = os.path.join(g.output_folder, 'aligned', sample + '.sam')
-
+            g.demultiplex()
+            g.umitag()
+            g.consolidate()
+            g.alignReads()
             g.identifyOfftargetSites()
             g.filterBackgroundSites()
 
-        except Exception as e:
-            print 'Error running only identify and filter.'
-            print traceback.format_exc()
-            quit()
-
-    elif args.manifest:
+    elif args.command == 'demultiplex':
+        """
+        Run just the demultiplex step given the manifest
+        """
         g = GuideSeq()
-        g.parseManifest(args.manifest)
+        g.parseManifestDemultiplex(args.manifest)
         g.demultiplex()
-        g.umitag()
-        g.consolidate()
-        g.alignReads()
-        g.identifyOfftargetSites()
-        g.filterBackgroundSites()
 
+    elif args.command == 'umitag':
+        """
+        Run just the umitag step
+        python guideseq/guideseq.py umitag --read1 test/data/demultiplexed/EMX1.r1.fastq --read2 test/data/demultiplexed/EMX1.r2.fastq --index1 test/data/demultiplexed/EMX1.i1.fastq --index2 test/data/demultiplexed/EMX1.i2.fastq --outfolder test/output/
+        """
+        g = GuideSeq()
+        g.output_folder = args.outfolder
+        sample = os.path.basename(args.read1).split('.')[0]
+        g.samples = [sample]
+        g.demultiplexed = {sample: {}}
+        g.demultiplexed[sample]['read1'] = args.read1
+        g.demultiplexed[sample]['read2'] = args.read2
+        g.demultiplexed[sample]['index1'] = args.index1
+        g.demultiplexed[sample]['index2'] = args.index2
+        g.umitag()
+
+    elif args.command == 'consolidate':
+        """
+        Run just the consolidate step
+        python guideseq/guideseq.py consolidate --read1 test/data/umitagged/EMX1.r1.umitagged.fastq --read2 test/data/umitagged/EMX1.r2.umitagged.fastq --outfolder test/output/ --min_frequency 0.8 --min_quality 14
+        """
+        sample = os.path.basename(args.read1).split('.')[0]
+        g = GuideSeq()
+        g.output_folder = args.outfolder
+        g.samples = [sample]
+        g.umitagged = {sample: {}}
+        g.umitagged[sample]['read1'] = args.read1
+        g.umitagged[sample]['read2'] = args.read2
+
+        if 'min_quality' in args:
+            min_qual = args.min_quality
+        else:
+            min_qual = CONSOLIDATE_MIN_QUAL
+
+        if 'min_frequency' in args:
+            min_freq = args.min_frequency
+        else:
+            min_freq = CONSOLIDATE_MIN_FREQ
+
+        g.consolidate(min_freq=min_freq, min_qual=min_qual)
+
+    elif args.command == 'align':
+        """
+        Run just the alignment step
+        python guideseq/guideseq.py align --bwa bwa --read1 test/data/consolidated/EMX1.r1.consolidated.fastq --read2 test/data/consolidated/EMX1.r2.consolidated.fastq --genome /Volumes/Media/hg38/hg38.fa --outfolder test/output/
+        """
+        sample = os.path.basename(args.read1).split('.')[0]
+        g = GuideSeq()
+        g.BWA_path = args.bwa
+        g.reference_genome = args.genome
+        g.output_folder = args.outfolder
+        g.samples = [sample]
+        g.consolidated = {sample: {}}
+        g.consolidated[sample]['read1'] = args.read1
+        g.consolidated[sample]['read2'] = args.read2
+        g.alignReads()
+
+    elif args.command == 'identify':
+        """
+        Run just the identify step
+        python guideseq/guideseq.py identify --genome /Volumes/Media/hg38/hg38.fa --aligned test/output/aligned/EMX1.sam --outfolder test/output/ --target_sequence GAGTCCGAGCAGAAGAAGAANGG
+        """
+        if 'description' in args:
+            description = args.description
+        else:
+            description = ''
+
+        g = GuideSeq()
+        g.output_folder = args.outfolder
+        g.reference_genome = args.genome
+        sample = os.path.basename(args.aligned).split('.')[0]
+        g.samples = {sample: {'description': description, 'target': args.target_sequence}}
+        g.aligned = {sample: args.aligned}
+        g.identifyOfftargetSites()
+
+
+    elif args.command == 'filter':
+        """
+        Run just the filter step
+
+        """
+        sample = os.path.basename(args.identified).split('.')[0]
+        g = GuideSeq()
+        g.output_folder = args.outfolder
+        g.bedtools = args.bedtools
+        g.samples = {sample: {}, 'control': {}}
+        g.identified = {}
+        g.identified[sample] = args.identified
+        g.identified['control'] = args.background
+        g.filterBackgroundSites()
 
 if __name__ == '__main__':
     main()

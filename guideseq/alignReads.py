@@ -9,8 +9,10 @@ import logging
 logger = logging.getLogger('root')
 logger.propagate = False
 
-def alignReads(BWA_path, HG19_path, sample_name, read1, read2, output_folder):
+def alignReads(BWA_path, HG19_path, read1, read2, outfile):
 
+    sample_name = os.path.basename(outfile).split('.')[0]
+    output_folder = os.path.dirname(outfile)
     if not os.path.exists(output_folder):
         os.makedirs(output_folder)
 
@@ -36,7 +38,7 @@ def alignReads(BWA_path, HG19_path, sample_name, read1, read2, output_folder):
         logger.info('BWA genome index found.')
 
     # Run paired end alignment against the genome
-    logger.info('Running paired end mapping for {0} sample'.format(sample_name))
+    logger.info('Running paired end mapping for {0}'.format(sample_name))
     bwa_alignment_command = '{0} mem {1} {2} {3}'.format(BWA_path,
                                                          HG19_path,
                                                          read1,
@@ -45,11 +47,7 @@ def alignReads(BWA_path, HG19_path, sample_name, read1, read2, output_folder):
     logger.info(bwa_alignment_command)
 
     # Open the outfile and redirect the output of the alignment to it.
-    outfile_path = os.path.join(output_folder, sample_name + '.sam')
+    with open(outfile, 'w') as f:
+        subprocess.call(bwa_alignment_command.split(), stdout=f)
 
-    with open(outfile_path, 'w') as outfile:
-        subprocess.call(bwa_alignment_command.split(), stdout=outfile)
-
-    logger.info('Paired end mapping for {0} sample completed.'.format(sample_name))
-
-    return outfile_path
+    logger.info('Paired end mapping for {0} completed.'.format(sample_name))
