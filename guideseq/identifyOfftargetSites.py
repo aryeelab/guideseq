@@ -23,6 +23,8 @@ import re
 import swalign
 import logging
 
+logger = logging.getLogger('root')
+
 
 # chromosomePosition defines a class to keep track of the positions.
 class chromosomePosition():
@@ -187,7 +189,7 @@ annotation is in the format:
 
 """
 def analyze(sam_filename, reference_genome, outfile, annotations):
-    logging.info("Processing SAM file %s", sam_filename)
+    logger.info("Processing SAM file %s", sam_filename)
     file = open( sam_filename, 'rU')
     __, filename_tail = os.path.split(sam_filename)
     chromosome_position = chromosomePosition(reference_genome)
@@ -244,7 +246,7 @@ def analyze(sam_filename, reference_genome, outfile, annotations):
                             [str(x) for x in sequence, mismatches, length,  BED_chromosome, target_start_absolute,
                                               target_end_absolute, BED_name, BED_score, strand] + [str(x) for x in annotation] + ['\n']))
             else:
-                logging.info([str(x) for x in row[4:8] + [filename_tail] + row[0:4] + row[8:] + [""]*9 + annotation] + ['\n'])
+                logger.info([str(x) for x in row[4:8] + [filename_tail] + row[0:4] + row[8:] + [""]*9 + annotation] + ['\n'])
                 f.write('\t'.join([str(x) for x in row[4:8] + [filename_tail] + row[0:4] + row[8:] + [""]*9 + annotation] + ['\n']))
 
 

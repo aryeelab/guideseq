@@ -97,7 +97,7 @@ class GuideSeq:
             logger.info('Successfully demultiplexed reads.')
         except Exception as e:
             logger.error('Error demultiplexing reads.')
-            print traceback.format_exc()
+            logger.error(traceback.format_exc())
             quit()
 
     def umitag(self):
@@ -121,7 +121,7 @@ class GuideSeq:
             logger.info('Successfully umitagged reads.')
         except Exception as e:
             logger.error('Error umitagging')
-            print traceback.format_exc()
+            logger.error(traceback.format_exc())
             quit()
 
     def consolidate(self):
@@ -138,11 +138,10 @@ class GuideSeq:
                 consolidate.consolidate(self.umitagged[sample]['read1'], self.consolidated[sample]['read1'], CONSOLIDATE_MIN_QUAL, CONSOLIDATE_MIN_FREQ)
                 consolidate.consolidate(self.umitagged[sample]['read2'], self.consolidated[sample]['read2'], CONSOLIDATE_MIN_QUAL, CONSOLIDATE_MIN_FREQ)
 
-            print self.consolidated
             logger.info('Successfully consolidated reads.')
         except Exception as e:
             logger.error('Error umitagging')
-            print traceback.format_exc()
+            logger.error(traceback.format_exc())
             quit()
 
 
@@ -161,7 +160,7 @@ class GuideSeq:
 
         except Exception as e:
             logger.error('Error aligning')
-            print traceback.format_exc()
+            logger.error(traceback.format_exc())
             quit()
 
     def identifyOfftargetSites(self):
@@ -196,7 +195,7 @@ class GuideSeq:
 
         except Exception as e:
             logger.error('Error identifying offtarget sites.')
-            print traceback.format_exc()
+            logger.error(traceback.format_exc())
             quit()
 
     def filterBackgroundSites(self):
@@ -217,8 +216,7 @@ class GuideSeq:
 
         except Exception as e:
             logger.error('Error filtering background sites.')
-            print traceback.format_exc()
-            quit()
+            logger.error(traceback.format_exc())
 
 
 def parse_args():
