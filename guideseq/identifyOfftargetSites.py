@@ -246,7 +246,7 @@ def analyze(sam_filename, reference_genome, outfile, annotations):
                             [str(x) for x in sequence, mismatches, length,  BED_chromosome, target_start_absolute,
                                               target_end_absolute, BED_name, BED_score, strand] + [str(x) for x in annotation] + ['\n']))
             else:
-                logger.info([str(x) for x in row[4:8] + [filename_tail] + row[0:4] + row[8:] + [""]*9 + annotation] + ['\n'])
+                # logger.info([str(x) for x in row[4:8] + [filename_tail] + row[0:4] + row[8:] + [""]*9 + annotation] + ['\n'])
                 f.write('\t'.join([str(x) for x in row[4:8] + [filename_tail] + row[0:4] + row[8:] + [""]*9 + annotation] + ['\n']))
 
 

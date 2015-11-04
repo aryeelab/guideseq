@@ -1,7 +1,9 @@
 # -*- coding: utf-8 -*-
 """
 
-guideseq.py serves as the wrapper
+guideseq.py
+===========
+serves as the wrapper for all guideseq pipeline
 
 """
 
@@ -151,10 +153,12 @@ class GuideSeq:
         try:
             self.aligned = {}
             for sample in self.samples:
-                sample_alignment_path = alignReads(self.BWA_path, self.reference_genome, sample,
-                                                                                         self.consolidated[sample]['read1'],
-                                                                                         self.consolidated[sample]['read2'],
-                                                                                         os.path.join(self.output_folder, 'aligned'))
+                sample_alignment_path = os.path.join(self.output_folder, 'aligned', sample + '.sam')
+                alignReads(self.BWA_path,
+                           self.reference_genome,
+                           self.consolidated[sample]['read1'],
+                           self.consolidated[sample]['read2'],
+                           sample_alignment_path)
                 self.aligned[sample] = sample_alignment_path
                 logger.info('Finished aligning reads to genome.')
 
@@ -183,8 +187,6 @@ class GuideSeq:
                 else:
                     annotations['Sequence'] = sample_data['target']
 
-
-                print annotations
                 samfile = self.aligned[sample]
 
                 self.identified[sample] = os.path.join(self.output_folder, sample + '_identifiedOfftargets.txt')
@@ -207,7 +209,6 @@ class GuideSeq:
             # Filter background in each sample
             for sample in self.samples:
                 if sample != 'control':
-                    logger.info('Running background filtering for {0} sample'.format(sample))
                     self.filtered[sample] = os.path.join(self.output_folder, sample + '_backgroundFiltered.txt')
                     filterBackgroundSites(self.bedtools, self.identified[sample], self.identified['control'], self.filtered[sample])
                     logger.info('Finished background filtering for {0} sample'.format(sample))
@@ -221,8 +222,44 @@ class GuideSeq:
 
 def parse_args():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--manifest', '-m', help='Specify the manifest Path', required=True)
-    parser.add_argument('--identifyAndFilter', action='store_true', default=False)
+
+    subparsers = parser.add_subparsers(description='Individual Step Commands',
+                                       help='Use this to run individual steps of the pipeline')
+
+    all_parser = subparsers.add_parser('all', help='Run all steps of the pipeline')
+    all_parser.add_argument('--manifest', '-m', help='Specify the manifest Path', required=True)
+    all_parser.add_argument('--identifyAndFilter', action='store_true', default=False)
+
+
+    demultiplex_parser = subparsers.add_parser('demultiplex', help='Demultiplex undemultiplexed FASTQ files')
+    demultiplex_parser.add_argument('--manifest', '-m', help='Specify the manifest path', required=True)
+
+    umitag_parser = subparsers.add_parser('umitag', help='UMI tag demultiplexed FASTQ files for consolidation')
+    umitag_parser.add_argument('--read1', required=True)
+    umitag_parser.add_argument('--read2', required=True)
+    umitag_parser.add_argument('--index1', required=True)
+    umitag_parser.add_argument('--index2', required=True)
+    umitag_parser.add_argument('--read1_out', required=True)
+    umitag_parser.add_argument('--read2_out', required=True)
+
+    consolidate_parser = subparsers.add_parser('consolidate', help='Consolidate UMI tagged FASTQs')
+    consolidate_parser.add_argument('--read1', required=True)
+    consolidate_parser.add_argument('--read1_out', required=True)
+    consolidate_parser.add_argument('--min_quality', required=False)
+    consolidate_parser.add_argument('--min_frequency', required=False)
+
+    align_parser = subparsers.add_parser('align', help='Paired end read mapping to genome')
+    align_parser.add_argument('--bwa', required=True)
+    align_parser.add_argument('--genome', required=True)
+    align_parser.add_argument('--read1', required=True)
+    align_parser.add_argument('--read2', required=True)
+
+    identify_parser = subparsers.add_parser('identify', help='Identify GUIDE-seq offtargets')
+    identify_parser.add_argument('--alignment', required=True)
+    identify_parser.add_argument('--genome', required=True)
+    identify_parser.add_argument('--outfile', required=True)
+
+
     return parser.parse_args()
 
 

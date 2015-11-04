@@ -9,4 +9,5 @@ guideseq/alignReads.py
 guideseq/filterBackgroundSites.py
 guideseq/guideseq.py
 guideseq/identifyOfftargetSites.py
+guideseq/log.py
 test/test_guideseq.py
