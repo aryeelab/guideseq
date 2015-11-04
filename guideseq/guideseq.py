@@ -150,7 +150,7 @@ class GuideSeq:
             logger.error(traceback.format_exc())
             quit()
 
-    def consolidate(self):
+    def consolidate(self, min_freq=CONSOLIDATE_MIN_FREQ, min_qual=CONSOLIDATE_MIN_QUAL):
         logger.info('Consolidating reads...')
 
         try:
@@ -161,8 +161,8 @@ class GuideSeq:
                 self.consolidated[sample]['read1'] = os.path.join(self.output_folder, 'consolidated', sample + '.r1.consolidated.fastq')
                 self.consolidated[sample]['read2'] = os.path.join(self.output_folder, 'consolidated', sample + '.r2.consolidated.fastq')
 
-                consolidate.consolidate(self.umitagged[sample]['read1'], self.consolidated[sample]['read1'], CONSOLIDATE_MIN_QUAL, CONSOLIDATE_MIN_FREQ)
-                consolidate.consolidate(self.umitagged[sample]['read2'], self.consolidated[sample]['read2'], CONSOLIDATE_MIN_QUAL, CONSOLIDATE_MIN_FREQ)
+                consolidate.consolidate(self.umitagged[sample]['read1'], self.consolidated[sample]['read1'], min_qual, min_freq)
+                consolidate.consolidate(self.umitagged[sample]['read2'], self.consolidated[sample]['read2'], min_qual, min_freq)
 
             logger.info('Successfully consolidated reads.')
         except Exception as e:
@@ -269,8 +269,8 @@ def parse_args():
     consolidate_parser.add_argument('--read1', required=True)
     consolidate_parser.add_argument('--read2', required=True)
     consolidate_parser.add_argument('--outfolder', required=True)
-    consolidate_parser.add_argument('--min_quality', required=False)
-    consolidate_parser.add_argument('--min_frequency', required=False)
+    consolidate_parser.add_argument('--min_quality', required=False, type=float)
+    consolidate_parser.add_argument('--min_frequency', required=False, type=float)
 
     align_parser = subparsers.add_parser('align', help='Paired end read mapping to genome')
     align_parser.add_argument('--bwa', required=True)
@@ -351,6 +351,7 @@ def main():
     elif args.command == 'consolidate':
         """
         Run just the consolidate step
+        python guideseq/guideseq.py consolidate --read1 test/data/umitagged/EMX1.r1.umitagged.fastq --read2 test/data/umitagged/EMX1.r2.umitagged.fastq --outfolder test/output/ --min_frequency 0.8 --min_quality 14
         """
         sample = os.path.basename(args.read1).split('.')[0]
         g = GuideSeq()
@@ -359,7 +360,18 @@ def main():
         g.umitagged = {sample: {}}
         g.umitagged[sample]['read1'] = args.read1
         g.umitagged[sample]['read2'] = args.read2
-        g.consolidate()
+
+        if 'min_quality' in args:
+            min_qual = args.min_quality
+        else:
+            min_qual = CONSOLIDATE_MIN_QUAL
+
+        if 'min_frequency' in args:
+            min_freq = args.min_frequency
+        else:
+            min_freq = CONSOLIDATE_MIN_FREQ
+
+        g.consolidate(min_freq=min_freq, min_qual=min_qual)
 
     elif args.command == 'align':
         pass
