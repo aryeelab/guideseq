@@ -24,6 +24,7 @@ CONSOLIDATE_MIN_FREQ = 0.9
 
 # Set up logger
 logging.basicConfig(level=logging.INFO, format='[%(asctime)s][%(levelname)s] %(message)s', datefmt='%m/%d %I:%M:%S%p')
+logger = logging.getLogger('root')
 
 class GuideSeq:
 
@@ -31,7 +32,7 @@ class GuideSeq:
         pass
 
     def parseManifest(self, manifest_path):
-        logging.info('Loading manifest...')
+        logger.info('Loading manifest...')
 
         with open(manifest_path, 'r') as f:
             manifest_data = yaml.load(f)
@@ -45,7 +46,7 @@ class GuideSeq:
             self.samples = manifest_data['samples']
 
         except Exception as e:
-            logging.error('Incomplete or incorrect manifest file. Please ensure your manifest contains all required fields.')
+            logger.error('Incomplete or incorrect manifest file. Please ensure your manifest contains all required fields.')
             quit()
 
         # Allow the user to specify min reads for demultiplex if they want
@@ -62,11 +63,11 @@ class GuideSeq:
         if len(self.samples) < 2:
             raise AssertionError('Your manifest must have at least one control and one treatment sample.')
 
-        logging.info('Successfully loaded manifest.')
+        logger.info('Successfully loaded manifest.')
 
     def demultiplex(self):
 
-        logging.info('Demultiplexing undemultiplexed files...')
+        logger.info('Demultiplexing undemultiplexed files...')
 
         # Take our two barcodes and concatenate them
         swapped_sample_barcodes = {}
@@ -93,14 +94,14 @@ class GuideSeq:
                 self.demultiplexed[sample]['index1'] = os.path.join(self.output_folder, 'demultiplexed', sample + '.i1.fastq')
                 self.demultiplexed[sample]['index2'] = os.path.join(self.output_folder, 'demultiplexed', sample + '.i2.fastq')
 
-            logging.info('Successfully demultiplexed reads.')
+            logger.info('Successfully demultiplexed reads.')
         except Exception as e:
-            logging.error('Error demultiplexing reads.')
+            logger.error('Error demultiplexing reads.')
             print traceback.format_exc()
             quit()
 
     def umitag(self):
-        logging.info('umitagging reads...')
+        logger.info('umitagging reads...')
 
         try:
             self.umitagged = {}
@@ -117,14 +118,14 @@ class GuideSeq:
                               self.umitagged[sample]['read2'],
                               os.path.join(self.output_folder, 'umitagged'))
 
-            logging.info('Successfully umitagged reads.')
+            logger.info('Successfully umitagged reads.')
         except Exception as e:
-            logging.error('Error umitagging')
+            logger.error('Error umitagging')
             print traceback.format_exc()
             quit()
 
     def consolidate(self):
-        logging.info('Consolidating reads...')
+        logger.info('Consolidating reads...')
 
         try:
             self.consolidated = {}
@@ -138,15 +139,15 @@ class GuideSeq:
                 consolidate.consolidate(self.umitagged[sample]['read2'], self.consolidated[sample]['read2'], CONSOLIDATE_MIN_QUAL, CONSOLIDATE_MIN_FREQ)
 
             print self.consolidated
-            logging.info('Successfully consolidated reads.')
+            logger.info('Successfully consolidated reads.')
         except Exception as e:
-            logging.error('Error umitagging')
+            logger.error('Error umitagging')
             print traceback.format_exc()
             quit()
 
 
     def alignReads(self):
-        logging.info('Aligning reads...')
+        logger.info('Aligning reads...')
 
         try:
             self.aligned = {}
@@ -156,15 +157,15 @@ class GuideSeq:
                                                                                          self.consolidated[sample]['read2'],
                                                                                          os.path.join(self.output_folder, 'aligned'))
                 self.aligned[sample] = sample_alignment_path
-                logging.info('Finished aligning reads to genome.')
+                logger.info('Finished aligning reads to genome.')
 
         except Exception as e:
-            logging.error('Error aligning')
+            logger.error('Error aligning')
             print traceback.format_exc()
             quit()
 
     def identifyOfftargetSites(self):
-        logging.info('Identifying offtarget sites...')
+        logger.info('Identifying offtarget sites...')
 
         try:
             self.identified = {}
@@ -191,15 +192,15 @@ class GuideSeq:
 
                 identifyOfftargetSites.analyze(samfile, self.reference_genome, self.identified[sample], annotations)
 
-            logging.info('Finished identifying offtarget sites.')
+            logger.info('Finished identifying offtarget sites.')
 
         except Exception as e:
-            logging.error('Error identifying offtarget sites.')
+            logger.error('Error identifying offtarget sites.')
             print traceback.format_exc()
             quit()
 
     def filterBackgroundSites(self):
-        logging.info('Filtering background sites')
+        logger.info('Filtering background sites')
 
         try:
             self.filtered = {}
@@ -207,15 +208,15 @@ class GuideSeq:
             # Filter background in each sample
             for sample in self.samples:
                 if sample != 'control':
-                    logging.info('Running background filtering for {0} sample'.format(sample))
+                    logger.info('Running background filtering for {0} sample'.format(sample))
                     self.filtered[sample] = os.path.join(self.output_folder, sample + '_backgroundFiltered.txt')
                     filterBackgroundSites(self.bedtools, self.identified[sample], self.identified['control'], self.filtered[sample])
-                    logging.info('Finished background filtering for {0} sample'.format(sample))
+                    logger.info('Finished background filtering for {0} sample'.format(sample))
 
-            logging.info('Finished filtering background sites.')
+            logger.info('Finished filtering background sites.')
 
         except Exception as e:
-            logging.error('Error filtering background sites.')
+            logger.error('Error filtering background sites.')
             print traceback.format_exc()
             quit()
 
