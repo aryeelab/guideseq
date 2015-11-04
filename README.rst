@@ -96,6 +96,7 @@ Running Pipeline Steps Individually
 ===================================
 
 You can also run each step of the pipeline individually by running ``python PATH/TO/guideseq.py [STEP] [OPTIONS]``. Supported commands are:
+
 * ``all``: Run all pipeline steps (manifest required)
 * ``demultiplex``: Demultiplex undemultiplexed files (manifest required)
 * ``umitag``: UMI-tag demultiplexed files
