@@ -277,6 +277,7 @@ def parse_args():
     align_parser.add_argument('--genome', required=True)
     align_parser.add_argument('--read1', required=True)
     align_parser.add_argument('--read2', required=True)
+    align_parser.add_argument('--outfolder', required=True)
 
     identify_parser = subparsers.add_parser('identify', help='Identify GUIDE-seq offtargets')
     identify_parser.add_argument('--alignment', required=True)
@@ -374,7 +375,20 @@ def main():
         g.consolidate(min_freq=min_freq, min_qual=min_qual)
 
     elif args.command == 'align':
-        pass
+        """
+        Run just the alignment step
+        """
+        sample = os.path.basename(args.read1).split('.')[0]
+        g = GuideSeq()
+        g.BWA_path = args.bwa
+        g.reference_genome = args.genome
+        g.output_folder = args.outfolder
+        g.samples = [sample]
+        g.consolidated = {sample: {}}
+        g.consolidated[sample]['read1'] = args.read1
+        g.consolidated[sample]['read2'] = args.read2
+        g.alignReads()
+
     elif args.command == 'identify':
         pass
     elif args.command == 'filter':
