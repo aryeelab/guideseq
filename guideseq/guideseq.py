@@ -170,7 +170,6 @@ class GuideSeq:
             logger.error(traceback.format_exc())
             quit()
 
-
     def alignReads(self):
         logger.info('Aligning reads...')
 
@@ -264,12 +263,12 @@ def parse_args():
     umitag_parser.add_argument('--read2', required=True)
     umitag_parser.add_argument('--index1', required=True)
     umitag_parser.add_argument('--index2', required=True)
-    umitag_parser.add_argument('--read1_out', required=True)
-    umitag_parser.add_argument('--read2_out', required=True)
+    umitag_parser.add_argument('--outfolder', required=True)
 
     consolidate_parser = subparsers.add_parser('consolidate', help='Consolidate UMI tagged FASTQs')
     consolidate_parser.add_argument('--read1', required=True)
-    consolidate_parser.add_argument('--read1_out', required=True)
+    consolidate_parser.add_argument('--read2', required=True)
+    consolidate_parser.add_argument('--outfolder', required=True)
     consolidate_parser.add_argument('--min_quality', required=False)
     consolidate_parser.add_argument('--min_frequency', required=False)
 
@@ -326,15 +325,42 @@ def main():
             g.filterBackgroundSites()
 
     elif args.command == 'demultiplex':
+        """
+        Run just the demultiplex step given the manifest
+        """
         g = GuideSeq()
         g.parseManifestDemultiplex(args.manifest)
         g.demultiplex()
 
     elif args.command == 'umitag':
+        """
+        Run just the umitag step
+        python guideseq/guideseq.py umitag --read1 test/data/demultiplexed/EMX1.r1.fastq --read2 test/data/demultiplexed/EMX1.r2.fastq --index1 test/data/demultiplexed/EMX1.i1.fastq --index2 test/data/demultiplexed/EMX1.i2.fastq --outfolder test/output/
+        """
         g = GuideSeq()
-        pass
+        g.output_folder = args.outfolder
+        sample = os.path.basename(args.read1).split('.')[0]
+        g.samples = [sample]
+        g.demultiplexed = {sample: {}}
+        g.demultiplexed[sample]['read1'] = args.read1
+        g.demultiplexed[sample]['read2'] = args.read2
+        g.demultiplexed[sample]['index1'] = args.index1
+        g.demultiplexed[sample]['index2'] = args.index2
+        g.umitag()
+
     elif args.command == 'consolidate':
-        pass
+        """
+        Run just the consolidate step
+        """
+        sample = os.path.basename(args.read1).split('.')[0]
+        g = GuideSeq()
+        g.output_folder = args.outfolder
+        g.samples = [sample]
+        g.umitagged = {sample: {}}
+        g.umitagged[sample]['read1'] = args.read1
+        g.umitagged[sample]['read2'] = args.read2
+        g.consolidate()
+
     elif args.command == 'align':
         pass
     elif args.command == 'identify':
