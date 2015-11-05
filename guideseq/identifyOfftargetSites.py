@@ -189,6 +189,10 @@ annotation is in the format:
 
 """
 def analyze(sam_filename, reference_genome, outfile, annotations):
+    output_folder = os.path.dirname(outfile)
+    if not os.path.exists(output_folder):
+        os.makedirs(output_folder)
+
     logger.info("Processing SAM file %s", sam_filename)
     file = open( sam_filename, 'rU')
     __, filename_tail = os.path.split(sam_filename)

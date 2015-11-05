@@ -19,11 +19,23 @@ def checkFolderEquality(folder1, folder2):
         return False
 
     for f in folder1_files:
-        if not filecmp.cmp(os.path.join(folder1, f), os.path.join(folder2, f)):
-            print '{0} does not match between folders.'.format(f)
-            return False
+        file1 = os.path.join(folder1, f)
+        file2 = os.path.join(folder2, f)
+
+        if f.split('.')[-1] == 'sam':
+            with open(file1, 'r') as a, open(file2, 'r') as b:
+                for line1, line2 in zip(a,b):
+                    if line1.startswith('@'):
+                        continue
+                    elif line1 != line2:
+                        return False
+        else:
+            if not filecmp.cmp(file1, file2):
+                print '{0} does not match between folders.'.format(f)
+                return False
 
     return True
+
 
 def head(filepath, n=10):
     with open(filepath) as f:

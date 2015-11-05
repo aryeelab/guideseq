@@ -212,7 +212,7 @@ class GuideSeq:
 
                 samfile = self.aligned[sample]
 
-                self.identified[sample] = os.path.join(self.output_folder, sample + '_identifiedOfftargets.txt')
+                self.identified[sample] = os.path.join(self.output_folder, 'identified', sample + '_identifiedOfftargets.txt')
 
                 identifyOfftargetSites.analyze(samfile, self.reference_genome, self.identified[sample], annotations)
 
@@ -232,7 +232,7 @@ class GuideSeq:
             # Filter background in each sample
             for sample in self.samples:
                 if sample != 'control':
-                    self.filtered[sample] = os.path.join(self.output_folder, sample + '_backgroundFiltered.txt')
+                    self.filtered[sample] = os.path.join(self.output_folder, 'filtered', sample + '_backgroundFiltered.txt')
                     filterBackgroundSites(self.bedtools, self.identified[sample], self.identified['control'], self.filtered[sample])
                     logger.info('Finished background filtering for {0} sample'.format(sample))
 
