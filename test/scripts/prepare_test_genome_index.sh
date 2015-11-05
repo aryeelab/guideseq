@@ -1,3 +1,5 @@
+# This script generates a subsetted genome index for use in unit tests
+# The index is hosted at: http://aryee.mgh.harvard.edu/guideseq/data/Homo_sapiens.GRCh38.dna.subset.masked.fa.index.zip
 # Requirements: samtools, bedtools
 
 mkdir -p genome_prep
