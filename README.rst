@@ -109,7 +109,7 @@ You can also run each step of the pipeline individually by running ``python PATH
 Testing
 =======
 
-To run tests, you must first create a ``.genome`` text file in the ``guideseq`` root folder with a single line containing the absolute path to the reference genome ``.fasta`` file. Then, you can simply run ``tox`` to run the full test pipeline.
+To run tests, you must first create a ``.genome`` text file in the ``guideseq`` root folder with a single line containing the absolute path to the ``hg38`` reference genome ``.fasta`` file. Then, you can simply run ``tox`` to run the full test pipeline.
 
 License
 ========
