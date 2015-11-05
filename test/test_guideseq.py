@@ -60,7 +60,7 @@ CORRECT_FILTERED_OUTPUT = 'data/filtered'
 
 CORRECT_ALL_OUTPUT = 'data'
 
-class DemultiplexTestCase(unittest.TestCase):
+class FullPipelineTestCase(unittest.TestCase):
 
     def setUp(self):
         # Create the test output folder
@@ -72,22 +72,64 @@ class DemultiplexTestCase(unittest.TestCase):
         test_manifest_data['demultiplex_min_reads'] = TEST_MIN_READS
         test_manifest_data['samples'] = TEST_SAMPLES
         test_manifest_data['output_folder'] = TEST_OUTPUT_PATH
+        test_manifest_data['bwa'] = TEST_BWA_PATH
+        test_manifest_data['bedtools'] = TEST_BEDTOOLS_PATH
+        test_manifest_data['reference_genome'] = TEST_REFERENCE_GENOME
 
-        with open(TEST_DEMULTIPLEX_MANIFEST_PATH, 'w') as f:
+        with open(TEST_MANIFEST_PATH, 'w') as f:
             f.write(yaml.dump(test_manifest_data, default_flow_style=False))
 
 
-    def testIfDemultiplexed(self):
+    def testFullPipeline(self):
         g = guideseq.GuideSeq()
-        g.parseManifestDemultiplex(TEST_DEMULTIPLEX_MANIFEST_PATH)
+        g.parseManifest(TEST_MANIFEST_PATH)
         g.demultiplex()
+        g.umitag()
+        g.consolidate()
+        g.alignReads()
+        g.identifyOfftargetSites()
+        g.filterBackgroundSites()
 
-        self.assertTrue(utils.checkFolderEquality(os.path.join(TEST_OUTPUT_PATH, 'demultiplexed'),
-                                                  CORRECT_DEMULTIPLEXED_OUTPUT))
+        self.assertTrue(utils.checkFolderEquality(os.path.join(TEST_OUTPUT_PATH, 'demultiplexed'), CORRECT_DEMULTIPLEXED_OUTPUT))
+        self.assertTrue(utils.checkFolderEquality(os.path.join(TEST_OUTPUT_PATH, 'umitagged'), CORRECT_UMITAGGED_OUTPUT))
+        self.assertTrue(utils.checkFolderEquality(os.path.join(TEST_OUTPUT_PATH, 'consolidated'), CORRECT_CONSOLDIATED_OUTPUT))
+        self.assertTrue(utils.checkFolderEquality(os.path.join(TEST_OUTPUT_PATH, 'aligned'), CORRECT_ALIGNED_OUTPUT))
+        self.assertTrue(utils.checkFolderEquality(os.path.join(TEST_OUTPUT_PATH, 'identified'), CORRECT_IDENTIFIED_OUTPUT))
+        self.assertTrue(utils.checkFolderEquality(os.path.join(TEST_OUTPUT_PATH, 'filtered'), CORRECT_FILTERED_OUTPUT))
 
     def tearDown(self):
         # Delete temp output
         shutil.rmtree(TEST_OUTPUT_PATH)
+        pass
+
+# class DemultiplexTestCase(unittest.TestCase):
+#
+#     def setUp(self):
+#         # Create the test output folder
+#         os.makedirs(TEST_OUTPUT_PATH)
+#
+#         # Create the test demultiplexing YAML
+#         test_manifest_data = {}
+#         test_manifest_data['undemultiplexed'] = TEST_UNDEMULTIPLEXED_FILES
+#         test_manifest_data['demultiplex_min_reads'] = TEST_MIN_READS
+#         test_manifest_data['samples'] = TEST_SAMPLES
+#         test_manifest_data['output_folder'] = TEST_OUTPUT_PATH
+#
+#         with open(TEST_DEMULTIPLEX_MANIFEST_PATH, 'w') as f:
+#             f.write(yaml.dump(test_manifest_data, default_flow_style=False))
+#
+#
+#     def testIfDemultiplexed(self):
+#         g = guideseq.GuideSeq()
+#         g.parseManifestDemultiplex(TEST_DEMULTIPLEX_MANIFEST_PATH)
+#         g.demultiplex()
+#
+#         self.assertTrue(utils.checkFolderEquality(os.path.join(TEST_OUTPUT_PATH, 'demultiplexed'),
+#                                                   CORRECT_DEMULTIPLEXED_OUTPUT))
+#
+#     def tearDown(self):
+#         # Delete temp output
+#         shutil.rmtree(TEST_OUTPUT_PATH)
 
 
 # class UMITagTestCase(unittest.TestCase):
@@ -171,47 +213,6 @@ class DemultiplexTestCase(unittest.TestCase):
 #         # Delete temp output
 #         pass
 #
-class FullPipelineTestCase(unittest.TestCase):
-
-    def setUp(self):
-        # Create the test output folder
-        os.makedirs(TEST_OUTPUT_PATH)
-
-        # Create the test demultiplexing YAML
-        test_manifest_data = {}
-        test_manifest_data['undemultiplexed'] = TEST_UNDEMULTIPLEXED_FILES
-        test_manifest_data['demultiplex_min_reads'] = TEST_MIN_READS
-        test_manifest_data['samples'] = TEST_SAMPLES
-        test_manifest_data['output_folder'] = TEST_OUTPUT_PATH
-        test_manifest_data['bwa'] = TEST_BWA_PATH
-        test_manifest_data['bedtools'] = TEST_BEDTOOLS_PATH
-        test_manifest_data['reference_genome'] = TEST_REFERENCE_GENOME
-
-        with open(TEST_MANIFEST_PATH, 'w') as f:
-            f.write(yaml.dump(test_manifest_data, default_flow_style=False))
-
-
-    def testFullPipeline(self):
-        g = guideseq.GuideSeq()
-        g.parseManifest(TEST_MANIFEST_PATH)
-        g.demultiplex()
-        g.umitag()
-        g.consolidate()
-        g.alignReads()
-        g.identifyOfftargetSites()
-        g.filterBackgroundSites()
-
-        self.assertTrue(utils.checkFolderEquality(os.path.join(TEST_OUTPUT_PATH, 'demultiplexed'), CORRECT_DEMULTIPLEXED_OUTPUT))
-        self.assertTrue(utils.checkFolderEquality(os.path.join(TEST_OUTPUT_PATH, 'umitagged'), CORRECT_UMITAGGED_OUTPUT))
-        self.assertTrue(utils.checkFolderEquality(os.path.join(TEST_OUTPUT_PATH, 'consolidated'), CORRECT_CONSOLDIATED_OUTPUT))
-        self.assertTrue(utils.checkFolderEquality(os.path.join(TEST_OUTPUT_PATH, 'aligned'), CORRECT_ALIGNED_OUTPUT))
-        self.assertTrue(utils.checkFolderEquality(os.path.join(TEST_OUTPUT_PATH, 'identified'), CORRECT_IDENTIFIED_OUTPUT))
-        self.assertTrue(utils.checkFolderEquality(os.path.join(TEST_OUTPUT_PATH, 'filtered'), CORRECT_FILTERED_OUTPUT))
-
-    def tearDown(self):
-        # Delete temp output
-        # shutil.rmtree(TEST_OUTPUT_PATH)
-        pass
 
 if __name__ == '__main__':
     unittest.main()
