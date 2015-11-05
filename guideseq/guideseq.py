@@ -410,7 +410,6 @@ def main():
         g.aligned = {sample: args.aligned}
         g.identifyOfftargetSites()
 
-
     elif args.command == 'filter':
         """
         Run just the filter step
