@@ -55,7 +55,7 @@ Using this software is easy, just make sure you have all of the dependencies ins
 Usage
 =======
 
-Using this tool is simple, just create a ``.yaml`` manifest file referencing the dependencies and sample ``.fastq.gz`` file paths. Then, run ``python /path/to/guideseq.py -m /path/to/manifest.yaml``
+Using this tool is simple, just create a ``.yaml`` manifest file referencing the dependencies and sample ``.fastq.gz`` file paths. Then, run ``python /path/to/guideseq.py all -m /path/to/manifest.yaml``
 
 
 Below is an example ``manifest.yaml`` file::
@@ -89,7 +89,21 @@ Below is an example ``manifest.yaml`` file::
 
 Absolute paths are recommended. Be sure to point the ``bwa`` and ``bedtools`` paths directly to their respective executables.
 
-Once you have a manifest file created, you can simply execute ``python PATH/TO/guideseq.py -m PATH/TO/MANIFEST.YAML`` to run the entire pipeline. All output files, including the results of each individual step, will be placed in the ``output_folder``.
+Once you have a manifest file created, you can simply execute ``python PATH/TO/guideseq.py all -m PATH/TO/MANIFEST.YAML`` to run the entire pipeline. All output files, including the results of each individual step, will be placed in the ``output_folder``.
+
+
+Running Pipeline Steps Individually
+===================================
+
+You can also run each step of the pipeline individually by running ``python PATH/TO/guideseq.py [STEP] [OPTIONS]``. Supported commands are:
+
+* ``all``: Run all pipeline steps (manifest required)
+* ``demultiplex``: Demultiplex undemultiplexed files (manifest required)
+* ``umitag``: UMI-tag demultiplexed files
+* ``consolidate``: Consolidate UMI-tagged files
+* ``align``: Align consolidated reads to a reference genome
+* ``identify``: Identify offtarget sites from aligned reads
+* ``filter``: Filter identified background sites from identified treatment sites
 
 
 License
