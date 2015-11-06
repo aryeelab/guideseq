@@ -1,4 +1,3 @@
-numpy>=1.9.1
 HTSeq==0.6.1p1
 PyYAML==3.11
 swalign==0.3.1
