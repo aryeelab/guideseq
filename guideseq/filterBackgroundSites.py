@@ -7,7 +7,7 @@ def filterBackgroundSites(bedtools_path, sample_path, control_path, outfile):
     if not os.path.exists(output_folder):
         os.makedirs(output_folder)
 
-    bedtools_filter_command = 'bedtools intersect -a {0} -b {1}'.format(sample_path, control_path)
+    bedtools_filter_command = '{0} intersect -a {1} -b {2}'.format(bedtools_path, sample_path, control_path)
 
     with open(outfile, 'w') as outfile:
         subprocess.call(bedtools_filter_command.split(), stdout=outfile)
