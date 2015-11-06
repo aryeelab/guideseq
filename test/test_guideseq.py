@@ -45,8 +45,8 @@ TEST_MIN_READS = 1000
 TEST_DEMULTIPLEX_MANIFEST_PATH = os.path.join(TEST_OUTPUT_PATH, 'demultiplex_manifest.yaml')
 TEST_MANIFEST_PATH = os.path.join(TEST_OUTPUT_PATH, 'test_manifest.yaml')
 
-TEST_BWA_PATH = 'bwa/bwa'
-TEST_BEDTOOLS_PATH = 'bedtools2/bin/bedtools'
+TEST_BWA_PATH = 'bwa'
+TEST_BEDTOOLS_PATH = 'bedtools'
 
 TEST_REFERENCE_GENOME = 'test_genome.fa'
 
@@ -98,7 +98,7 @@ class FullPipelineTestCase(unittest.TestCase):
 
     def tearDown(self):
         # Delete temp output
-        shutil.rmtree(TEST_OUTPUT_PATH)
+        #shutil.rmtree(TEST_OUTPUT_PATH)
         pass
 
 # class DemultiplexTestCase(unittest.TestCase):
