@@ -9,7 +9,7 @@ before_install:
   - cd test
   - git clone https://github.com/lh3/bwa.git
   - cd bwa
-  - git checkout tags/0.7.12
+  - git checkout tags/0.7.9a
   - make
   - cd ..
   - PATH=`pwd`/bwa:$PATH
