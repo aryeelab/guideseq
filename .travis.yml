@@ -12,14 +12,11 @@ before_install:
   - git checkout tags/0.7.12
   - make
   - cd ..
-  - ln -s bwa/bwa .
   - git clone https://github.com/arq5x/bedtools2.git
   - cd bedtools2
   - git checkout tags/v2.25.0
   - make
-  - cd ..
-  - ln -s bedtools2/bin/bedtools .
-  - cd ..
+  - cd ../..
 
 # command to install dependencies, e.g. pip install -r requirements.txt --use-mirrors
 install: 
