@@ -48,8 +48,7 @@ TEST_MANIFEST_PATH = os.path.join(TEST_OUTPUT_PATH, 'test_manifest.yaml')
 TEST_BWA_PATH = 'bwa'
 TEST_BEDTOOLS_PATH = 'bedtools'
 
-with open('../.genome') as f:
-    TEST_REFERENCE_GENOME = f.readline().strip()
+TEST_REFERENCE_GENOME = 'test_genome.fa'
 
 CORRECT_DEMULTIPLEXED_OUTPUT = 'data/demultiplexed'
 CORRECT_UMITAGGED_OUTPUT = 'data/umitagged'
