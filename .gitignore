@@ -2,6 +2,14 @@
 test/output
 .genome
 
+# Genome indices
+*.amb
+*.ann
+*.bwt
+*.fai
+*.pac
+*.sa
+
 # C extensions
 *.so
 
