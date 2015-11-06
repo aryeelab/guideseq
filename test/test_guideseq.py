@@ -82,136 +82,36 @@ class FullPipelineTestCase(unittest.TestCase):
     def testFullPipeline(self):
         g = guideseq.GuideSeq()
         g.parseManifest(TEST_MANIFEST_PATH)
-        g.demultiplex()
-        g.umitag()
-        g.consolidate()
-        g.alignReads()
-        g.identifyOfftargetSites()
-        g.filterBackgroundSites()
 
+        # Demultiplex and test the demultiplex output
+        g.demultiplex()
         self.assertTrue(utils.checkFolderEquality(os.path.join(TEST_OUTPUT_PATH, 'demultiplexed'), CORRECT_DEMULTIPLEXED_OUTPUT))
+
+        # UMITag and test the umitagging output
+        g.umitag()
         self.assertTrue(utils.checkFolderEquality(os.path.join(TEST_OUTPUT_PATH, 'umitagged'), CORRECT_UMITAGGED_OUTPUT))
+
+        # Consolidate and test the consolidation output
+        g.consolidate()
         self.assertTrue(utils.checkFolderEquality(os.path.join(TEST_OUTPUT_PATH, 'consolidated'), CORRECT_CONSOLDIATED_OUTPUT))
+
+        # Align and test the alignment output
+        g.alignReads()
         self.assertTrue(utils.checkFolderEquality(os.path.join(TEST_OUTPUT_PATH, 'aligned'), CORRECT_ALIGNED_OUTPUT))
+
+        # Identify offtargets and test the output
+        g.identifyOfftargetSites()
         self.assertTrue(utils.checkFolderEquality(os.path.join(TEST_OUTPUT_PATH, 'identified'), CORRECT_IDENTIFIED_OUTPUT))
+
+        # Filter background sites and test if correct
+        g.filterBackgroundSites()
         self.assertTrue(utils.checkFolderEquality(os.path.join(TEST_OUTPUT_PATH, 'filtered'), CORRECT_FILTERED_OUTPUT))
+
 
     def tearDown(self):
         # Delete temp output
         shutil.rmtree(TEST_OUTPUT_PATH)
         pass
-
-# class DemultiplexTestCase(unittest.TestCase):
-#
-#     def setUp(self):
-#         # Create the test output folder
-#         os.makedirs(TEST_OUTPUT_PATH)
-#
-#         # Create the test demultiplexing YAML
-#         test_manifest_data = {}
-#         test_manifest_data['undemultiplexed'] = TEST_UNDEMULTIPLEXED_FILES
-#         test_manifest_data['demultiplex_min_reads'] = TEST_MIN_READS
-#         test_manifest_data['samples'] = TEST_SAMPLES
-#         test_manifest_data['output_folder'] = TEST_OUTPUT_PATH
-#
-#         with open(TEST_DEMULTIPLEX_MANIFEST_PATH, 'w') as f:
-#             f.write(yaml.dump(test_manifest_data, default_flow_style=False))
-#
-#
-#     def testIfDemultiplexed(self):
-#         g = guideseq.GuideSeq()
-#         g.parseManifestDemultiplex(TEST_DEMULTIPLEX_MANIFEST_PATH)
-#         g.demultiplex()
-#
-#         self.assertTrue(utils.checkFolderEquality(os.path.join(TEST_OUTPUT_PATH, 'demultiplexed'),
-#                                                   CORRECT_DEMULTIPLEXED_OUTPUT))
-#
-#     def tearDown(self):
-#         # Delete temp output
-#         shutil.rmtree(TEST_OUTPUT_PATH)
-
-
-# class UMITagTestCase(unittest.TestCase):
-#
-#     def setUp(self):
-#         # Create the test output folder
-#         os.makedirs(TEST_OUTPUT_PATH)
-#
-#     def testIfUmiTagged(self):
-#         # Test if output equals consolidated output
-#         g = guideseq.GuideSeq()
-#         g.output_folder = TEST_OUTPUT_PATH
-#         g.samples = [TEST_SAMPLE_NAME]
-#         g.demultiplexed = {TEST_SAMPLE_NAME: {}}
-#         g.demultiplexed[TEST_SAMPLE_NAME] = TEST_DEMULTIPLEXED_FILES
-#         g.umitag()
-#
-#         self.assertTrue(utils.checkFolderEquality(os.path.join(TEST_OUTPUT_PATH, 'umitagged'), CORRECT_UMITAGGED_OUTPUT))
-#
-#     def tearDown(self):
-#         # Delete temp output
-#         shutil.rmtree(TEST_OUTPUT_PATH)
-#
-# class ConsolidateTestCase(unittest.TestCase):
-#
-#     def setUp(self):
-#         # Create the test output folder
-#         os.makedirs(TEST_OUTPUT_PATH)
-#
-#     def testIfConsolidated(self):
-#         # Test if output equals consolidated output
-#
-#         pass
-#
-#     def tearDown(self):
-#         # Delete temp output
-#         shutil.rmtree(TEST_OUTPUT_PATH)
-#
-#
-# class AlignmentTestCase(unittest.TestCase):
-#
-#     def setUp(self):
-#         # do the alignment
-#         pass
-#
-#     def testIfAligned(self):
-#         # Test if output equals expected alignment output
-#         pass
-#
-#     def tearDown(self):
-#         # Delete temp output
-#         pass
-#
-#
-# class OfftargetIdentificationTestCase(unittest.TestCase):
-#
-#     def setUp(self):
-#         # do the offtarget identification
-#         pass
-#
-#     def testIfConsolidated(self):
-#         # Test if output equals expected offtarget identification output
-#         pass
-#
-#     def tearDown(self):
-#         # Delete temp output
-#         pass
-#
-#
-# class BackgroundSubtractTestCase(unittest.TestCase):
-#
-#     def setUp(self):
-#         # do the bedtools subtraction
-#         pass
-#
-#     def testIfConsolidated(self):
-#         # Test if output equals consolidated output
-#         pass
-#
-#     def tearDown(self):
-#         # Delete temp output
-#         pass
-#
 
 if __name__ == '__main__':
     unittest.main()
