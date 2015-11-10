@@ -40,12 +40,12 @@ class GuideSeq:
             manifest_data = yaml.load(f)
 
         try:
-            self.BWA_path  = manifest_data['bwa'].strip()
-            self.bedtools = manifest_data['bedtools'].strip()
-            self.reference_genome = manifest_data['reference_genome'].strip()
-            self.output_folder = manifest_data['output_folder'].strip()
-            self.undemultiplexed = manifest_data['undemultiplexed'].strip()
-            self.samples = manifest_data['samples'].strip()
+            self.BWA_path  = manifest_data['bwa']
+            self.bedtools = manifest_data['bedtools']
+            self.reference_genome = manifest_data['reference_genome']
+            self.output_folder = manifest_data['output_folder']
+            self.undemultiplexed = manifest_data['undemultiplexed']
+            self.samples = manifest_data['samples']
 
         except Exception as e:
             logger.error('Incomplete or incorrect manifest file. Please ensure your manifest contains all required fields.')
@@ -53,7 +53,7 @@ class GuideSeq:
 
         # Allow the user to specify min reads for demultiplex if they want
         if 'demultiplex_min_reads' in manifest_data:
-            self.demultiplex_min_reads = manifest_data['demultiplex_min_reads'].strip()
+            self.demultiplex_min_reads = manifest_data['demultiplex_min_reads']
         else:
             self.demultiplex_min_reads = DEFAULT_DEMULTIPLEX_MIN_READS
 
@@ -74,9 +74,9 @@ class GuideSeq:
             manifest_data = yaml.load(f)
 
             try:
-                self.output_folder = manifest_data['output_folder'].strip()
-                self.undemultiplexed = manifest_data['undemultiplexed'].strip()
-                self.samples = manifest_data['samples'].strip()
+                self.output_folder = manifest_data['output_folder']
+                self.undemultiplexed = manifest_data['undemultiplexed']
+                self.samples = manifest_data['samples']
 
             except Exception as e:
                 logger.error('Incomplete or incorrect manifest file. Please ensure your manifest contains all required fields.')
