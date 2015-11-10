@@ -12,3 +12,4 @@ make
 cd ..
 PATH=`pwd`/bedtools2/bin:$PATH
 cd ..
+echo $PATH
