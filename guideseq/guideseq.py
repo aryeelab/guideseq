@@ -8,6 +8,7 @@ serves as the wrapper for all guideseq pipeline
 """
 
 import os
+import sys
 import yaml
 import argparse
 import traceback
@@ -20,6 +21,7 @@ from alignReads import alignReads
 from filterBackgroundSites import filterBackgroundSites
 from umi import demultiplex, umitag, consolidate
 import identifyOfftargetSites
+import validation
 
 DEFAULT_DEMULTIPLEX_MIN_READS = 10000
 MAX_MISMATCHES = 6
@@ -40,6 +42,9 @@ class GuideSeq:
             manifest_data = yaml.load(f)
 
         try:
+            # Validate manifest data
+            validation.validateManifest(manifest_data)
+
             self.BWA_path  = manifest_data['bwa']
             self.bedtools = manifest_data['bedtools']
             self.reference_genome = manifest_data['reference_genome']
@@ -48,8 +53,8 @@ class GuideSeq:
             self.samples = manifest_data['samples']
 
         except Exception as e:
-            logger.error('Incomplete or incorrect manifest file. Please ensure your manifest contains all required fields.')
-            quit()
+            logger.error('Incorrect or malformed manifest file. Please ensure your manifest contains all required fields.')
+            sys.exit()
 
         # Allow the user to specify min reads for demultiplex if they want
         if 'demultiplex_min_reads' in manifest_data:
