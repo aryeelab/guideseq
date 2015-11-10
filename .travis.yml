@@ -6,10 +6,20 @@ python:
   - "2.7"
 
 before_install:
-  - test/scripts/compile_dependencies.sh
-  - bwa
-  - bedtools
-  - head test/test_genome.fa
+  - cd test
+  - git clone https://github.com/lh3/bwa.git
+  - cd bwa
+  - git checkout tags/0.7.9a
+  - make
+  - cd ..
+  - PATH=`pwd`/bwa:$PATH
+  - git clone https://github.com/arq5x/bedtools2.git
+  - cd bedtools2
+  - git checkout tags/v2.25.0
+  - make
+  - cd ..
+  - PATH=`pwd`/bedtools2/bin:$PATH
+  - cd ..
 
 # command to install dependencies, e.g. pip install -r requirements.txt --use-mirrors
 install: 
