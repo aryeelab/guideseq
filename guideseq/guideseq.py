@@ -20,6 +20,7 @@ logger = log.createCustomLogger('root')
 from alignReads import alignReads
 from filterBackgroundSites import filterBackgroundSites
 from umi import demultiplex, umitag, consolidate
+from visualization import visualizeOfftargets
 import identifyOfftargetSites
 import validation
 
@@ -247,6 +248,22 @@ class GuideSeq:
             logger.error('Error filtering background sites.')
             logger.error(traceback.format_exc())
 
+    def visualize(self):
+        logger.info('Visualizing off-target sites')
+
+        try:
+            for sample in self.samples:
+                if sample != 'control':
+                    infile = self.identified[sample]
+                    outfile = os.path.join(self.output_folder, 'visualization', sample + '_offtargets')
+                    visualizeOfftargets(infile, outfile, title=sample)
+
+            logger.info('Finished visualizing off-target sites')
+
+        except Exception as e:
+            logger.error('Error visualizing off-target sites.')
+            logger.error(traceback.format_exc())
+
 
 def parse_args():
     parser = argparse.ArgumentParser()
@@ -297,6 +314,11 @@ def parse_args():
     filter_parser.add_argument('--background', required=True)
     filter_parser.add_argument('--outfolder', required=True)
 
+    visualize_parser = subparsers.add_parser('visualize', help='Visualize off-target sites')
+    visualize_parser.add_argument('--infile', required=True)
+    visualize_parser.add_argument('--outfile', required=True)
+    visualize_parser.add_argument('--title', required=False)
+
     return parser.parse_args()
 
 
@@ -317,6 +339,7 @@ def main():
 
                 g.identifyOfftargetSites()
                 g.filterBackgroundSites()
+                g.visualize()
 
             except Exception as e:
                 print 'Error running only identify and filter.'
@@ -331,6 +354,7 @@ def main():
             g.alignReads()
             g.identifyOfftargetSites()
             g.filterBackgroundSites()
+            g.visualize()
 
     elif args.command == 'demultiplex':
         """
@@ -429,6 +453,19 @@ def main():
         g.identified[sample] = args.identified
         g.identified['control'] = args.background
         g.filterBackgroundSites()
+
+    elif args.command == 'visualize':
+        """
+        Run just the visualize step
+        """
+        g = GuideSeq()
+        g.output_folder = os.path.dirname(args.outfile)
+        sample = os.path.basename(args.infile).split('.')[0]
+        g.samples = {sample: {}}
+        g.identified = {}
+        g.identified[sample] = args.infile
+        g.visualize()
+
 
 if __name__ == '__main__':
     main()
