@@ -21,6 +21,10 @@ The package implements a pipeline consisting of a read preprocessing module foll
 .. image:: guideseq_flowchart.png
 
 
+This package also produces visualizations of detected off-target sites, as seen below.
+
+.. image:: EMX1_visualization.svg
+
 
 Dependencies
 =======
@@ -98,6 +102,7 @@ You can also run each step of the pipeline individually by running ``python PATH
 * ``align``: Align consolidated reads to a reference genome
 * ``identify``: Identify offtarget sites from aligned reads
 * ``filter``: Filter identified background sites from identified treatment sites
+* ``visualize``: Produce visualization of off-target sites from result of the ``identify`` step
 
 
 Testing
