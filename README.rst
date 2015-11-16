@@ -23,7 +23,7 @@ The package implements a pipeline consisting of a read preprocessing module foll
 
 This package also produces visualizations of detected off-target sites, as seen below.
 
-.. image:: EMX1_visualization.svg
+.. image:: EMX1_visualization.png
 
 
 Dependencies
