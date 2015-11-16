@@ -1,4 +1,4 @@
-reference_genome: /Volumes/Media/hg38/hg38.fa
+reference_genome: test/test_genome.fa
 output_folder: test/output
 
 bwa: bwa

@@ -186,7 +186,6 @@ def alignSequences(ref_seq, query_seq):
 """
 annotation is in the format:
 
-
 """
 def analyze(sam_filename, reference_genome, outfile, annotations):
     output_folder = os.path.dirname(outfile)
