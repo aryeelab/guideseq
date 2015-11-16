@@ -3,6 +3,8 @@
 
 from distutils.core import setup
 
+requirements = [line.strip() for line in open('requirements.txt')]
+
 setup(
     name='guideseq',
     version='0.9.0',
@@ -15,9 +17,8 @@ setup(
     ],
     package_dir={'guideseq':
                  'guideseq'},
-    include_package_data=True,
     install_requires=requirements,
-    license="GPL",
+    license="AGPL",
     keywords='guideseq',
     classifiers=[
         'Development Status :: 4 - Beta',

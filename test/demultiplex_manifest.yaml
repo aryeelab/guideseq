@@ -1,8 +1,4 @@
-reference_genome: test/test_genome.fa
 output_folder: test/output
-
-bwa: bwa
-bedtools: bedtools
 
 demultiplex_min_reads: 1000
 
@@ -14,7 +10,7 @@ undemultiplexed:
 
 samples:
     control:
-        target:  
+        target:
         barcode1: CTCTCTAC
         barcode2: CTCTCTAT
         description: Control
