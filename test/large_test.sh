@@ -2,7 +2,6 @@
 # This script downloads a full GUIDE-Seq dataset and performs runs the analysis pipeline.
 # It should be run from the test directory.
 
-# Create the large_test directory
 cd large_test
 
 # Create an output directory with a commit id hash suffix
