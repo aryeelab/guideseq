@@ -1,11 +1,14 @@
 #!/bin/bash
 # This script downloads a full GUIDE-Seq dataset and performs runs the analysis pipeline.
-# It should be run from the test/large_test directory.
+# It should be run from the test directory.
+
+# Create the large_test directory
+cd large_test
 
 # Create an output directory with a commit id hash suffix
 OUTDIR=output.`git log --pretty=format:'%h' -n 1`
-mkdir $OUTDIR
-ln -s $OUTDIR output
+mkdir -p $OUTDIR
+ln -sf $OUTDIR output
 
 # Install bwa
 git clone https://github.com/lh3/bwa.git
@@ -23,22 +26,16 @@ make
 cd ..
 PATH=`pwd`/bedtools2/bin:$PATH
 
-
 # Download test data FASTQs and manifest
 wget http://aryee.mgh.harvard.edu/guideseq/data/guideseq_test_fastq.zip
 unzip guideseq_test_fastq.zip
 
-# Download reference genome
+# Download the reference genome
 wget http://www.broadinstitute.org/ftp/pub/seq/references/Homo_sapiens_assembly19.fasta
 
 # Run analysis pipeline
 python ../../guideseq/guideseq.py all -m test_manifest.yaml
 
 # Check that output tables match the reference output
-cd output
-for file in *.txt
-do
-    echo diff $file ../reference_output/$var
-done
-
-
+cd output/filtered
+md5sum -c ../../reference_output/md5.txt
