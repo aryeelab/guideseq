@@ -108,7 +108,7 @@ You can also run each step of the pipeline individually by running ``python PATH
 Testing
 =======
 
-To run tests, make sure you have ``bedtools`` and ``bwa v0.7.9a`` (using this specific version is important, otherwise sorting differences will cause tests to fail). Then, you can simply run ``nosetests`` from the ``guideseq`` rot folder to test the full pipeline.
+To run tests, make sure you have ``bedtools`` and ``bwa v0.7.9a`` (using this specific version is important, otherwise sorting differences will cause tests to fail). Then, you can simply run ``nosetests`` from the ``guideseq`` root folder to test the full pipeline.
 
 License
 ========
