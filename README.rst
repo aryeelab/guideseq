@@ -113,4 +113,4 @@ To run tests, make sure you have ``bedtools`` and ``bwa v0.7.9a`` (using this sp
 License
 ========
 
-This software is licensed under the GNU AGPL license. For usage information about this license, see the GNU AGPL `information page <http://www.gnu.org/licenses/agpl-3.0.en.html>`_.
+This software is licensed under the GNU AGPLv3 license. For usage information about this license, see the GNU AGPL `information page <http://www.gnu.org/licenses/agpl-3.0.en.html>`_.
