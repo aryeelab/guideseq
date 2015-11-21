@@ -9,6 +9,7 @@ Adapted from the accepted answer here: http://stackoverflow.com/questions/762189
 
 import logging
 
+
 def createCustomLogger(name):
     formatter = logging.Formatter(fmt='[%(asctime)s][%(levelname)s][%(module)s] %(message)s', datefmt='%m/%d %I:%M:%S%p')
 
