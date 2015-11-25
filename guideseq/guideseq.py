@@ -46,7 +46,7 @@ class GuideSeq:
             # Validate manifest data
             validation.validateManifest(manifest_data)
 
-            self.BWA_path  = manifest_data['bwa']
+            self.BWA_path = manifest_data['bwa']
             self.bedtools = manifest_data['bedtools']
             self.reference_genome = manifest_data['reference_genome']
             self.output_folder = manifest_data['output_folder']
@@ -95,7 +95,6 @@ class GuideSeq:
             self.demultiplex_min_reads = DEFAULT_DEMULTIPLEX_MIN_READS
 
         logger.info('Successfully loaded manifest for single-step demultiplexing.')
-
 
     def demultiplex(self):
 
@@ -275,7 +274,6 @@ def parse_args():
     all_parser = subparsers.add_parser('all', help='Run all steps of the pipeline')
     all_parser.add_argument('--manifest', '-m', help='Specify the manifest Path', required=True)
     all_parser.add_argument('--identifyAndFilter', action='store_true', default=False)
-
 
     demultiplex_parser = subparsers.add_parser('demultiplex', help='Demultiplex undemultiplexed FASTQ files')
     demultiplex_parser.add_argument('--manifest', '-m', help='Specify the manifest path', required=True)

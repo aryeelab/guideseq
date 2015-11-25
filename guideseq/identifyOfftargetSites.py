@@ -77,18 +77,18 @@ class chromosomePosition():
 
     # Generates a summary of the barcodes by position
     def SummarizeBarcodePositions(self):
-        self.barcode_position_summary = [ [ chromosome, position,
-                                           len(self.chromosome_barcode_dict[chromosome][position]['+']),
-                                           len(self.chromosome_barcode_dict[chromosome][position]['-']),
-                                           self.chromosome_barcode_dict[chromosome][position]['+_total'],
-                                           self.chromosome_barcode_dict[chromosome][position]['-_total'],
-                                           len(self.chromosome_barcode_dict[chromosome][position]['+primer1']),
-                                           len(self.chromosome_barcode_dict[chromosome][position]['+primer2']),
-                                           len(self.chromosome_barcode_dict[chromosome][position]['-primer1']),
-                                           len(self.chromosome_barcode_dict[chromosome][position]['-primer2']),
-                                           ]
-                                          for chromosome in sorted(self.chromosome_barcode_dict)
-                                          for position in sorted(self.chromosome_barcode_dict[chromosome]) ]
+        self.barcode_position_summary = [[chromosome, position,
+                                          len(self.chromosome_barcode_dict[chromosome][position]['+']),
+                                          len(self.chromosome_barcode_dict[chromosome][position]['-']),
+                                          self.chromosome_barcode_dict[chromosome][position]['+_total'],
+                                          self.chromosome_barcode_dict[chromosome][position]['-_total'],
+                                          len(self.chromosome_barcode_dict[chromosome][position]['+primer1']),
+                                          len(self.chromosome_barcode_dict[chromosome][position]['+primer2']),
+                                          len(self.chromosome_barcode_dict[chromosome][position]['-primer1']),
+                                          len(self.chromosome_barcode_dict[chromosome][position]['-primer2']),
+                                          ]
+                                         for chromosome in sorted(self.chromosome_barcode_dict)
+                                         for position in sorted(self.chromosome_barcode_dict[chromosome])]
         return self.barcode_position_summary
 
     # Summarizes the chromosome, positions within a 10 bp window
@@ -102,20 +102,20 @@ class chromosomePosition():
             last_chromosome, last_position = chromosome, position
             if window_index not in self.index_stack:
                 self.index_stack[window_index] = []
-            self.index_stack[window_index].append([ chromosome, int(position),
-                                                    int(barcode_plus_count), int(barcode_minus_count),
-                                                    int(barcode_plus_count) + int(barcode_minus_count), #
-                                                    int(total_plus_count), int(total_minus_count),
-                                                    int(total_plus_count) + int(total_minus_count),
-                                                    int(plus_primer1_count), int(plus_primer2_count),
-                                                    int(minus_primer1_count), int(minus_primer2_count)
-                                                    ])
+            self.index_stack[window_index].append([chromosome, int(position),
+                                                   int(barcode_plus_count), int(barcode_minus_count),
+                                                   int(barcode_plus_count) + int(barcode_minus_count),
+                                                   int(total_plus_count), int(total_minus_count),
+                                                   int(total_plus_count) + int(total_minus_count),
+                                                   int(plus_primer1_count), int(plus_primer2_count),
+                                                   int(minus_primer1_count), int(minus_primer2_count)
+                                                   ])
         for index in self.index_stack:
             sorted_list = sorted(self.index_stack[index], key=operator.itemgetter(4))   # sort by barcode_count_total
             chromosome_list, position_list, \
-            barcode_plus_count_list, barcode_minus_count_list, barcode_sum_list,\
-            total_plus_count_list, total_minus_count_list, total_sum_list, \
-            plus_primer1_list, plus_primer2_list, minus_primer1_list, minus_primer2_list\
+                barcode_plus_count_list, barcode_minus_count_list, barcode_sum_list,\
+                total_plus_count_list, total_minus_count_list, total_sum_list, \
+                plus_primer1_list, plus_primer2_list, minus_primer1_list, minus_primer2_list\
                 = zip(*sorted_list)
             barcode_plus = sum(barcode_plus_count_list)
             barcode_minus = sum(barcode_minus_count_list)
@@ -141,28 +141,28 @@ class chromosomePosition():
             BED_name = BED_format_chromosome + "_" + str(most_frequent_position) + "_" + str(barcode_sum)
             offtarget_sequence = self.getSequence(self.genome, most_frequent_chromosome, most_frequent_position - 25, most_frequent_position + 25)
 
-            summary_list = [ str(x) for x in [ index, most_frequent_chromosome, most_frequent_position, offtarget_sequence,                        # pick most frequently occurring chromosome and position
-                                               BED_format_chromosome, min_position, max_position, BED_name,
-                                               barcode_plus, barcode_minus, barcode_sum, barcode_geometric_mean,
-                                               total_plus, total_minus, total_sum, total_geometric_mean,
-                                               primer1, primer2, primer_geometric_mean, position_std] ]
+            summary_list = [str(x) for x in [index, most_frequent_chromosome, most_frequent_position, offtarget_sequence,                        # pick most frequently occurring chromosome and position
+                                             BED_format_chromosome, min_position, max_position, BED_name,
+                                             barcode_plus, barcode_minus, barcode_sum, barcode_geometric_mean,
+                                             total_plus, total_minus, total_sum, total_geometric_mean,
+                                             primer1, primer2, primer_geometric_mean, position_std]]
 
             if (barcode_geometric_mean > 0 or primer_geometric_mean > 0):
                 index_summary.append(summary_list)
         return index_summary    # WindowIndex, Chromosome, Position, Plus.mi, Minus.mi,
-                                # BidirectionalArithmeticMean.mi, BidirectionalGeometricMean.mi,
-                                # Plus, Minus,
-                                # BidirectionalArithmeticMean, BidirectionalGeometricMean,
+        # BidirectionalArithmeticMean.mi, BidirectionalGeometricMean.mi,
+        # Plus, Minus,
+        # BidirectionalArithmeticMean, BidirectionalGeometricMean,
 
 
 def alignSequences(ref_seq, query_seq):
     match = 2
     mismatch = -1
     ref_length = len(ref_seq)
-    matches_required = len(ref_seq) - 1 - 7 # allow up to 8 mismatches
+    matches_required = len(ref_seq) - 1 - 7  # allow up to 8 mismatches
     scoring = swalign.NucleotideScoringMatrix(match, mismatch)
     sw = swalign.LocalAlignment(scoring, gap_penalty=-100, gap_extension_penalty=-100, prefer_gap_runs=True)  # you can also choose gap penalties, etc...
-    #sw = swalign.LocalAlignment(scoring, gap_penalty=-10, gap_extension_penalty=-0.5, prefer_gap_runs=True)  # you can also choose gap penalties, etc...
+    # sw = swalign.LocalAlignment(scoring, gap_penalty=-10, gap_extension_penalty=-0.5, prefer_gap_runs=True)  # you can also choose gap penalties, etc...
     forward_alignment = sw.align(ref_seq, query_seq)
     reverse_alignment = sw.align(ref_seq, reverseComplement(query_seq))
     if forward_alignment.matches >= matches_required and forward_alignment.matches > reverse_alignment.matches:
@@ -187,13 +187,15 @@ def alignSequences(ref_seq, query_seq):
 annotation is in the format:
 
 """
+
+
 def analyze(sam_filename, reference_genome, outfile, annotations):
     output_folder = os.path.dirname(outfile)
     if not os.path.exists(output_folder):
         os.makedirs(output_folder)
 
     logger.info("Processing SAM file %s", sam_filename)
-    file = open( sam_filename, 'rU')
+    file = open(sam_filename, 'rU')
     __, filename_tail = os.path.split(sam_filename)
     chromosome_position = chromosomePosition(reference_genome)
     for line in file:
@@ -202,14 +204,14 @@ def analyze(sam_filename, reference_genome, outfile, annotations):
             # These are strings--need to be cast as ints for comparisons.
             full_read_name, sam_flag, chromosome, position, mapq, cigar, name_of_mate, position_of_mate, template_length, read_sequence, read_quality = fields[:11]
             if int(mapq) >= 50 and int(sam_flag) & 128 and not int(sam_flag) & 2048:
-            # Second read in pair
+                # Second read in pair
                 barcode, count = parseReadName(full_read_name)
                 primer = assignPrimerstoReads(read_sequence, sam_flag)
-                if int(template_length) < 0:                  #Reverse read
+                if int(template_length) < 0:  # Reverse read
                     read_position = int(position_of_mate) + abs(int(template_length)) - 1
                     strand = "-"
                     chromosome_position.addPositionBarcode(chromosome, read_position, strand, barcode, primer, count)
-                elif int(template_length) > 0:                #Forward read
+                elif int(template_length) > 0:  # Forward read
                     read_position = int(position)
                     strand = "+"
                     chromosome_position.addPositionBarcode(chromosome, read_position, strand, barcode, primer, count)
@@ -220,20 +222,20 @@ def analyze(sam_filename, reference_genome, outfile, annotations):
     with open(outfile, 'w') as f:
         # Write header
         f.write('\t'.join(['#BED Chromosome', 'BED Min.Position',
-                         'BED Max.Position', 'BED Name', 'Filename', 'WindowIndex', 'Chromosome', 'Position', 'Sequence', '+.mi', '-.mi', 'bi.sum.mi', 'bi.geometric_mean.mi', '+.total',
-                         '-.total', 'total.sum', 'total.geometric_mean', 'primer1.mi', 'primer2.mi', 'primer.geometric_mean',
-                         'position.stdev', 'Off-Target Sequence', 'Mismatches', 'Length', 'BED off-target Chromosome', 'BED off-target start', 'BED off-target end', 'BED off-target name', 'BED Score', 'Strand', 'Cells', 'Targetsite', 'Target Sequence']) + '\n')
+                           'BED Max.Position', 'BED Name', 'Filename', 'WindowIndex', 'Chromosome', 'Position', 'Sequence', '+.mi', '-.mi', 'bi.sum.mi', 'bi.geometric_mean.mi', '+.total',
+                           '-.total', 'total.sum', 'total.geometric_mean', 'primer1.mi', 'primer2.mi', 'primer.geometric_mean',
+                           'position.stdev', 'Off-Target Sequence', 'Mismatches', 'Length', 'BED off-target Chromosome', 'BED off-target start', 'BED off-target end', 'BED off-target name', 'BED Score', 'Strand', 'Cells', 'Targetsite', 'Target Sequence']) + '\n')
 
         # Output summary of each window
         summary = chromosome_position.SummarizeBarcodeIndex()
         target_sequence = annotations["Sequence"]
-        annotation = [ annotations['Description'],
-                       annotations['Targetsite'],
-                       annotations['Sequence']]
+        annotation = [annotations['Description'],
+                      annotations['Targetsite'],
+                      annotations['Sequence']]
         for row in summary:
             window_sequence = row[3]
             if target_sequence:
-                sequence, mismatches, length, strand,  target_start_relative, target_end_relative = alignSequences(target_sequence, window_sequence)
+                sequence, mismatches, length, strand, target_start_relative, target_end_relative = alignSequences(target_sequence, window_sequence)
                 BED_chromosome = row[4]
                 BED_name = row[7]
                 BED_score = 1
@@ -245,12 +247,12 @@ def analyze(sam_filename, reference_genome, outfile, annotations):
                     target_end_absolute = int(row[2]) + 25 - target_start_relative
                 else:
                     BED_chromosome, target_start_absolute, target_end_absolute, BED_score, BED_name = [""] * 5
-                f.write('\t'.join( row[4:8] + [filename_tail] + row[0:4] + row[8:] +
-                            [str(x) for x in sequence, mismatches, length,  BED_chromosome, target_start_absolute,
-                                              target_end_absolute, BED_name, BED_score, strand] + [str(x) for x in annotation] + ['\n']))
+                f.write('\t'.join(row[4:8] + [filename_tail] + row[0:4] + row[8:] +
+                                  [str(x) for x in sequence, mismatches, length, BED_chromosome, target_start_absolute,
+                                   target_end_absolute, BED_name, BED_score, strand] + [str(x) for x in annotation] + ['\n']))
             else:
                 # logger.info([str(x) for x in row[4:8] + [filename_tail] + row[0:4] + row[8:] + [""]*9 + annotation] + ['\n'])
-                f.write('\t'.join([str(x) for x in row[4:8] + [filename_tail] + row[0:4] + row[8:] + [""]*9 + annotation] + ['\n']))
+                f.write('\t'.join([str(x) for x in row[4:8] + [filename_tail] + row[0:4] + row[8:] + [""] * 9 + annotation] + ['\n']))
 
 
 def assignPrimerstoReads(read_sequence, sam_flag):
@@ -281,7 +283,7 @@ def loadFileIntoArray(filename):
 def parseReadName(read_name):
     m = re.search(r'([ACGTN]{8}_[ACGTN]{6}_[ACGTN]{6})_([0-9]*)', read_name)
     if m:
-        molecular_index, count  =  m.group(1), m.group(2)
+        molecular_index, count = m.group(1), m.group(2)
         return molecular_index, int(count)
     else:
         # print read_name
@@ -296,7 +298,7 @@ def processLine(line):
 
 
 def reverseComplement(sequence):
-    transtab = string.maketrans("ACGT","TGCA")
+    transtab = string.maketrans("ACGT", "TGCA")
     return sequence.translate(transtab)[::-1]
 
 
