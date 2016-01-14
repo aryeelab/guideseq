@@ -1,5 +1,5 @@
 ===============================
-guideseq: Open-Source Software for Analysis of GUIDE-seq Data
+guideseq
 ===============================
 
 .. image:: https://travis-ci.org/aryeelab/guideseq.svg
