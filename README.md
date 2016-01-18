@@ -25,7 +25,7 @@ The individual pipeline steps are:
 
 ## Dependencies
 * Python (2.7)
-* Reference genome fasta file ([Example](<http://ftp.ensembl.org/pub/release-82/fasta/homo_sapiens/dna/Homo_sapiens.GRCh38.dna_sm.primary_assembly.fa.gz>))
+* Reference genome fasta file ([Example](http://www.broadinstitute.org/ftp/pub/seq/references/Homo_sapiens_assembly19.fasta))
 * [`bwa`](<http://bio-bwa.sourceforge.net/>) alignment tool
 * [`bedtools`](<http://bedtools.readthedocs.org/en/latest/>) genome arithmetic utility
 
