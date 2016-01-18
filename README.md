@@ -1,4 +1,4 @@
-# guideseq: GUIDE-Seq Off-Target Analysis Package
+# guideseq: The GUIDE-Seq Analysis Package
 [![travis badge](https://travis-ci.org/aryeelab/guideseq.svg)](https://travis-ci.org/aryeelab/guideseq)
 
 The guideseq package implements our data preprocessing and analysis pipeline for GUIDE-Seq data. It takes raw sequencing reads (FASTQ) and a parameter manifest file (.yaml) as input and produces a table of annotated off-target sites as output.
@@ -54,8 +54,17 @@ Once all dependencies are installed, there are a few easy steps to download and 
 1. Obtain a copy of the guideseq package source code. You can either download and unzip the latest source from the github [release page](https://github.com/aryeelab/guideseq/releases), or you use git to clone the repository by running `git clone --recursive https://github.com/aryeelab/guideseq.git`
 2. Install guideseq dependencies by entering the guideseq directory and running `pip install -r requirements.txt`
 
+Once all guideseq dependencies are installed, you will be ready to start using guideseq!
+
 
 ## Running the Full Analysis Pipeline
+
+To run the full guideseq analysis pipeline, you must first create a manifest YAML file that describes all pipeline inputs. Once you have done so, you can simply run
+
+```
+python /path/to/guideseq.py all -m /path/to/manifest.yaml
+```
+to run the entire pipeline. Below are specific instructions detailing how to write the manifest file.
 
 ### Writing A Manifest File
 When running the end-to-end analysis functionality of the guideseq package, a number of inputs are required. To simplify the formatting of these inputs and to encourage reproducibility, these parameters are inputted into the pipeline via a manifest formatted as a YAML file. YAML files allow easy-to-read specification of key-value pairs. This allows us to easily specify our parameters. The following fields are required in the manifest:
@@ -64,7 +73,13 @@ When running the end-to-end analysis functionality of the guideseq package, a nu
 - `output_folder`: The absolute path to the folder in which all pipeline outputs will be saved.
 - `bwa`: The absolute path to the `bwa` executable
 - `bedtools`: The absolute path to the `bedtools` executable
-- `undemultiplexed`: The absolute paths to the undemultiplexed paired end sequencing files (forward, reverse, index1, index2). In the format:
+- `undemultiplexed`: The absolute paths to the undemultiplexed paired end sequencing files. The required parameters are:
+	- `forward`: The absolute path to the FASTQ file containing the forward reads.
+	- `reverse`: The absolute path to the FASTQ file containing the reverse reads.
+	- `index1`: The absolute path to the FASTQ file containing the forward index reads.
+	- `index2`: The absolute path to the FASTQ file containing the reverse index reads.
+
+An example `undemultiplexed` field:
 
 ```
 undemultiplexed:
@@ -74,15 +89,32 @@ undemultiplexed:
     index2: ../test/data/undemux.i2.fastq.gz
 ```
 
-- `samples`: A nested field containing the details of each sample. At least two samples must be specified: a "control" sample (to be used to filter out background off-target sites) and at least one treatment sample (containing  The required sub-fields are:
+- `samples`: A nested field containing the details of each sample. At least two samples must be specified: a "control" sample (to be used to filter out background off-target sites) and at least one treatment sample. The required parameters are:
 	- `target`: The sample targetsites
 	- `barcode1`: The forward barcode
 	- `barcode2`: The reverse barcode
 	- `description`: A description of the sample
 
+An example `samples` field:
+
+```
+samples:
+    control:
+        target:
+        barcode1: CTCTCTAC
+        barcode2: CTCTCTAT
+        description: Control
+
+    EMX1:
+        target: GAGTCCGAGCAGAAGAAGAANGG
+        barcode1: TAGGCATG
+        barcode2: TAGATCGC
+        description: EMX1
+```
 
 ### A Full Manifest File Example
-Below is an example of a 
+
+Below is an example of a full manifest file. Feel free to copy it and replace the parameters with your own experiment data. Remember that you can input more than just one treatment sample (e.g. the "EMX1" data below).
 
 ```
 reference_genome: /Volumes/Media/hg38/hg38.fa
