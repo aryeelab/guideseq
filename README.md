@@ -145,6 +145,8 @@ samples:
 
 ## Running Analysis Steps Individually
 
+In addition to end-to-end pipeline analysis functionality, the guideseq package also allows for every step fo the analysis to be run individually. Here we have detailed the required inputs and expected outputs of each step.
+
 ### `demultiplex` Pooled Multi-Sample Sequencing (Manifest Required)
 
 - **Functionality**: Given undemultiplexed sequence files and sample barcodes specified in the manifest, output the demultiplexed sample-specific reads in FASTQ format. Files are outputted to the `output_folder/consolidated` folder.
@@ -167,7 +169,7 @@ samples:
 - **Required Parameters**:
 	- `--read1`: Path to the forward reads (FASTQ)
 	- `--read2`: Path to the reverse reads (FASTQ)
-	- `--outfolder`: Path to the folder in which the output files will be placed
+	- `--outfolder`: Path to the folder in which the output files will be saved
 - **Optional Parameters**:
 	- `--min_quality`: The minimum quality of a read for it to be considered in the consolidation
 	- `--min_frequency`: The minimum frequency of a read for the position to be consolidated
@@ -176,35 +178,50 @@ samples:
 
 ### `align` Sites to Genome
 
-- **Functionality**: 
+- **Functionality**: Given the consolidated forward and reverse reads, execute a paired-end mapping of the sequences to the reference genome using the `bwa` package. Outputs an alignment samfile.
 - **Required Parameters**:
-	- `-m or --manifest`: Specify the path to the manifest YAML file
+	- `--bwa`: Path to the `bwa` executable
+	- `--genome`: Path to the reference genome FASTA file
+	- `--read1`: Path to the consolidated forward read FASTQ file
+	- `--read2`: Path to the consolidated reverse read FASTQ file
+	- `--outfolder`: Path to the folder in which the output files will be saved
 - **Example Usage**:
-	- `python /path/to/guideseq.py all -m /path/to/manifest.yaml`
+	- `python /path/to/guideseq.py align --bwa /usr/bin/bwa --genome /data/hg38.fasta --read1 /data/control_read1.fastq --read2 /data/control_read2.fastq --outfolder /data/output`
 
 ### `identify` Off-target Site Candidates
 
-- **Functionality**: Given undemultiplexed sequence files and sample barcodes specified in the manifest, output the 
+- **Functionality**: Given the alignment samfile for a given site, 
 - **Required Parameters**:
-	- `-m or --manifest`: Specify the path to the manifest YAML file
+	- `--aligned`: 
+	- `--genome`:
+	- `--outfolder`:
+	- `--target_sequence`:
+- **Optional Parameters**:
+	- `--description`:
 - **Example Usage**:
-	- `python /path/to/guideseq.py all -m /path/to/manifest.yaml`
+	- `python /path/to/guideseq.py identify [-h] --aligned ALIGNED --genome GENOME --outfolder OUTFOLDER --target_sequence TARGET_SEQUENCE [--description DESCRIPTION]`
 
 ### `filter` Background DSB Sites
 
 - **Functionality**: Given undemultiplexed sequence files and sample barcodes specified in the manifest, output the 
 - **Required Parameters**:
-	- `-m or --manifest`: Specify the path to the manifest YAML file
+	- `--bedtools`:
+	- `--identified`:
+	- `--background`:
+	- `--outfolder`:
 - **Example Usage**:
-	- `python /path/to/guideseq.py all -m /path/to/manifest.yaml`
+	- `python /path/to/guideseq.py filter [-h] --bedtools BEDTOOLS --identified IDENTIFIED --background BACKGROUND --outfolder OUTFOLDER`
 
 ### `visualize` Detected Off-Target Sites
 
 - **Functionality**: Given undemultiplexed sequence files and sample barcodes specified in the manifest, output the 
 - **Required Parameters**:
-	- `-m or --manifest`: Specify the path to the manifest YAML file
+	- `--infile`:
+	- `--outfile`:
+- **Optional Parameters**:
+	- `--title`:
 - **Example Usage**:
-	- `python /path/to/guideseq.py all -m /path/to/manifest.yaml`====
+	- `python /path/to/guideseq.py visualize [-h] --infile INFILE --outfile OUTFILE [--title TITLE]`
 
 ## Testing the guideseq Package
 
