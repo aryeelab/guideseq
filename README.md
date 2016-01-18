@@ -145,22 +145,67 @@ samples:
 
 ## Running Analysis Steps Individually
 
-### `demultiplex` Pooled Multi-Sample Sequencing
+### `demultiplex` Pooled Multi-Sample Sequencing (Manifest Required)
 
-### `umitag` Reads
+- **Functionality**: Given undemultiplexed sequence files and sample barcodes specified in the manifest, output the demultiplexed sample-specific reads in FASTQ format. Files are outputted to the `output_folder/consolidated` folder.
+- **Required Parameters**:
+	- `-m or --manifest`: Specify the path to the manifest YAML file
+- **Example Usage**:
+	- `python /path/to/guideseq.py demultiplex -m /path/to/manifest.yaml`
+
+### `umitag` Reads (Manifest Required)
+
+- **Functionality**: Given the demultiplexed files in the folder `output_folder/undemultiplexed` (where `output_folder` is specified in the manifest), umitag the reads for downstream consolidation. Files are outputted to the `output_folder/umitagged` folder.
+- **Required Parameters**:
+	- `-m or --manifest`: Specify the path to the manifest YAML file
+- **Example Usage**:
+	- `python /path/to/guideseq.py umitag -m /path/to/manifest.yaml`
 
 ### `consolidate` PCR Duplicates
 
+- **Functionality**: Given undemultiplexed sequence files and sample barcodes specified in the manifest, output the 
+- **Required Parameters**:
+	- `--read1`: Path to the forward reads (FASTQ)
+	- `--read2`: Path to the reverse reads (FASTQ)
+	- `--outfolder`: Path to the folder in which the output files will be placed
+- **Optional Parameters**:
+	- `--min_quality`: The minimum quality of a read for it to be considered in the consolidation
+	- `--min_frequency`: The minimum frequency of a read for the position to be consolidated
+- **Example Usage**:
+	- `python /path/to/guideseq.py consolidate --read1 /data/control_read1.fastq --read2 /data/control_read2.fastq --outfolder /data/output`
+
 ### `align` Sites to Genome
+
+- **Functionality**: 
+- **Required Parameters**:
+	- `-m or --manifest`: Specify the path to the manifest YAML file
+- **Example Usage**:
+	- `python /path/to/guideseq.py all -m /path/to/manifest.yaml`
 
 ### `identify` Off-target Site Candidates
 
+- **Functionality**: Given undemultiplexed sequence files and sample barcodes specified in the manifest, output the 
+- **Required Parameters**:
+	- `-m or --manifest`: Specify the path to the manifest YAML file
+- **Example Usage**:
+	- `python /path/to/guideseq.py all -m /path/to/manifest.yaml`
+
 ### `filter` Background DSB Sites
 
+- **Functionality**: Given undemultiplexed sequence files and sample barcodes specified in the manifest, output the 
+- **Required Parameters**:
+	- `-m or --manifest`: Specify the path to the manifest YAML file
+- **Example Usage**:
+	- `python /path/to/guideseq.py all -m /path/to/manifest.yaml`
+
 ### `visualize` Detected Off-Target Sites
+
+- **Functionality**: Given undemultiplexed sequence files and sample barcodes specified in the manifest, output the 
+- **Required Parameters**:
+	- `-m or --manifest`: Specify the path to the manifest YAML file
+- **Example Usage**:
+	- `python /path/to/guideseq.py all -m /path/to/manifest.yaml`====
 
 ## Testing the guideseq Package
 
 In the spirit of Test-Driven Development, the guideseq package has end-to-end tests to ensure that 
-
-## Acknowledgements
