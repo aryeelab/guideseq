@@ -143,6 +143,46 @@ samples:
         description: EMX1
 ```
 
+### Pipeline Output
+
+When running the full pipeline, the results of each step are outputted to the `output_folder` in a separate folder for each step. The final detected off-target sites are placed in the `output_folder/identified` folder, with one `.txt` file for each sample specified in the manifest. The fields that are populated in each row of these off-target files are specified below:
+
+**Output Off-Targets `.txt` Fields**:
+
+- `BED Chromosome`
+- `BED Min.Position`
+- `BED Max.Position`
+- `BED Name`
+- `Filename`
+- `WindowIndex`
+- `Chromosome`
+- `Position`
+- `Sequence`
+- `+.mi`
+- `-.mi`
+- `bi.sum.mi`
+- `bi.geometric_mean.mi`
+- `+.total`
+- `-.total`
+- `total.sum`
+- `total.geometric_mean`
+- `primer1.mi`
+- `primer2.mi`
+- `primer.geometric_mean`
+- `position.stdev`
+- `Off-Target Sequence`
+- `Mismatches`
+- `Length`
+- `BED off-target Chromosome`
+- `BED off-target start`
+- `BED off-target end`
+- `BED off-target name`
+- `BED Score`
+- `Strand`
+- `Cells`
+- `Targetsite`
+- `Target Sequence`
+
 ## Running Analysis Steps Individually
 
 In addition to end-to-end pipeline analysis functionality, the guideseq package also allows for every step fo the analysis to be run individually. Here we have detailed the required inputs and expected outputs of each step.
@@ -200,40 +240,6 @@ In addition to end-to-end pipeline analysis functionality, the guideseq package 
 	- `--description`: Specify additional information about the sample.
 - **Example Usage**:
 	- `python /path/to/guideseq.py identify --aligned /data/aligned/EMX1.sam --genome /data/hg19.fasta --outfolder /data/output --target_sequence GAGTCCGAGCAGAAGAAGAANGG --description EMX1`
-- **Output Fields**:
-	- `BED Chromosome`
-	- `BED Min.Position`
-	- `BED Max.Position`
-	- `BED Name`
-	- `Filename`
-	- `WindowIndex`
-	- `Chromosome`
-	- `Position`
-	- `Sequence`
-	- `+.mi`
-	- `-.mi`
-	- `bi.sum.mi`
-	- `bi.geometric_mean.mi`
-	- `+.total`
-	- `-.total`
-	- `total.sum`
-	- `total.geometric_mean`
-	- `primer1.mi`
-	- `primer2.mi`
-	- `primer.geometric_mean`
-	- `position.stdev`
-	- `Off-Target Sequence`
-	- `Mismatches`
-	- `Length`
-	- `BED off-target Chromosome`
-	- `BED off-target start`
-	- `BED off-target end`
-	- `BED off-target name`
-	- `BED Score`
-	- `Strand`
-	- `Cells`
-	- `Targetsite`
-	- `Target Sequence`
 
 ### `filter` Background DSB Sites
 
@@ -259,4 +265,50 @@ In addition to end-to-end pipeline analysis functionality, the guideseq package 
 
 ## Testing the guideseq Package
 
-In the spirit of Test-Driven Development, the guideseq package has end-to-end tests to ensure that 
+In the spirit of Test-Driven Development, we have written end-to-end tests for each step of the pipeline. These can be used to ensure that the software is running with expected functionality.
+
+NOTE: Due to differences in sorting between different versions of the `bwa` package, you must be using `bwa v0.7.9a` for these tests to work. We also recommend that you use `bedtools v2.25.0` when running these tests for consistency's sake.
+
+### Single-Step Regression Tests
+
+For ongoing testing and development, we have created an abridged set of input data and expected output data for each step of the pipeline. This way, changes to the pipeline can be quickly tested for feature regression.
+
+To run these tests, you must first install the `nose` testing Python package.
+
+```
+pip install nose
+```
+
+Then, from the guideseq root directory, simply run
+
+```
+nosetests
+```
+
+and the regression tests for each pipeline step will be run.
+
+### Full Large Test
+
+If you have more time, we have prepared a bash script that downloads and compiles all dependencies from source, downloads a fresh reference genome and full GUIDE-seq sequencing data, and performs a full test of the entire pipeline. This test takes a long time, but we require that it be run before we commit a new release.
+
+To run the full large test, enter the `guideseq/test` folder and run
+
+```
+./large_test.sh
+```
+
+Then, sit back and watch the full large testing process unfold automatically in the terminal.
+
+### Manual Testing
+
+If you wish to run a full GUIDE-Seq dataset through the analysis pipeline, you may find it and a test manifest (to be altered depending on your dependency locations) here:
+
+```
+http://aryee.mgh.harvard.edu/guideseq/data/guideseq_test_fastq.zip
+```
+
+which should be used with the following reference genome:
+
+```
+http://www.broadinstitute.org/ftp/pub/seq/references/Homo_sapiens_assembly19.fasta
+```
