@@ -44,7 +44,7 @@ For both bwa and bedtools, make sure you know the path to the respective executa
 
 ### Download Reference Genome
 
-The guideseq package requires a reference genome for read mapping. You can use any modern human reference genome of your choosing, but for all of our testing and original GUIDE-seq analyses (Tsai et al. *Nature Biotechnol* 2015) we use [hg19](https://genome.ucsc.edu/cgi-bin/hgGateway?db=hg19). Be sure to unzip the gunzipped FASTA file before use.
+The guideseq package requires a reference genome for read mapping. You can use any modern human reference genome of your choosing, but for all of our testing and original GUIDE-seq analyses (Tsai et al. *Nature Biotechnol* 2015) we use hg19 ([download](http://www.broadinstitute.org/ftp/pub/seq/references/Homo_sapiens_assembly19.fasta)). Be sure to unzip the gunzipped FASTA file before use.
 
 ### Download and Set Up guideseq
 
