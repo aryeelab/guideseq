@@ -45,7 +45,7 @@ For both bwa and bedtools, make sure you know the path to the respective executa
 
 ### Download Reference Genome
 
-The guideseq package requires a reference genome for read mapping. You can use any modern human reference genome of your choosing, but for all of our testing and original GUIDE-seq analyses (Tsai et al. *Nature Biotechnol* 2015) we use [hg38](http://ftp.ensembl.org/pub/release-82/fasta/homo_sapiens/dna/Homo_sapiens.GRCh38.dna_sm.primary_assembly.fa.gz). Be sure to unzip the gunzipped FASTA file before use.
+The guideseq package requires a reference genome for read mapping. You can use any modern human reference genome of your choosing, but for all of our testing and original GUIDE-seq analyses (Tsai et al. *Nature Biotechnol* 2015) we use [hg19](https://genome.ucsc.edu/cgi-bin/hgGateway?db=hg19). Be sure to unzip the gunzipped FASTA file before use.
 
 ### Download and Set Up guideseq
 
@@ -105,7 +105,7 @@ samples:
         barcode2: CTCTCTAT
         description: Control
 
-    EMX1:
+    [SAMPLENAME]:
         target: GAGTCCGAGCAGAAGAAGAANGG
         barcode1: TAGGCATG
         barcode2: TAGATCGC
@@ -117,7 +117,7 @@ samples:
 Below is an example of a full manifest file. Feel free to copy it and replace the parameters with your own experiment data. Remember that you can input more than just one treatment sample (e.g. the "EMX1" data below).
 
 ```
-reference_genome: /Volumes/Media/hg38/hg38.fa
+reference_genome: /Volumes/Media/hg19/hg19.fa
 output_folder: ../test/output
 
 bwa: bwa
@@ -149,7 +149,7 @@ In addition to end-to-end pipeline analysis functionality, the guideseq package 
 
 ### `demultiplex` Pooled Multi-Sample Sequencing (Manifest Required)
 
-- **Functionality**: Given undemultiplexed sequence files and sample barcodes specified in the manifest, output the demultiplexed sample-specific reads in FASTQ format. Files are outputted to the `output_folder/consolidated` folder.
+- **Functionality**: Given undemultiplexed sequence files and sample barcodes specified in the manifest, output the demultiplexed sample-specific reads in FASTQ format. The forward, reverse, and two index files for each sample in the manifest	 are outputted to the `output_folder/consolidated` folder.
 - **Required Parameters**:
 	- `-m or --manifest`: Specify the path to the manifest YAML file
 - **Example Usage**:
@@ -157,7 +157,7 @@ In addition to end-to-end pipeline analysis functionality, the guideseq package 
 
 ### `umitag` Reads (Manifest Required)
 
-- **Functionality**: Given the demultiplexed files in the folder `output_folder/undemultiplexed` (where `output_folder` is specified in the manifest), umitag the reads for downstream consolidation. Files are outputted to the `output_folder/umitagged` folder.
+- **Functionality**: Given the demultiplexed files in the folder `output_folder/undemultiplexed` (where `output_folder` is specified in the manifest), umitag the reads for downstream consolidation. The forward and reverse files for each sample in the manifest are outputted to the `output_folder/umitagged` folder.
 - **Required Parameters**:
 	- `-m or --manifest`: Specify the path to the manifest YAML file
 - **Example Usage**:
@@ -165,10 +165,10 @@ In addition to end-to-end pipeline analysis functionality, the guideseq package 
 
 ### `consolidate` PCR Duplicates
 
-- **Functionality**: Given undemultiplexed sequence files and sample barcodes specified in the manifest, output the 
+- **Functionality**: Given undemultiplexed sequence files and sample barcodes specified in the manifest, output the consolidated forward and reversed reads to the `outfolder`.
 - **Required Parameters**:
-	- `--read1`: Path to the forward reads (FASTQ)
-	- `--read2`: Path to the reverse reads (FASTQ)
+	- `--read1`: Path to the forward umitagged reads file (FASTQ)
+	- `--read2`: Path to the reverse umitagged reads file (FASTQ)
 	- `--outfolder`: Path to the folder in which the output files will be saved
 - **Optional Parameters**:
 	- `--min_quality`: The minimum quality of a read for it to be considered in the consolidation
@@ -178,7 +178,7 @@ In addition to end-to-end pipeline analysis functionality, the guideseq package 
 
 ### `align` Sites to Genome
 
-- **Functionality**: Given the consolidated forward and reverse reads, execute a paired-end mapping of the sequences to the reference genome using the `bwa` package. Outputs an alignment samfile.
+- **Functionality**: Given the consolidated forward and reverse reads, execute a paired-end mapping of the sequences to the reference genome using the `bwa` package. Outputs an alignment `.sam` file to the `outfolder`.
 - **Required Parameters**:
 	- `--bwa`: Path to the `bwa` executable
 	- `--genome`: Path to the reference genome FASTA file
@@ -186,20 +186,54 @@ In addition to end-to-end pipeline analysis functionality, the guideseq package 
 	- `--read2`: Path to the consolidated reverse read FASTQ file
 	- `--outfolder`: Path to the folder in which the output files will be saved
 - **Example Usage**:
-	- `python /path/to/guideseq.py align --bwa /usr/bin/bwa --genome /data/hg38.fasta --read1 /data/control_read1.fastq --read2 /data/control_read2.fastq --outfolder /data/output`
+	- `python /path/to/guideseq.py align --bwa /usr/bin/bwa --genome /data/hg19.fasta --read1 /data/control_read1.fastq --read2 /data/control_read2.fastq --outfolder /data/output`
 
 ### `identify` Off-target Site Candidates
 
-- **Functionality**: Given the alignment samfile for a given site, 
+- **Functionality**: Given the alignment samfile for a given site, a reference genome, and a target sequence, output a tab-delimited `.txt` file containing the identified off-target sites.
 - **Required Parameters**:
-	- `--aligned`: 
-	- `--genome`:
-	- `--outfolder`:
-	- `--target_sequence`:
+	- `--aligned`: Path to the site-specific alignment `.sam` file.
+	- `--genome`: Path to the reference genome FASTA file.
+	- `--outfolder`: Path to the folder in which the output files will be saved.
+	- `--target_sequence`: The 
 - **Optional Parameters**:
 	- `--description`:
 - **Example Usage**:
 	- `python /path/to/guideseq.py identify [-h] --aligned ALIGNED --genome GENOME --outfolder OUTFOLDER --target_sequence TARGET_SEQUENCE [--description DESCRIPTION]`
+- **Output Fields**:
+	- `BED Chromosome`
+	- `BED Min.Position`
+	- `BED Max.Position`
+	- `BED Name`
+	- `Filename`
+	- `WindowIndex`
+	- `Chromosome`
+	- `Position`
+	- `Sequence`
+	- `+.mi`
+	- `-.mi`
+	- `bi.sum.mi`
+	- `bi.geometric_mean.mi`
+	- `+.total`
+	- `-.total`
+	- `total.sum`
+	- `total.geometric_mean`
+	- `primer1.mi`
+	- `primer2.mi`
+	- `primer.geometric_mean`
+	- `position.stdev`
+	- `Off-Target Sequence`
+	- `Mismatches`
+	- `Length`
+	- `BED off-target Chromosome`
+	- `BED off-target start`
+	- `BED off-target end`
+	- `BED off-target name`
+	- `BED Score`
+	- `Strand`
+	- `Cells`
+	- `Targetsite`
+	- `Target Sequence`
 
 ### `filter` Background DSB Sites
 
