@@ -230,7 +230,7 @@ The outputted visualizations are in the `.svg` vector format, which is an open i
 
 ## Running Analysis Steps Individually
 
-In addition to end-to-end pipeline analysis functionality, the guideseq package also allows for every step fo the analysis to be run individually. Here we have detailed the required inputs and expected outputs of each step. For each step, we have included a "runnable example" command that can be executed from the guideseq root directory to run that step on the included sample data.
+In addition to end-to-end pipeline analysis functionality, the guideseq package also allows for every step fo the analysis to be run individually. Here we have detailed the required inputs and expected outputs of each step. For each step, we have included a "runnable example" command that can be executed from the guideseq root directory to run that step on the included sample data. These "runnable example" snippets put their output in the `test/output` folder.
 
 ### `demultiplex` Pooled Multi-Sample Sequencing (Manifest Required)
 
@@ -238,15 +238,19 @@ In addition to end-to-end pipeline analysis functionality, the guideseq package 
 - **Required Parameters**:
 	- `-m or --manifest`: Specify the path to the manifest YAML file
 - **Runnable Example**:
-	- `python /path/to/guideseq.py demultiplex -m /path/to/manifest.yaml`
+	- `python guideseq/guideseq.py demultiplex -m test/test_manifest.yaml`
 
-### `umitag` Reads (Manifest Required)
+### `umitag` Reads
 
 - **Functionality**: Given the demultiplexed files in the folder `output_folder/undemultiplexed` (where `output_folder` is specified in the manifest), umitag the reads for downstream consolidation. The forward and reverse files for each sample in the manifest are outputted to the `output_folder/umitagged` folder.
 - **Required Parameters**:
-	- `-m or --manifest`: Specify the path to the manifest YAML file
+	- `--read1`: Path to the forward demultiplexed reads file (FASTQ)
+	- `--read2`: Path to the reverse demultiplexed reads file (FASTQ)
+	- `--index1`: Path to the index1 demultiplexed reads file (FASTQ)
+	- `--index2`: Path to the index2 demultiplexed reads file (FASTQ)
+	- `--outfolder`: Path to the folder in which the output files will be saved
 - **Example Usage**:
-	- `python /path/to/guideseq.py umitag -m /path/to/manifest.yaml`
+	- `python guideseq/guideseq.py umitag --read1 test/data/demultiplexed/EMX1.r1.fastq --read2 test/data/demultiplexed/EMX1.r2.fastq --index1 test/data/demultiplexed/EMX1.i1.fastq --index2 test/data/demultiplexed/EMX1.i2.fastq --outfolder test/output/`
 
 ### `consolidate` PCR Duplicates
 
@@ -259,7 +263,7 @@ In addition to end-to-end pipeline analysis functionality, the guideseq package 
 	- `--min_quality`: The minimum quality of a read for it to be considered in the consolidation
 	- `--min_frequency`: The minimum frequency of a read for the position to be consolidated
 - **Example Usage**:
-	- `python /path/to/guideseq.py consolidate --read1 /data/control_read1.fastq --read2 /data/control_read2.fastq --outfolder /data/output`
+	- `python guideseq/guideseq.py consolidate --read1 test/data/umitagged/EMX1.r1.umitagged.fastq --read2 test/data/umitagged/EMX1.r2.umitagged.fastq --outfolder test/output/`
 
 ### `align` Sites to Genome
 
