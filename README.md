@@ -74,7 +74,7 @@ to the ``Miseq Reporter.exe.config`` file located in the Miseq Reporter installa
 </appSettings>
 ```
 
-The MiSeq Reporter service needs to be restarted for the change to take effect. Future runs of the GenerateFASTQ workflow (and probably other workflows) will generate I1 and I2 reads in addition to R1 and R2. All four of these reads files will be needed for 
+The MiSeq Reporter service needs to be restarted for the change to take effect. Future runs of the GenerateFASTQ workflow (and probably other workflows) will generate I1 and I2 reads in addition to R1 and R2. All four of these reads files will be needed for guideseq analysis.
 
 See page 29 of the Miseq Reporter User Guide for further instructions.
 
