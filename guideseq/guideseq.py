@@ -314,7 +314,7 @@ def parse_args():
 
     visualize_parser = subparsers.add_parser('visualize', help='Visualize off-target sites')
     visualize_parser.add_argument('--infile', required=True)
-    visualize_parser.add_argument('--outfile', required=True)
+    visualize_parser.add_argument('--outfolder', required=True)
     visualize_parser.add_argument('--title', required=False)
 
     return parser.parse_args()
@@ -457,7 +457,7 @@ def main():
         Run just the visualize step
         """
         g = GuideSeq()
-        g.output_folder = os.path.dirname(args.outfile)
+        g.output_folder = os.path.dirname(args.outfolder)
         sample = os.path.basename(args.infile).split('.')[0]
         g.samples = {sample: {}}
         g.identified = {}

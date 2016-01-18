@@ -251,7 +251,7 @@ In addition to end-to-end pipeline analysis functionality, the guideseq package 
 	- `--index1`: Path to the index1 demultiplexed reads file (FASTQ)
 	- `--index2`: Path to the index2 demultiplexed reads file (FASTQ)
 	- `--outfolder`: Path to the folder in which the output files will be saved
-- **Example Usage**:
+- **Runnable Example**:
 	- `python guideseq/guideseq.py umitag --read1 test/data/demultiplexed/EMX1.r1.fastq --read2 test/data/demultiplexed/EMX1.r2.fastq --index1 test/data/demultiplexed/EMX1.i1.fastq --index2 test/data/demultiplexed/EMX1.i2.fastq --outfolder test/output/`
 
 ### `consolidate` PCR Duplicates
@@ -264,20 +264,20 @@ In addition to end-to-end pipeline analysis functionality, the guideseq package 
 - **Optional Parameters**:
 	- `--min_quality`: The minimum quality of a read for it to be considered in the consolidation
 	- `--min_frequency`: The minimum frequency of a read for the position to be consolidated
-- **Example Usage**:
+- **Runnable Example**:
 	- `python guideseq/guideseq.py consolidate --read1 test/data/umitagged/EMX1.r1.umitagged.fastq --read2 test/data/umitagged/EMX1.r2.umitagged.fastq --outfolder test/output/`
 
 ### `align` Sites to Genome
 
 - **Functionality**: Given the consolidated forward and reverse reads, execute a paired-end mapping of the sequences to the reference genome using the `bwa` package. Outputs an alignment `.sam` file to the `outfolder`.
-- **Required Parameters**:
+- **Runnable Example**:
 	- `--bwa`: Path to the `bwa` executable
 	- `--genome`: Path to the reference genome FASTA file
 	- `--read1`: Path to the consolidated forward read FASTQ file
 	- `--read2`: Path to the consolidated reverse read FASTQ file
 	- `--outfolder`: Path to the folder in which the output files will be saved
 - **Example Usage**:
-	- `python /path/to/guideseq.py align --bwa /usr/bin/bwa --genome /data/hg19.fasta --read1 /data/control_read1.fastq --read2 /data/control_read2.fastq --outfolder /data/output`
+	- `python guideseq/guideseq.py align --bwa bwa --genome test/test_genome.fa --read1 test/data/consolidated/EMX1.r1.consolidated.fastq --read2 test/data/consolidated/EMX1.r2.consolidated.fastq --outfolder test/output/`
 
 ### `identify` Off-target Site Candidates
 
@@ -289,8 +289,8 @@ In addition to end-to-end pipeline analysis functionality, the guideseq package 
 	- `--target_sequence`: The sequence targeted in the sample (blank for control sample)
 - **Optional Parameters**:
 	- `--description`: Specify additional information about the sample.
-- **Example Usage**:
-	- `python /path/to/guideseq.py identify --aligned /data/aligned/EMX1.sam --genome /data/hg19.fasta --outfolder /data/output --target_sequence GAGTCCGAGCAGAAGAAGAANGG --description EMX1`
+- **Runnable Example**:
+	- `python guideseq/guideseq.py identify --aligned test/data/aligned/EMX1.sam --genome test/test_genome.fa --outfolder test/output/ --target_sequence GAGTCCGAGCAGAAGAAGAANGG --description EMX1`
 
 ### `filter` Background DSB Sites
 
@@ -300,19 +300,19 @@ In addition to end-to-end pipeline analysis functionality, the guideseq package 
 	- `--identified`: Path to the `.txt` file outputted by the `identify` step for a treatment sample.
 	- `--background`: Path to the `.txt` file outputted by the `identify` step for a control sample.
 	- `--outfolder`: Path to the folder in which the output files will be saved.
-- **Example Usage**:
-	- `python /path/to/guideseq.py filter --bedtools /usr/bin/bedtools --identified /data/identified/EMX1.txt --background /data/identified/control.txt --outfolder /data/output`
+- **Runnable Example**:
+	- `python guideseq/guideseq.py filter --bedtools bedtools --identified test/data/identified/EMX1_identifiedOfftargets.txt --background test/data/identified/control_identifiedOfftargets.txt --outfolder test/output/`
 
 ### `visualize` Detected Off-Target Sites
 
 - **Functionality**: Given an identified off-target sites `.txt` file, output an alignment visualization of the off-target sites.
 - **Required Parameters**:
 	- `--infile`:  Path to the input `.txt.` off-targets file
-	- `--outfile`: Path to the outputted `.svg` graphic
+	- `--outfolder`: Path to the outputted folder containing the outputted `.svg` graphic
 - **Optional Parameters**:
 	- `--title`: Specify the title of the visualization, to be printed at the top of the graphic. Useful for posters and presentations.
-- **Example Usage**:
-	- `python /path/to/guideseq.py visualize --infile /data/identified/EMX1.txt --outfile /data/visualization/EMX1 --title EMX1_Offtargets`
+- **Runnable Example**:
+	- `python guideseq/guideseq.py visualize --infile test/data/identified/EMX1_identifiedOfftargets.txt --outfolder test/output/ --title EMX1`
 
 ## Testing the guideseq Package
 
