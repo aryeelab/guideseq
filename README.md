@@ -195,11 +195,11 @@ In addition to end-to-end pipeline analysis functionality, the guideseq package 
 	- `--aligned`: Path to the site-specific alignment `.sam` file.
 	- `--genome`: Path to the reference genome FASTA file.
 	- `--outfolder`: Path to the folder in which the output files will be saved.
-	- `--target_sequence`: The 
+	- `--target_sequence`: The sequence targeted in the sample (blank for control sample)
 - **Optional Parameters**:
-	- `--description`:
+	- `--description`: Specify additional information about the sample.
 - **Example Usage**:
-	- `python /path/to/guideseq.py identify [-h] --aligned ALIGNED --genome GENOME --outfolder OUTFOLDER --target_sequence TARGET_SEQUENCE [--description DESCRIPTION]`
+	- `python /path/to/guideseq.py identify --aligned /data/aligned/EMX1.sam --genome /data/hg19.fasta --outfolder /data/output --target_sequence GAGTCCGAGCAGAAGAAGAANGG --description EMX1`
 - **Output Fields**:
 	- `BED Chromosome`
 	- `BED Min.Position`
@@ -237,25 +237,25 @@ In addition to end-to-end pipeline analysis functionality, the guideseq package 
 
 ### `filter` Background DSB Sites
 
-- **Functionality**: Given undemultiplexed sequence files and sample barcodes specified in the manifest, output the 
+- **Functionality**: Given the identified site `.txt` files for a treatment and control samples, output a `.txt` file in the same format as outputted by the `identify` step containing the sites filtered out as false-positives.
 - **Required Parameters**:
-	- `--bedtools`:
-	- `--identified`:
-	- `--background`:
-	- `--outfolder`:
+	- `--bedtools`: Path to the `bedtools` executable
+	- `--identified`: Path to the `.txt` file outputted by the `identify` step for a treatment sample.
+	- `--background`: Path to the `.txt` file outputted by the `identify` step for a control sample.
+	- `--outfolder`: Path to the folder in which the output files will be saved.
 - **Example Usage**:
-	- `python /path/to/guideseq.py filter [-h] --bedtools BEDTOOLS --identified IDENTIFIED --background BACKGROUND --outfolder OUTFOLDER`
+	- `python /path/to/guideseq.py filter --bedtools /usr/bin/bedtools --identified /data/identified/EMX1.txt --background /data/identified/control.txt --outfolder /data/output`
 
 ### `visualize` Detected Off-Target Sites
 
-- **Functionality**: Given undemultiplexed sequence files and sample barcodes specified in the manifest, output the 
+- **Functionality**: Given an identified off-target sites `.txt` file, output an alignment visualization of the off-target sites.
 - **Required Parameters**:
-	- `--infile`:
-	- `--outfile`:
+	- `--infile`:  Path to the input `.txt.` off-targets file
+	- `--outfile`: Path to the outputted `.svg` graphic
 - **Optional Parameters**:
-	- `--title`:
+	- `--title`: Specify the title of the visualization, to be printed at the top of the graphic. Useful for posters and presentations.
 - **Example Usage**:
-	- `python /path/to/guideseq.py visualize [-h] --infile INFILE --outfile OUTFILE [--title TITLE]`
+	- `python /path/to/guideseq.py visualize --infile /data/identified/EMX1.txt --outfile /data/visualization/EMX1 --title EMX1_Offtargets`
 
 ## Testing the guideseq Package
 
