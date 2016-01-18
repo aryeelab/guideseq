@@ -36,15 +36,15 @@ The individual pipeline steps are:
 To run guideseq, you must first install all necessary dependencies:
 
 - **Python 2.7**: If a version does not come bundled with your operating system, we recommend the [Anaconda](https://www.continuum.io/downloads) scientific Python package.
-- **Burrows-Wheeler Aligner (bwa)**: You can either install bwa with a package manager (`brew` on OSX or `apt-get` on Linux), or you can download it from the [project page](http://bio-bwa.sourceforge.net/) and compile it from source.
-- **Bedtools**: You can either install bwa with a package manager (`brew` on OSX or `apt-get` on Linux), or you can download it from the [project page](http://bedtools.readthedocs.org/en/latest/content/installation.html) and compile it from source.
+- **Burrows-Wheeler Aligner (bwa)**: You can either install bwa with a package manager (e.g. `brew` on OSX or `apt-get` on Ubuntu/Debian), or you can download it from the [project page](http://bio-bwa.sourceforge.net/) and compile it from source.
+- **Bedtools**: You can either install bwa with a package manager (e.g. `brew` or `apt-get`), or you can download it from the [project page](http://bedtools.readthedocs.org/en/latest/content/installation.html) and compile it from source.
 
-For both bwa and bedtools, make sure you know the path to the respective executables, as they are necessary pipeline inputs.
+For both bwa and bedtools, make sure you know the path to the respective executables, as they need to be specified in the pipeline manifest file.
 
 
 ### Download Reference Genome
 
-The guideseq package requires a reference genome for read mapping. You can use any modern human reference genome of your choosing, but for all of our testing and original GUIDE-seq analyses (Tsai et al. *Nature Biotechnol* 2015) we use hg19 ([download](http://www.broadinstitute.org/ftp/pub/seq/references/Homo_sapiens_assembly19.fasta)). Be sure to unzip the gunzipped FASTA file before use.
+The guideseq package requires a reference genome for read mapping. You can use any genome of your choosing, but for all of our testing and original GUIDE-seq analyses (Tsai et al. *Nature Biotechnol* 2015) we use hg19 ([download](http://www.broadinstitute.org/ftp/pub/seq/references/Homo_sapiens_assembly19.fasta)). Be sure to (g)unzip the FASTA file before use if it is compressed.
 
 ### Download and Set Up guideseq
 
