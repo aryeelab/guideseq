@@ -74,7 +74,7 @@ to the ``Miseq Reporter.exe.config`` file located in the Miseq Reporter installa
 </appSettings>
 ```
 
-The MiSeq Reporter service needs to be restarted for the change to take effect. Future runs of the GenerateFASTQ workflow (and probably other workflows) will generate I1 and I2 reads in addition to R1 and R2. All four of these reads files will be needed for 
+The MiSeq Reporter service needs to be restarted for the change to take effect. Future runs of the GenerateFASTQ workflow (and probably other workflows) will generate I1 and I2 reads in addition to R1 and R2. All four of these reads files will be needed for guideseq analysis.
 
 See page 29 of the Miseq Reporter User Guide for further instructions.
 
@@ -190,39 +190,41 @@ The final detected off-target sites are placed in the `output_folder/identified`
 
 ####Output Off-Targets `.txt` Fields:
 
-- `BED Chromosome`: Chromosomal coordinates in the format `chr#:start-end`
-- `BED Min.Position`: Window start position relative to the `BED Chromosome` coordinates
-- `BED Max.Position`: Window end position relative to the `BED Chromosome` coordinates
-- `BED Name`:
-- `Filename`: The name of the current `.txt` file
-- `WindowIndex`: 
-- `Chromosome`: 
-- `Position`: 
-- `Sequence`: The window sequence
+- `BED Chromosome`: Window chromosome
+- `BED Min.Position`: Window 0-based start position
+- `BED Max.Position`: Window 0-based end position
+- `BED Name`: Name of window 
+- `Filename`: The name of the current `.SAM` file used in analysis.
+- `WindowIndex`: Index number of window
+- `Chromosome`: Chromosome corresponding to position with maximum reads in window (matches `BED Chromosome`)
+- `Position`: Position with maximum number of reads in window
+- `Sequence`: The window sequence, starting 25 bp upstream and ending 25 bp downstream of `Chromosome:Position`
 - `+.mi`: Number of forward reads with distinct molecular indices
 - `-.mi`: Number of reverse reads with distinct molecular indices
-- `bi.sum.mi`: Sum of the `+.mi` and `-.mi` fields
+- `bi.sum.mi`: Sum of the `+.mi` and `-.mi` fields (GUIDE-seq Read Count)
 - `bi.geometric_mean.mi`: Geometric mean of the `+.mi` and `-.mi` fields
-- `+.total`: Number of forward reads
-- `-.total`: Number of reverse reads
+- `+.total`: Total number of forward mapping reads 
+- `-.total`: Total number of reverse mapping reads 
 - `total.sum`: Sum of `+.total` and `-.total` fields
 - `total.geometric_mean`: Geometric mean of the `+.total` and `-.total` fields
-- `primer1.mi`: 
-- `primer2.mi`:
+- `primer1.mi`: Number of reads amplified by forward primer with distinct molecular indices
+- `primer2.mi`: Number of reads amplified by reverse primer with distinct molecular indices
 - `primer.geometric_mean`: Geometric mean of the `primer1.mi` and `primer2.mi` fields
-- `position.stdev`:
-- `Off-Target Sequence`
-- `Mismatches`: Number of mismatches between the window and the target sequence
+- `position.stdev`: Standard deviation of positions within genomic window
+- `Off-Target Sequence`: Off-target sequence derived from genome reference
+- `Mismatches`: Number of mismatches between the intended target sequence and the off-target sequence
 - `Length`: Length of the target sequence
-- `BED off-target Chromosome`: 
-- `BED off-target start`:
-- `BED off-target end`:
-- `BED off-target name`:
-- `BED Score`:
-- `Strand`: Indicates the strand on which the detected window is. `+` for forward strand and `-` for reverse strand
+- `BED off-target Chromosome`: Off-target chromosome
+- `BED off-target start`: Off-target 0-based start position
+- `BED off-target end`: Off-target 0-based end position
+- `BED off-target name`: Off-target name
+- `BED Score`: Field to conform to standard BED format
+- `Strand`: Indicates the strand of detected off-target site. `+` for forward strand and `-` for reverse strand
 - `Cells`: Cell type
-- `Targetsite`: Targetsite name
-- `Target Sequence`: Target sequence (including PAM)
+- `Target site`: Targetsite name
+- `Target Sequence`: Intended target site sequence (including PAM)
+
+The key fields for interpreting this output and identifying off-target sites are: `BED off-target Chromosome`, `BED off-target start`, `BED off-target end`, `BED off-target name`, `BED off-target strand`, `Off-Target Sequence`, `bi.sum.mi`
 
 #### Output Visualizations
 
