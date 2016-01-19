@@ -3,8 +3,36 @@
 
 The guideseq package implements our data preprocessing and analysis pipeline for GUIDE-Seq data. It takes raw sequencing reads (FASTQ) and a parameter manifest file (.yaml) as input and produces a table of annotated off-target sites as output.
 
+## Table of Contents
+- [Features](#features)
+- [Dependencies](#dependencies)
+- [Getting Set Up](#setup)
+	- [Installing Dependencies](#install_dependencies)
+	- [Download Reference Genome](#reference_genome)
+	- [Download and Set Up guideseq](#guideseq_setup)
+	- [Configuring a MiSeq to Output Index Reads](#miseq)
+- [Running the Full Analysis Pipeline](#full_pipeline)
+	- [Quickstart](#quickstart)
+	- [Writing A Manifest File](#write_manifest)
+	- [A Full Manifest File Example](manifest_example)
+	- [Pipeline Outputs](#pipeline_output)
+- [Running Analysis Steps Individually](#)
+	- [Demultiplex](#demultiplex)
+	- [UMItag](#umitag)
+	- [Consolidate](#consolidate)
+	- [Align](#align)
+	- [Identify](#identify)
+	- [Filter](#filter)
+	- [Visualize](#visualize)
+- [Testing the guideseq Package](#testing)
+	- [Single-Step Regression Tests](#regression_tests)
+	- [Full Large Test](#full_test)
+	- [Manual Testing](#manual_test)
+- [Frequently Asked Questions](#FAQ)
+	- [How do I Run the Pipeline with Demultiplexed Data?](#demultiplexed_run)
 
-## Features
+
+## Features<a name="features"></a>
 
 
 The package implements a pipeline consisting of a read preprocessing module followed by an off-target identification module. The preprocessing module takes raw reads (FASTQ) from a pooled multi-sample sequencing run as input. Reads are demultiplexed into sample-specific FASTQs and PCR duplicates are removed using unique molecular index (UMI) barcode information.
@@ -23,16 +51,16 @@ The individual pipeline steps are:
 
 ![guideseq_flowchart](EMX1_visualization.png)
 
-## Dependencies
+## Dependencies<a name="dependencies"></a>
 * Python (2.7)
 * Reference genome fasta file ([Example](http://www.broadinstitute.org/ftp/pub/seq/references/Homo_sapiens_assembly19.fasta))
 * [`bwa`](<http://bio-bwa.sourceforge.net/>) alignment tool
 * [`bedtools`](<http://bedtools.readthedocs.org/en/latest/>) genome arithmetic utility
 
 
-## Getting Set Up
+## Getting Set Up<a name="setup"></a>
 
-### Install Dependencies
+### Install Dependencies<a name="install_dependencies"></a>
 
 To run guideseq, you must first install all necessary dependencies:
 
@@ -43,11 +71,11 @@ To run guideseq, you must first install all necessary dependencies:
 For both bwa and bedtools, make sure you know the path to the respective executables, as they need to be specified in the pipeline manifest file.
 
 
-### Download Reference Genome
+### Download Reference Genome<a name="reference_genome"></a>
 
 The guideseq package requires a reference genome for read mapping. You can use any genome of your choosing, but for all of our testing and original GUIDE-seq analyses (Tsai et al. *Nature Biotechnol* 2015) we use hg19 ([download](http://www.broadinstitute.org/ftp/pub/seq/references/Homo_sapiens_assembly19.fasta)). Be sure to (g)unzip the FASTA file before use if it is compressed.
 
-### Download and Set Up guideseq
+### Download and Set Up guideseq<a name="guideseq_setup"></a>
 
 Once all dependencies are installed, there are a few easy steps to download and set up the guideseq package:
 
@@ -56,7 +84,7 @@ Once all dependencies are installed, there are a few easy steps to download and 
 
 Once all guideseq dependencies are installed, you will be ready to start using guideseq.
 
-### Configuring a MiSeq to Output Index Reads
+### Configuring a MiSeq to Output Index Reads<a name="miseq"></a>
 
 The guideseq package requires index reads from the MiSeq sequencing run for read consolidation. The default MiSeq Reporter settings do not generate index (I1, I2) reads. This feature can be enabled by adding the line 
 
@@ -79,9 +107,9 @@ The MiSeq Reporter service needs to be restarted for the change to take effect. 
 See page 29 of the Miseq Reporter User Guide for further instructions.
 
 
-## Running the Full Analysis Pipeline
+## Running the Full Analysis Pipeline<a name="full_pipeline"></a>
 
-### Quickstart
+### Quickstart<a name="quickstart"></a>
 
 To run the full guideseq analysis pipeline, you must first create a manifest YAML file that describes all pipeline inputs. Once you have done so, you can simply run
 
@@ -97,7 +125,7 @@ python guideseq/guideseq.py all -m test/test_manifest.yaml
 ```
 from the guideseq root directory. The `test_manifest` assumes that both the `bwa` and `bedtools`executables are in your system PATH. You will see the pipeline results outputted to the `test/output` folder.
 
-### Writing A Manifest File
+### Writing A Manifest File<a name="write_manifest"></a>
 When running the end-to-end analysis functionality of the guideseq package, a number of inputs are required. To simplify the formatting of these inputs and to encourage reproducibility, these parameters are inputted into the pipeline via a manifest formatted as a YAML file. YAML files allow easy-to-read specification of key-value pairs. This allows us to easily specify our parameters. The following fields are required in the manifest:
 
 - `reference_genome`: The absolute path to the reference genome FASTA file.
@@ -143,35 +171,41 @@ samples:
         description: EMX1
 ```
 
-### A Full Manifest File Example
+### A Full Manifest File Example<a name="manifest_example"></a>
 
 Below is an example of a full manifest file. Feel free to copy it and replace the parameters with your own experiment data. Remember that you can input more than just one treatment sample (e.g. the "EMX1" data below).
 
 ```
-bedtools: bedtools
+reference_genome: test/test_genome.fa
+output_folder: test/output
+
 bwa: bwa
+bedtools: bedtools
+
 demultiplex_min_reads: 1000
-output_folder: test_output
-reference_genome: /Volumes/Media/hg38/hg38.fa
-samples:
-  EMX1:
-    barcode1: TAGGCATG
-    barcode2: TAGATCGC
-    description: EMX_site1
-    target: GAGTCCGAGCAGAAGAAGAANGG
-  control:
-    barcode1: CTCTCTAC
-    barcode2: CTCTCTAT
-    description: Control
-    target: null
+
 undemultiplexed:
-  forward: data/undemultiplexed/undemux.r1.fastq.gz
-  index1: data/undemultiplexed/undemux.i1.fastq.gz
-  index2: data/undemultiplexed/undemux.i2.fastq.gz
-  reverse: data/undemultiplexed/undemux.r2.fastq.gz
+    forward: test/data/undemultiplexed/undemux.r1.fastq.gz
+    reverse: test/data/undemultiplexed/undemux.r2.fastq.gz
+    index1: test/data/undemultiplexed/undemux.i1.fastq.gz
+    index2: test/data/undemultiplexed/undemux.i2.fastq.gz
+
+samples:
+    control:
+        target:  
+        barcode1: CTCTCTAC
+        barcode2: CTCTCTAT
+        description: Control
+
+    EMX1:
+        target: GAGTCCGAGCAGAAGAAGAANGG
+        barcode1: TAGGCATG
+        barcode2: TAGATCGC
+        description: EMX_site1
+
 ```
 
-### Pipeline Output
+### Pipeline Output<a name="pipeline_output"></a>
 
 When running the full pipeline, the results of each step are outputted to the `output_folder` in a separate folder for each step. The output folders and their respective contents are as follows:
 
@@ -230,11 +264,11 @@ The key fields for interpreting this output and identifying off-target sites are
 
 The outputted visualizations are in the `.svg` vector format, which is an open image standard that can be viewed in any modern web browser (e.g. Google Chrome, Apple Safari, Mozilla Firefox), and can be viewed and edited in any vector editing application (e.g. Adobe Illustrator). Because the output visualizations are vector images, they can be scaled up or down infinitely without a loss in quality, and can also be edited as shapes with ease. This makes the images produced by the guideseq package ideal for posters, presentations, and papers.
 
-## Running Analysis Steps Individually
+## Running Analysis Steps Individually<a name="individual_steps"></a>
 
 In addition to end-to-end pipeline analysis functionality, the guideseq package also allows for every step fo the analysis to be run individually. Here we have detailed the required inputs and expected outputs of each step. For each step, we have included a "runnable example" command that can be executed from the guideseq root directory to run that step on the included sample data. These "runnable example" snippets put their output in the `test/output` folder.
 
-### `demultiplex` Pooled Multi-Sample Sequencing (Manifest Required)
+### `demultiplex` Pooled Multi-Sample Sequencing (Manifest Required)<a name="demultiplex"></a>
 
 - **Functionality**: Given undemultiplexed sequence files and sample barcodes specified in the manifest, output the demultiplexed sample-specific reads in FASTQ format. The forward, reverse, and two index files for each sample in the manifest	 are outputted to the `output_folder/consolidated` folder.
 - **Required Parameters**:
@@ -242,7 +276,7 @@ In addition to end-to-end pipeline analysis functionality, the guideseq package 
 - **Runnable Example**:
 	- `python guideseq/guideseq.py demultiplex -m test/test_manifest.yaml`
 
-### `umitag` Reads
+### `umitag` Reads<a name="umitag"></a>
 
 - **Functionality**: Given the demultiplexed files in the folder `output_folder/undemultiplexed` (where `output_folder` is specified in the manifest), umitag the reads for downstream consolidation. The forward and reverse files for each sample in the manifest are outputted to the `output_folder/umitagged` folder.
 - **Required Parameters**:
@@ -254,7 +288,7 @@ In addition to end-to-end pipeline analysis functionality, the guideseq package 
 - **Runnable Example**:
 	- `python guideseq/guideseq.py umitag --read1 test/data/demultiplexed/EMX1.r1.fastq --read2 test/data/demultiplexed/EMX1.r2.fastq --index1 test/data/demultiplexed/EMX1.i1.fastq --index2 test/data/demultiplexed/EMX1.i2.fastq --outfolder test/output/`
 
-### `consolidate` PCR Duplicates
+### `consolidate` PCR Duplicates<a name="consolidate"></a>
 
 - **Functionality**: Given undemultiplexed sequence files and sample barcodes specified in the manifest, output the consolidated forward and reversed reads to the `outfolder`.
 - **Required Parameters**:
@@ -267,7 +301,7 @@ In addition to end-to-end pipeline analysis functionality, the guideseq package 
 - **Runnable Example**:
 	- `python guideseq/guideseq.py consolidate --read1 test/data/umitagged/EMX1.r1.umitagged.fastq --read2 test/data/umitagged/EMX1.r2.umitagged.fastq --outfolder test/output/`
 
-### `align` Sites to Genome
+### `align` Sites to Genome<a name="align"></a>
 
 - **Functionality**: Given the consolidated forward and reverse reads, execute a paired-end mapping of the sequences to the reference genome using the `bwa` package. Outputs an alignment `.sam` file to the `outfolder`.
 - **Runnable Example**:
@@ -279,7 +313,7 @@ In addition to end-to-end pipeline analysis functionality, the guideseq package 
 - **Example Usage**:
 	- `python guideseq/guideseq.py align --bwa bwa --genome test/test_genome.fa --read1 test/data/consolidated/EMX1.r1.consolidated.fastq --read2 test/data/consolidated/EMX1.r2.consolidated.fastq --outfolder test/output/`
 
-### `identify` Off-target Site Candidates
+### `identify` Off-target Site Candidates<a name="identify"></a>
 
 - **Functionality**: Given the alignment samfile for a given site, a reference genome, and a target sequence, output a tab-delimited `.txt` file containing the identified off-target sites.
 - **Required Parameters**:
@@ -292,7 +326,7 @@ In addition to end-to-end pipeline analysis functionality, the guideseq package 
 - **Runnable Example**:
 	- `python guideseq/guideseq.py identify --aligned test/data/aligned/EMX1.sam --genome test/test_genome.fa --outfolder test/output/ --target_sequence GAGTCCGAGCAGAAGAAGAANGG --description EMX1`
 
-### `filter` Background DSB Sites
+### `filter` Background DSB Sites<a name="filter"></a>
 
 - **Functionality**: Given the identified site `.txt` files for a treatment and control samples, output a `.txt` file in the same format as outputted by the `identify` step containing the sites filtered out as false-positives.
 - **Required Parameters**:
@@ -303,7 +337,7 @@ In addition to end-to-end pipeline analysis functionality, the guideseq package 
 - **Runnable Example**:
 	- `python guideseq/guideseq.py filter --bedtools bedtools --identified test/data/identified/EMX1_identifiedOfftargets.txt --background test/data/identified/control_identifiedOfftargets.txt --outfolder test/output/`
 
-### `visualize` Detected Off-Target Sites
+### `visualize` Detected Off-Target Sites<a name="visualize"></a>
 
 - **Functionality**: Given an identified off-target sites `.txt` file, output an alignment visualization of the off-target sites.
 - **Required Parameters**:
@@ -314,13 +348,13 @@ In addition to end-to-end pipeline analysis functionality, the guideseq package 
 - **Runnable Example**:
 	- `python guideseq/guideseq.py visualize --infile test/data/identified/EMX1_identifiedOfftargets.txt --outfolder test/output/ --title EMX1`
 
-## Testing the guideseq Package
+## Testing the guideseq Package<a name="testing"></a>
 
 In the spirit of Test-Driven Development, we have written end-to-end tests for each step of the pipeline. These can be used to ensure that the software is running with expected functionality.
 
 NOTE: Due to differences in sorting between different versions of the `bwa` package, you must be using `bwa v0.7.9a` for these tests to work. We also recommend that you use `bedtools v2.25.0` when running these tests for consistency's sake.
 
-### Single-Step Regression Tests
+### Single-Step Regression Tests<a name="regression_tests"></a>
 
 For ongoing testing and development, we have created an abridged set of input data and expected output data for each step of the pipeline. This way, changes to the pipeline can be quickly tested for feature regression.
 
@@ -338,7 +372,7 @@ nosetests
 
 and the regression tests for each pipeline step will be run.
 
-### Full Large Test
+### Full Large Test<a name="full_test"></a>
 
 If you have more time, we have prepared a bash script that downloads and compiles all dependencies from source, downloads a fresh reference genome and a full GUIDE-seq sequencing data run, and performs a full test of the entire pipeline. This test takes a long time, but we require that it be run before we tag a new release.
 
@@ -350,7 +384,7 @@ To run the full large test, enter the `guideseq/test` folder and run
 
 Then, sit back and watch the full large testing process unfold automatically in the terminal.
 
-### Manual Testing
+### Manual Testing<a name="manual_test"></a>
 
 If you wish to run a full GUIDE-Seq dataset through the analysis pipeline, you may find it and a test manifest (to be altered depending on your dependency locations) here:
 
@@ -363,3 +397,16 @@ which should be used with the following reference genome:
 ```
 http://www.broadinstitute.org/ftp/pub/seq/references/Homo_sapiens_assembly19.fasta
 ```
+
+## Frequently Asked Questions<a name="FAQ"></a>
+
+### How do I Run the Pipeline with Demultiplexed Data?<a name="demultiplexed_run"></a>
+
+If you already have demultiplexed data, you can run the pipeline on the data by running each step after demultiplexing individually, as described in the "Running Analysis Steps Individually" section above. Be sure to run the individual steps in the following orders:
+
+- `umitag`
+- `consolidate`
+- `align`
+- `identify`
+- `filter`
+- `visualize`
