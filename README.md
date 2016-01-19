@@ -30,6 +30,7 @@ The guideseq package implements our data preprocessing and analysis pipeline for
 	- [Manual Testing](#manual_test)
 - [Frequently Asked Questions](#FAQ)
 	- [How do I Run the Pipeline with Demultiplexed Data?](#demultiplexed_run)
+	- [Can I analyze data without UMIs?](#no_umis)
 
 
 ## Features<a name="features"></a>
@@ -410,3 +411,7 @@ If you already have demultiplexed data, you can run the pipeline on the data by 
 - `identify`
 - `filter`
 - `visualize`
+
+### Can I analyze data without UMIs?<a name="no_umis"></a>
+
+Yes. If your reads do not have UMIs, you can run the pipeline on previously demultiplexed data as described in the "Running Analysis Steps Individually" section above, starting with the `align` step. **Note that we have not analyzed such data ourselves!** We suspect that PCR duplication bias may affect the quantitative interpretion of GUIDE-Seq read counts, but have not explored this.
