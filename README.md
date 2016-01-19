@@ -342,11 +342,11 @@ In addition to end-to-end pipeline analysis functionality, the guideseq package 
 - **Functionality**: Given an identified off-target sites `.txt` file, output an alignment visualization of the off-target sites.
 - **Required Parameters**:
 	- `--infile`:  Path to the input `.txt.` off-targets file
-	- `--outfile`: Path to the outputted folder containing the outputted `.svg` graphic
+	- `--outfolder`: Path to the outputted folder containing the outputted `.svg` graphic
 - **Optional Parameters**:
 	- `--title`: Specify the title of the visualization, to be printed at the top of the graphic. Useful for posters and presentations.
 - **Runnable Example**:
-	- `python guideseq/guideseq.py visualize --infile test/data/identified/EMX1_identifiedOfftargets.txt --outfile test/output/ --title EMX1`
+	- `python guideseq/guideseq.py visualize --infile test/data/identified/EMX1_identifiedOfftargets.txt --outfolder test/output/ --title EMX1`
 
 ## Testing the guideseq Package<a name="testing"></a>
 
