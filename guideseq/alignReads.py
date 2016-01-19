@@ -9,6 +9,7 @@ import logging
 logger = logging.getLogger('root')
 logger.propagate = False
 
+
 def alignReads(BWA_path, HG19_path, read1, read2, outfile):
 
     sample_name = os.path.basename(outfile).split('.')[0]

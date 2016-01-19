@@ -46,7 +46,7 @@ class GuideSeq:
             # Validate manifest data
             validation.validateManifest(manifest_data)
 
-            self.BWA_path  = manifest_data['bwa']
+            self.BWA_path = manifest_data['bwa']
             self.bedtools = manifest_data['bedtools']
             self.reference_genome = manifest_data['reference_genome']
             self.output_folder = manifest_data['output_folder']
@@ -95,7 +95,6 @@ class GuideSeq:
             self.demultiplex_min_reads = DEFAULT_DEMULTIPLEX_MIN_READS
 
         logger.info('Successfully loaded manifest for single-step demultiplexing.')
-
 
     def demultiplex(self):
 
@@ -276,7 +275,6 @@ def parse_args():
     all_parser.add_argument('--manifest', '-m', help='Specify the manifest Path', required=True)
     all_parser.add_argument('--identifyAndFilter', action='store_true', default=False)
 
-
     demultiplex_parser = subparsers.add_parser('demultiplex', help='Demultiplex undemultiplexed FASTQ files')
     demultiplex_parser.add_argument('--manifest', '-m', help='Specify the manifest path', required=True)
 
@@ -316,7 +314,7 @@ def parse_args():
 
     visualize_parser = subparsers.add_parser('visualize', help='Visualize off-target sites')
     visualize_parser.add_argument('--infile', required=True)
-    visualize_parser.add_argument('--outfile', required=True)
+    visualize_parser.add_argument('--outfolder', required=True)
     visualize_parser.add_argument('--title', required=False)
 
     return parser.parse_args()
@@ -459,7 +457,7 @@ def main():
         Run just the visualize step
         """
         g = GuideSeq()
-        g.output_folder = os.path.dirname(args.outfile)
+        g.output_folder = os.path.dirname(args.outfolder)
         sample = os.path.basename(args.infile).split('.')[0]
         g.samples = {sample: {}}
         g.identified = {}

@@ -32,7 +32,7 @@ def checkIfBinary(filepath):
 
     # Check if file is a valid binary
     # Adapted from http://stackoverflow.com/questions/898669/how-can-i-detect-if-a-file-is-binary-non-text-in-python
-    textchars = bytearray({7,8,9,10,12,13,27} | set(range(0x20, 0x100)) - {0x7f})
+    textchars = bytearray({7, 8, 9, 10, 12, 13, 27} | set(range(0x20, 0x100)) - {0x7f})
     is_binary_string = lambda bytes: bool(bytes.translate(None, textchars))
 
     if not is_binary_string(open(executable, 'rb').read(1024)):
@@ -87,6 +87,7 @@ def checkIfValidSamples(samples):
         if 'target' not in samples[sample]:
             logger.error('target sequence must be specified for {0} sample'.format(sample))
             sys.exit()
+
 
 def validateManifest(manifest_data):
     # Check if manifest contains the required fields
