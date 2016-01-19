@@ -278,7 +278,7 @@ In addition to end-to-end pipeline analysis functionality, the guideseq package 
 
 ### `umitag` Reads<a name="umitag"></a>
 
-- **Functionality**: Given the demultiplexed files in the folder `output_folder/undemultiplexed` (where `output_folder` is specified in the manifest), umitag the reads for downstream consolidation. The forward and reverse files for each sample in the manifest are outputted to the `output_folder/umitagged` folder.
+- **Functionality**: Given the demultiplexed files in the folder `output_folder/undemultiplexed` (where `output_folder` is specified in the manifest), 'tag' the reads by adding the UMI barcode sequence to the FASTQ read name header in preparation for the subsequent PCR duplicate read consolidation step. The forward and reverse files for each sample in the manifest are outputted to the `output_folder/umitagged` folder.
 - **Required Parameters**:
 	- `--read1`: Path to the forward demultiplexed reads file (FASTQ)
 	- `--read2`: Path to the reverse demultiplexed reads file (FASTQ)
