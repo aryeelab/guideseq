@@ -287,7 +287,14 @@ In addition to end-to-end pipeline analysis functionality, the guideseq package 
 	- `--index2`: Path to the index2 demultiplexed reads file (FASTQ)
 	- `--outfolder`: Path to the folder in which the output files will be saved
 - **Runnable Example**:
-	- `python guideseq/guideseq.py umitag --read1 test/data/demultiplexed/EMX1.r1.fastq --read2 test/data/demultiplexed/EMX1.r2.fastq --index1 test/data/demultiplexed/EMX1.i1.fastq --index2 test/data/demultiplexed/EMX1.i2.fastq --outfolder test/output/`
+
+	```
+	python guideseq/guideseq.py umitag --read1 test/data/demultiplexed/EMX1.r1.fastq \
+	--read2 test/data/demultiplexed/EMX1.r2.fastq \
+	--index1 test/data/demultiplexed/EMX1.i1.fastq \
+	--index2 test/data/demultiplexed/EMX1.i2.fastq \
+	--outfolder test/output/
+	```
 
 ### `consolidate` PCR Duplicates<a name="consolidate"></a>
 
@@ -300,7 +307,12 @@ In addition to end-to-end pipeline analysis functionality, the guideseq package 
 	- `--min_quality`: The minimum quality of a read for it to be considered in the consolidation
 	- `--min_frequency`: The minimum frequency of a read for the position to be consolidated
 - **Runnable Example**:
-	- `python guideseq/guideseq.py consolidate --read1 test/data/umitagged/EMX1.r1.umitagged.fastq --read2 test/data/umitagged/EMX1.r2.umitagged.fastq --outfolder test/output/`
+
+	```
+	python guideseq/guideseq.py consolidate --read1 test/data/umitagged/EMX1.r1.umitagged.fastq \
+	 --read2 test/data/umitagged/EMX1.r2.umitagged.fastq \
+	 --outfolder test/output/
+	```
 
 ### `align` Sites to Genome<a name="align"></a>
 
@@ -312,7 +324,13 @@ In addition to end-to-end pipeline analysis functionality, the guideseq package 
 	- `--read2`: Path to the consolidated reverse read FASTQ file
 	- `--outfolder`: Path to the folder in which the output files will be saved
 - **Example Usage**:
-	- `python guideseq/guideseq.py align --bwa bwa --genome test/test_genome.fa --read1 test/data/consolidated/EMX1.r1.consolidated.fastq --read2 test/data/consolidated/EMX1.r2.consolidated.fastq --outfolder test/output/`
+
+	```
+	python guideseq/guideseq.py align --bwa bwa --genome test/test_genome.fa\
+	 --read1 test/data/consolidated/EMX1.r1.consolidated.fastq\
+	 --read2 test/data/consolidated/EMX1.r2.consolidated.fastq\
+	 --outfolder test/output/
+	```
 
 ### `identify` Off-target Site Candidates<a name="identify"></a>
 
@@ -325,7 +343,12 @@ In addition to end-to-end pipeline analysis functionality, the guideseq package 
 - **Optional Parameters**:
 	- `--description`: Specify additional information about the sample.
 - **Runnable Example**:
-	- `python guideseq/guideseq.py identify --aligned test/data/aligned/EMX1.sam --genome test/test_genome.fa --outfolder test/output/ --target_sequence GAGTCCGAGCAGAAGAAGAANGG --description EMX1`
+
+	```
+	python guideseq/guideseq.py identify --aligned test/data/aligned/EMX1.sam\
+	 --genome test/test_genome.fa --outfolder test/output/\
+	 --target_sequence GAGTCCGAGCAGAAGAAGAANGG --description EMX1
+	```
 
 ### `filter` Background DSB Sites<a name="filter"></a>
 
@@ -336,7 +359,13 @@ In addition to end-to-end pipeline analysis functionality, the guideseq package 
 	- `--background`: Path to the `.txt` file outputted by the `identify` step for a control sample.
 	- `--outfolder`: Path to the folder in which the output files will be saved.
 - **Runnable Example**:
-	- `python guideseq/guideseq.py filter --bedtools bedtools --identified test/data/identified/EMX1_identifiedOfftargets.txt --background test/data/identified/control_identifiedOfftargets.txt --outfolder test/output/`
+
+	```
+	python guideseq/guideseq.py filter --bedtools bedtools\
+	 --identified test/data/identified/EMX1_identifiedOfftargets.txt\
+	 --background test/data/identified/control_identifiedOfftargets.txt\
+	 --outfolder test/output/
+	```
 
 ### `visualize` Detected Off-Target Sites<a name="visualize"></a>
 
@@ -347,7 +376,11 @@ In addition to end-to-end pipeline analysis functionality, the guideseq package 
 - **Optional Parameters**:
 	- `--title`: Specify the title of the visualization, to be printed at the top of the graphic. Useful for posters and presentations.
 - **Runnable Example**:
-	- `python guideseq/guideseq.py visualize --infile test/data/identified/EMX1_identifiedOfftargets.txt --outfolder test/output/ --title EMX1`
+
+	```
+	python guideseq/guideseq.py visualize --infile test/data/identified/EMX1_identifiedOfftargets.txt\
+	 --outfolder test/output/ --title EMX1
+	```
 
 ## Testing the guideseq Package<a name="testing"></a>
 
