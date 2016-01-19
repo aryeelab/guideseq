@@ -317,13 +317,13 @@ In addition to end-to-end pipeline analysis functionality, the guideseq package 
 ### `align` Sites to Genome<a name="align"></a>
 
 - **Functionality**: Given the consolidated forward and reverse reads, execute a paired-end mapping of the sequences to the reference genome using the `bwa` package. Outputs an alignment `.sam` file to the `outfolder`.
-- **Runnable Example**:
+- **Required Parameters**:
 	- `--bwa`: Path to the `bwa` executable
 	- `--genome`: Path to the reference genome FASTA file
 	- `--read1`: Path to the consolidated forward read FASTQ file
 	- `--read2`: Path to the consolidated reverse read FASTQ file
 	- `--outfolder`: Path to the folder in which the output files will be saved
-- **Example Usage**:
+- **Runnable Example**:
 
 	```
 	python guideseq/guideseq.py align --bwa bwa --genome test/test_genome.fa\
