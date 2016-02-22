@@ -25,7 +25,8 @@ import identifyOfftargetSites
 import validation
 
 DEFAULT_DEMULTIPLEX_MIN_READS = 10000
-MAX_MISMATCHES = 6
+DEFAULT_WINDOW_SIZE = 25
+DEFAULT_MAX_MISMATCHES = 7
 
 CONSOLIDATE_MIN_QUAL = 15
 CONSOLIDATE_MIN_FREQ = 0.9
@@ -62,6 +63,16 @@ class GuideSeq:
             self.demultiplex_min_reads = manifest_data['demultiplex_min_reads']
         else:
             self.demultiplex_min_reads = DEFAULT_DEMULTIPLEX_MIN_READS
+        # Allow the user to specify window size for off-target search
+        if 'window_size' in manifest_data:
+            self.window_size = manifest_data['window_size']
+        else:
+            self.window_size = DEFAULT_WINDOW_SIZE
+        # Allow the user to specify window size for off-target search
+        if 'max_mismatches' in manifest_data:
+            self.max_mismatches = manifest_data['max_mismatches']
+        else:
+            self.max_mismatches = DEFAULT_MAX_MISMATCHES
 
         # Make sure the user has specified a control barcode
         if 'control' not in self.samples.keys():
@@ -219,7 +230,8 @@ class GuideSeq:
 
                 self.identified[sample] = os.path.join(self.output_folder, 'identified', sample + '_identifiedOfftargets.txt')
 
-                identifyOfftargetSites.analyze(samfile, self.reference_genome, self.identified[sample], annotations)
+                identifyOfftargetSites.analyze(samfile, self.reference_genome, self.identified[sample], annotations,
+                                               self.window_size, self.max_mismatches)
 
             logger.info('Finished identifying offtarget sites.')
 

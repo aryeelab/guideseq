@@ -1,0 +1,15 @@
+#
+# This matrix was created by Todd Lowe   12/10/92
+#
+# Uses ambiguous nucleotide codes, probabilities rounded to
+#  nearest integer
+#
+# Lowest score = -4, Highest score = 5
+#
+# Modified by Shengdar Tsai 1/23/16
+    A   T   G   C   N
+A   10  -5  -5  -5   10
+T   -5  10  -5  -5   10
+G   -5  -5  10  -5   10
+C   -5  -5  -5  10   10
+N   10  10  10  10   10

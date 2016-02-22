@@ -1,25 +1,14 @@
-# IdentifyOffTargetSiteSequences.py
-# Shengdar Tsai (stsai4@mgh.harvard.edu)
-
-# A program to identify Cas9 off-target sites from molecular indexed GUIDE-Seq data
-#
-# 2014.08.22 Add feature to distinguish between reads that originate between one primer versus another
-# 2014.09.12 Add feature to get min/max positions for each window
-# 2014.09.17 Add feature to get sequence from local genome fasta
-# 2014.09.17 Add targets argument (for experimental design file) to argparse
-# 2014.09.17 Add feature to align sequence with off-target site
-# 2015.10.05 Replaced swalign with regex matching
-
-__author__ = 'shengdar'
-
+from __future__ import print_function
 import argparse
 import collections
 import numpy
 import os
 import string
 import operator
+import nwalign as nw
 import pyfaidx
 import re
+import regex
 import swalign
 import logging
 
@@ -92,7 +81,7 @@ class chromosomePosition():
         return self.barcode_position_summary
 
     # Summarizes the chromosome, positions within a 10 bp window
-    def SummarizeBarcodeIndex(self):
+    def SummarizeBarcodeIndex(self, windowsize):
         last_chromosome, last_position, window_index = 0, 0, 0
         index_summary = []
         for chromosome, position, barcode_plus_count, barcode_minus_count, total_plus_count, total_minus_count, plus_primer1_count, plus_primer2_count,\
@@ -139,7 +128,7 @@ class chromosomePosition():
             most_frequent_position = sorted_list[-1][1]
             BED_format_chromosome = "chr" + most_frequent_chromosome
             BED_name = BED_format_chromosome + "_" + str(most_frequent_position) + "_" + str(barcode_sum)
-            offtarget_sequence = self.getSequence(self.genome, most_frequent_chromosome, most_frequent_position - 25, most_frequent_position + 25)
+            offtarget_sequence = self.getSequence(self.genome, most_frequent_chromosome, most_frequent_position - windowsize, most_frequent_position + windowsize)
 
             summary_list = [str(x) for x in [index, most_frequent_chromosome, most_frequent_position, offtarget_sequence,                        # pick most frequently occurring chromosome and position
                                              BED_format_chromosome, min_position, max_position, BED_name,
@@ -155,32 +144,99 @@ class chromosomePosition():
         # BidirectionalArithmeticMean, BidirectionalGeometricMean,
 
 
-def alignSequences(ref_seq, query_seq):
-    match = 2
-    mismatch = -1
-    ref_length = len(ref_seq)
-    matches_required = len(ref_seq) - 1 - 7  # allow up to 8 mismatches
-    scoring = swalign.NucleotideScoringMatrix(match, mismatch)
-    sw = swalign.LocalAlignment(scoring, gap_penalty=-100, gap_extension_penalty=-100, prefer_gap_runs=True)  # you can also choose gap penalties, etc...
-    # sw = swalign.LocalAlignment(scoring, gap_penalty=-10, gap_extension_penalty=-0.5, prefer_gap_runs=True)  # you can also choose gap penalties, etc...
-    forward_alignment = sw.align(ref_seq, query_seq)
-    reverse_alignment = sw.align(ref_seq, reverseComplement(query_seq))
-    if forward_alignment.matches >= matches_required and forward_alignment.matches > reverse_alignment.matches:
-        start_pad = forward_alignment.r_pos
-        start = forward_alignment.q_pos - start_pad
-        end_pad = ref_length - forward_alignment.r_end
-        end = forward_alignment.q_end + end_pad
-        strand = "+"
-        return [forward_alignment.query[start:end], ref_length - forward_alignment.matches - 1, end - start, strand, start, end]
-    elif reverse_alignment.matches >= matches_required and reverse_alignment.matches > forward_alignment.matches:
-        start_pad = reverse_alignment.r_pos
-        start = reverse_alignment.q_pos - start_pad
-        end_pad = ref_length - reverse_alignment.r_end
-        end = reverse_alignment.q_end + end_pad
-        strand = "-"
-        return [reverse_alignment.query[start:end], ref_length - reverse_alignment.matches - 1, end - start, strand, start, end]
+def regexFromSequence(seq, lookahead=True, indels=1, errors=7):
+    """
+    Given a sequence with ambiguous base characters, returns a regex that matches for
+    the explicit (unambiguous) base characters
+    """
+    IUPAC_notation_regex = {'N': '[ATCGN]',
+                            'Y': '[CTY]',
+                            'R': '[AGR]',
+                            'W': '[ATW]',
+                            'S': '[CGS]',
+                            'A': 'A',
+                            'T': 'T',
+                            'C': 'C',
+                            'G': 'G'}
+
+    pattern = ''
+
+    for c in seq:
+        pattern += IUPAC_notation_regex[c]
+
+    if lookahead:
+        pattern = '(?:' + pattern + ')'
+    if errors > 0:
+        pattern = pattern + '{{i<={0},d<={0},s<={1},2i+2d+1s<={1}}}'.format(indels, errors)
+    return pattern
+
+"""
+Given a targetsite and window, use a fuzzy regex to align the targetsite to
+the window. Returns the best match.
+"""
+def alignSequences(targetsite_sequence, window_sequence, max_errors=6):
+    # Try both strands
+    query_regex = regexFromSequence(targetsite_sequence, errors=max_errors)
+    forward_alignment = regex.search(query_regex, window_sequence, regex.BESTMATCH)
+    reverse_alignment = regex.search(query_regex, reverseComplement(window_sequence), regex.BESTMATCH)
+
+    if forward_alignment is None and reverse_alignment is None:
+        return ['', '', '', '', '', '', '']
     else:
-        return ["", "", "", "", "", ""]
+        if forward_alignment is None and reverse_alignment is not None:
+            strand = '-'
+            alignment = reverse_alignment
+        elif reverse_alignment is None and forward_alignment is not None:
+            strand = '+'
+            alignment = forward_alignment
+        elif forward_alignment is not None and reverse_alignment is not None:
+            forward_distance = sum(forward_alignment.fuzzy_counts)
+            reverse_distance = sum(reverse_alignment.fuzzy_counts)
+
+            if forward_distance > reverse_distance:
+                strand = '-'
+                alignment = reverse_alignment
+            else:
+                strand = '+'
+                alignment = forward_alignment
+
+        match_sequence = alignment.group()
+        distance = sum(alignment.fuzzy_counts)
+        length = len(match_sequence)
+        start = alignment.start()
+        end = alignment.end()
+
+    path = os.path.dirname(os.path.abspath(__file__))
+    realigned_match_sequence, realigned_target = nw.global_align(match_sequence, targetsite_sequence,
+                                                                 gap_open=-10, gap_extend=-100, matrix='{0}/NUC_SIMPLE'.format(path))
+    return [realigned_match_sequence, distance, length, strand, start, end, realigned_target]
+
+# def alignSequences(ref_seq, query_seq):
+#     match = 2
+#     mismatch = -1
+#     ref_length = len(ref_seq)
+#     matches_required = len(ref_seq) - 1 - 7  # allow up to 8 mismatches
+#     scoring = swalign.NucleotideScoringMatrix(match, mismatch)
+#     sw = swalign.LocalAlignment(scoring, gap_penalty=-100, gap_extension_penalty=-100, prefer_gap_runs=True)  # you can also choose gap penalties, etc...
+#     # sw = swalign.LocalAlignment(scoring, gap_penalty=-10, gap_extension_penalty=-0.5, prefer_gap_runs=True)  # you can also choose gap penalties, etc...
+#     forward_alignment = sw.align(ref_seq, query_seq)
+#     reverse_alignment = sw.align(ref_seq, reverseComplement(query_seq))
+#     if forward_alignment.matches >= matches_required and forward_alignment.matches > reverse_alignment.matches:
+#         start_pad = forward_alignment.r_pos
+#         start = forward_alignment.q_pos - start_pad
+#         end_pad = ref_length - forward_alignment.r_end
+#         end = forward_alignment.q_end + end_pad
+#         strand = "+"
+#         return [forward_alignment.query[start:end], ref_length - forward_alignment.matches - 1, end - start, strand, start, end]
+#     elif reverse_alignment.matches >= matches_required and reverse_alignment.matches > forward_alignment.matches:
+#         start_pad = reverse_alignment.r_pos
+#         start = reverse_alignment.q_pos - start_pad
+#         end_pad = ref_length - reverse_alignment.r_end
+#         end = reverse_alignment.q_end + end_pad
+#         strand = "-"
+#         return [reverse_alignment.query[start:end], ref_length - reverse_alignment.matches - 1, end - start, strand, start, end]
+#     else:
+#         return ["", "", "", "", "", ""]
 
 
 """
@@ -189,7 +245,7 @@ annotation is in the format:
 """
 
 
-def analyze(sam_filename, reference_genome, outfile, annotations):
+def analyze(sam_filename, reference_genome, outfile, annotations, windowsize, max_mismatches):
     output_folder = os.path.dirname(outfile)
     if not os.path.exists(output_folder):
         os.makedirs(output_folder)
@@ -221,24 +277,31 @@ def analyze(sam_filename, reference_genome, outfile, annotations):
 
     with open(outfile, 'w') as f:
         # Write header
-        f.write('\t'.join(['#BED Chromosome', 'BED Min.Position',
-                           'BED Max.Position', 'BED Name', 'Filename', 'WindowIndex', 'Chromosome', 'Position', 'Sequence', '+.mi', '-.mi', 'bi.sum.mi', 'bi.geometric_mean.mi', '+.total',
-                           '-.total', 'total.sum', 'total.geometric_mean', 'primer1.mi', 'primer2.mi', 'primer.geometric_mean',
-                           'position.stdev', 'Off-Target Sequence', 'Mismatches', 'Length', 'BED off-target Chromosome', 'BED off-target start', 'BED off-target end', 'BED off-target name', 'BED Score', 'Strand', 'Cells', 'Targetsite', 'Target Sequence']) + '\n')
+        print('#BED Chromosome', 'BED Min.Position',
+              'BED Max.Position', 'BED Name', 'Filename', 'WindowIndex', 'Chromosome', 'Position', 'Sequence', '+.mi',
+              '-.mi', 'bi.sum.mi', 'bi.geometric_mean.mi', '+.total', '-.total', 'total.sum', 'total.geometric_mean',
+              'primer1.mi', 'primer2.mi', 'primer.geometric_mean', 'position.stdev', 'Off-Target Sequence', 'Mismatches',
+              'Length', 'BED off-target Chromosome', 'BED off-target start', 'BED off-target end', 'BED off-target name',
+              'BED Score', 'Strand', 'Cells', 'Targetsite', 'Target Sequence', 'Realigned Target Sequence', sep='\t', file=f)
 
         # Output summary of each window
-        summary = chromosome_position.SummarizeBarcodeIndex()
+        summary = chromosome_position.SummarizeBarcodeIndex(windowsize)
         target_sequence = annotations["Sequence"]
         annotation = [annotations['Description'],
                       annotations['Targetsite'],
                       annotations['Sequence']]
+
+        output_dict = {}
+
         for row in summary:
-            window_sequence = row[3]
+
+            window_sequence, window_chromosome, window_start, window_end, BED_name = row[3:8]
+            target_start_absolute = ''
             if target_sequence:
-                sequence, mismatches, length, strand, target_start_relative, target_end_relative = alignSequences(target_sequence, window_sequence)
-                BED_chromosome = row[4]
-                BED_name = row[7]
+                sequence, mismatches, length, strand, target_start_relative, target_end_relative, ref_sequence = \
+                    alignSequences(target_sequence, window_sequence, max_mismatches)
                 BED_score = 1
+                BED_chromosome = window_chromosome
                 if strand == "+":
                     target_start_absolute = target_start_relative + int(row[2]) - 25
                     target_end_absolute = target_end_relative + int(row[2]) - 25
@@ -247,13 +310,28 @@ def analyze(sam_filename, reference_genome, outfile, annotations):
                     target_end_absolute = int(row[2]) + 25 - target_start_relative
                 else:
                     BED_chromosome, target_start_absolute, target_end_absolute, BED_score, BED_name = [""] * 5
-                f.write('\t'.join(row[4:8] + [filename_tail] + row[0:4] + row[8:] +
-                                  [str(x) for x in sequence, mismatches, length, BED_chromosome, target_start_absolute,
-                                   target_end_absolute, BED_name, BED_score, strand] + [str(x) for x in annotation] + ['\n']))
+
+                output_row = row[4:8] + [filename_tail] + row[0:4] + row[8:] + [str(x) for x in sequence, mismatches,
+                             length, BED_chromosome, target_start_absolute, target_end_absolute, BED_name, BED_score,
+                             strand] + [str(x) for x in annotation] + [ref_sequence]
             else:
                 # logger.info([str(x) for x in row[4:8] + [filename_tail] + row[0:4] + row[8:] + [""]*9 + annotation] + ['\n'])
-                f.write('\t'.join([str(x) for x in row[4:8] + [filename_tail] + row[0:4] + row[8:] + [""] * 9 + annotation] + ['\n']))
+                output_row = [str(x) for x in row[4:8] + [filename_tail] + row[0:4] + row[8:] + [""] * 9 + annotation + ['']]
 
+            if target_start_absolute != '':
+                output_row_key = '{0}_{1}_{2}'.format(window_chromosome, target_start_absolute, target_end_absolute)
+            else:
+                output_row_key = '{0}_{1}_{2}'.format(window_chromosome, window_start, window_end)
+
+
+            if output_row_key in output_dict.keys():
+                read_count_total = int(output_row[11]) + int(output_dict[output_row_key][11])
+                output_dict[output_row_key][11] = str(read_count_total)
+            else:
+                output_dict[output_row_key] = output_row
+
+        for key in sorted(output_dict.keys()):
+            print(*output_dict[key], sep='\t', file=f)
 
 def assignPrimerstoReads(read_sequence, sam_flag):
     # Get 20-nucleotide sequence from beginning or end of sequence depending on orientation
@@ -308,13 +386,15 @@ def main():
     parser.add_argument('--ref', help='Reference Genome Fasta', required=True)
     parser.add_argument('--samfile', help='SAM file', nargs='*')
     parser.add_argument('--outfile', help='File to output identified sites to.', required=True)
-    parser.add_argument('--demo')
+    parser.add_argument('--window', help='Window around breakpoint to search for off-target', type=int, default=25)
+    parser.add_argument('--mismatches', help='Mismatch threshold', type=int, default=7)
+    # parser.add_argument('--demo')
     parser.add_argument('--target', default='')
 
     args = parser.parse_args()
 
     annotations = {'Description': 'test description', 'Targetsite': 'dummy targetsite', 'Sequence': args.target}
-    analyze(args.samfile[0], args.ref, args.outfile, annotations)
+    analyze(args.samfile[0], args.ref, args.outfile, annotations, args.window, args.mismatches)
 
 
 if __name__ == "__main__":

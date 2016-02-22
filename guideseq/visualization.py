@@ -1,12 +1,17 @@
+from __future__ import print_function
 import svgwrite
 import sys
 import os
+import logging
+
+logger = logging.getLogger('root')
+logger.propagate = False
 
 boxWidth = 10
 box_size = 15
 v_spacing = 3
 
-colors = {'G': '#F5F500', 'A': '#FF5454', 'T': '#00D118', 'C': '#26A8FF', 'N': '#B3B3B3'}
+colors = {'G': '#F5F500', 'A': '#FF5454', 'T': '#00D118', 'C': '#26A8FF', 'N': '#B3B3B3', '-': '#FFFFFF'}
 
 
 def parseSitesFile(infile):
@@ -14,6 +19,7 @@ def parseSitesFile(infile):
     with open(infile, 'r') as f:
         f.readline()
         for line in f:
+            line = line.rstrip('\n')
             line_items = line.split('\t')
             offtarget_sequence = line_items[21]
             offtarget_reads = line_items[11]
@@ -68,11 +74,14 @@ def visualizeOfftargets(infile, outfile, title=None):
         y = y_offset + j * box_size
         for i, c in enumerate(seq['seq']):
             x = x_offset + i * box_size
-            if c == ref_seq[i] or ref_seq[i] == 'N':
-                dwg.add(dwg.text(u"\u2022", insert=(x + 4.5, 2 * box_size + y - 4), fill='black', style="font-size:10px; font-family:Courier"))
+            if len(seq['seq']) == len(ref_seq):
+                if c == ref_seq[i] or ref_seq[i] == 'N':
+                    dwg.add(dwg.text(u"\u2022", insert=(x + 4.5, 2 * box_size + y - 4), fill='black', style="font-size:10px; font-family:Courier"))
+                else:
+                    dwg.add(dwg.rect((x, box_size + y), (box_size, box_size), fill=colors[c]))
+                    dwg.add(dwg.text(c, insert=(x + 3, 2 * box_size + y - 3), fill='black', style="font-size:15px; font-family:Courier"))
             else:
-                dwg.add(dwg.rect((x, box_size + y), (box_size, box_size), fill=colors[c]))
-                dwg.add(dwg.text(c, insert=(x + 3, 2 * box_size + y - 3), fill='black', style="font-size:15px; font-family:Courier"))
+                pass # this is where visualization of insertions could go
 
         reads_text = dwg.text(str(seq['reads']), insert=(box_size * (len(ref_seq) + 1) + 20, y_offset + box_size * (j + 2) - 2), fill='black', style="font-size:15px; font-family:Courier")
         dwg.add(reads_text)
@@ -88,7 +97,7 @@ def main():
             title = None
         visualizeOfftargets(sys.argv[1], sys.argv[2], title=title)
     else:
-        print 'Usage: python visualization.py INFILE OUTFILE [TITLE]'
+        print('Usage: python visualization.py INFILE OUTFILE [TITLE]')
 
 
 if __name__ == '__main__':
