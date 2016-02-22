@@ -303,11 +303,11 @@ def analyze(sam_filename, reference_genome, outfile, annotations, windowsize, ma
                 BED_score = 1
                 BED_chromosome = window_chromosome
                 if strand == "+":
-                    target_start_absolute = target_start_relative + int(row[2]) - 25
-                    target_end_absolute = target_end_relative + int(row[2]) - 25
+                    target_start_absolute = target_start_relative + int(row[2]) - windowsize
+                    target_end_absolute = target_end_relative + int(row[2]) - windowsize
                 elif strand == "-":
-                    target_start_absolute = int(row[2]) + 25 - target_end_relative
-                    target_end_absolute = int(row[2]) + 25 - target_start_relative
+                    target_start_absolute = int(row[2]) + windowsize - target_end_relative
+                    target_end_absolute = int(row[2]) + windowsize - target_start_relative
                 else:
                     BED_chromosome, target_start_absolute, target_end_absolute, BED_score, BED_name = [""] * 5
 
