@@ -226,7 +226,7 @@ class GuideSeq:
                 else:
                     annotations['Sequence'] = sample_data['target']
 
-                samfile = self.aligned[sample]
+                samfile = os.path.join(self.output_folder, 'aligned', sample + '.sam')
 
                 self.identified[sample] = os.path.join(self.output_folder, 'identified', sample + '_identifiedOfftargets.txt')
 
