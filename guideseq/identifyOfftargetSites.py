@@ -316,7 +316,7 @@ def analyze(sam_filename, reference_genome, outfile, annotations, windowsize, ma
                              strand] + [str(x) for x in annotation] + [ref_sequence]
             else:
                 # logger.info([str(x) for x in row[4:8] + [filename_tail] + row[0:4] + row[8:] + [""]*9 + annotation] + ['\n'])
-                output_row = [str(x) for x in row[4:8] + [filename_tail] + row[0:4] + row[8:] + [""] * 9 + annotation + ['']]
+                output_row = [str(x) for x in row[4:8] + [filename_tail] + row[0:4] + row[8:] + [""] * 9 + annotation + ['none']]
 
             if target_start_absolute != '':
                 output_row_key = '{0}_{1}_{2}'.format(window_chromosome, target_start_absolute, target_end_absolute)
