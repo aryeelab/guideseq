@@ -181,7 +181,7 @@ def alignSequences(targetsite_sequence, window_sequence, max_errors=6):
     reverse_alignment = regex.search(query_regex, reverseComplement(window_sequence), regex.BESTMATCH)
 
     if forward_alignment is None and reverse_alignment is None:
-        return ['', '', '', '', '', '', '']
+        return ['', '', '', '', '', '', 'none']
     else:
         if forward_alignment is None and reverse_alignment is not None:
             strand = '-'
@@ -192,7 +192,6 @@ def alignSequences(targetsite_sequence, window_sequence, max_errors=6):
         elif forward_alignment is not None and reverse_alignment is not None:
             forward_distance = sum(forward_alignment.fuzzy_counts)
             reverse_distance = sum(reverse_alignment.fuzzy_counts)
-
             if forward_distance > reverse_distance:
                 strand = '-'
                 alignment = reverse_alignment
@@ -206,10 +205,10 @@ def alignSequences(targetsite_sequence, window_sequence, max_errors=6):
         start = alignment.start()
         end = alignment.end()
 
-    path = os.path.dirname(os.path.abspath(__file__))
-    realigned_match_sequence, realigned_target = nw.global_align(match_sequence, targetsite_sequence,
-                                                                 gap_open=-10, gap_extend=-100, matrix='{0}/NUC_SIMPLE'.format(path))
-    return [realigned_match_sequence, distance, length, strand, start, end, realigned_target]
+        path = os.path.dirname(os.path.abspath(__file__))
+        realigned_match_sequence, realigned_target = nw.global_align(match_sequence, targetsite_sequence,
+                                                                     gap_open=-10, gap_extend=-100, matrix='{0}/NUC_SIMPLE'.format(path))
+        return [realigned_match_sequence, distance, length, strand, start, end, realigned_target]
 
 # def alignSequences(ref_seq, query_seq):
 #     match = 2
