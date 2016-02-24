@@ -24,9 +24,11 @@ def parseSitesFile(infile):
             offtarget_sequence = line_items[21]
             offtarget_reads = line_items[11]
             ref_seq = line_items[32]
+            realigned_ref_seq = line_items[33]
             if offtarget_sequence != '':
                 offtargets.append({'seq': offtarget_sequence.strip(),
-                                   'reads': int(offtarget_reads.strip())})
+                                   'reads': int(offtarget_reads.strip()),
+                                   'realigned_ref_seq': realigned_ref_seq.strip()})
     offtargets = sorted(offtargets, key=lambda x: x['reads'], reverse=True)
     return offtargets, ref_seq
 
@@ -71,17 +73,25 @@ def visualizeOfftargets(infile, outfile, title=None):
     # Draw aligned sequence rows
     y_offset += 10  # leave some extra space after the reference row
     for j, seq in enumerate(offtargets):
+        realigned_ref_seq =  offtargets[j]['realigned_ref_seq']
+        k = 0
         y = y_offset + j * box_size
-        for i, c in enumerate(seq['seq']):
-            x = x_offset + i * box_size
-            if len(seq['seq']) == len(ref_seq):
-                if c == ref_seq[i] or ref_seq[i] == 'N':
-                    dwg.add(dwg.text(u"\u2022", insert=(x + 4.5, 2 * box_size + y - 4), fill='black', style="font-size:10px; font-family:Courier"))
-                else:
-                    dwg.add(dwg.rect((x, box_size + y), (box_size, box_size), fill=colors[c]))
-                    dwg.add(dwg.text(c, insert=(x + 3, 2 * box_size + y - 3), fill='black', style="font-size:15px; font-family:Courier"))
+        for i, (c, r) in enumerate(zip(seq['seq'], realigned_ref_seq)):
+            x = x_offset + k * box_size
+            if r == '-':
+                if 0 < k < len(realigned_ref_seq):
+                    x = x_offset + (k - 0.25) * box_size
+                    dwg.add(dwg.rect((x, box_size * 1.4 + y), (box_size*0.6, box_size*0.6), fill=colors[c]))
+                    dwg.add(dwg.text(c, insert=(x+1, 2 * box_size + y - 2), fill='black', style="font-size:10px; font-family:Courier"))
+
+            elif c == r or r == 'N':
+                 dwg.add(dwg.text(u"\u2022", insert=(x + 4.5, 2 * box_size + y - 4), fill='black', style="font-size:10px; font-family:Courier"))
+                 k += 1
             else:
-                pass # this is where visualization of insertions could go
+                dwg.add(dwg.rect((x, box_size + y), (box_size, box_size), fill=colors[c]))
+                dwg.add(dwg.text(c, insert=(x + 3, 2 * box_size + y - 3), fill='black', style="font-size:15px; font-family:Courier"))
+                k += 1
+
 
         reads_text = dwg.text(str(seq['reads']), insert=(box_size * (len(ref_seq) + 1) + 20, y_offset + box_size * (j + 2) - 2), fill='black', style="font-size:15px; font-family:Courier")
         dwg.add(reads_text)
