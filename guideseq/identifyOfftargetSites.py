@@ -165,50 +165,51 @@ def regexFromSequence(seq, lookahead=True, indels=1, errors=7):
         pattern += IUPAC_notation_regex[c]
 
     if lookahead:
-        pattern = '(?:' + pattern + ')'
-    if errors > 0:
-        pattern = pattern + '{{i<={0},d<={0},s<={1},2i+2d+1s<={1}}}'.format(indels, errors)
-    return pattern
+        pattern = '(?b:' + pattern + ')'
+
+    pattern_standard = pattern + '{{s<={0}}}'.format(errors)
+    pattern_gap = pattern + '{{i<={0},d<={0},s<={1},3i+3d+1s<={1}}}'.format(indels, errors)
+    return pattern_standard, pattern_gap
 
 """
 Given a targetsite and window, use a fuzzy regex to align the targetsite to
 the window. Returns the best match.
 """
-def alignSequences(targetsite_sequence, window_sequence, max_errors=6):
+def alignSequences(targetsite_sequence, window_sequence, max_mismatches=7):
     # Try both strands
-    query_regex = regexFromSequence(targetsite_sequence, errors=max_errors)
-    forward_alignment = regex.search(query_regex, window_sequence, regex.BESTMATCH)
-    reverse_alignment = regex.search(query_regex, reverseComplement(window_sequence), regex.BESTMATCH)
+    query_regex_standard, query_regex_gap = regexFromSequence(targetsite_sequence, errors=max_mismatches)
 
-    if forward_alignment is None and reverse_alignment is None:
-        return ['', '', '', '', '', '', 'none']
-    else:
-        if forward_alignment is None and reverse_alignment is not None:
-            strand = '-'
-            alignment = reverse_alignment
-        elif reverse_alignment is None and forward_alignment is not None:
-            strand = '+'
-            alignment = forward_alignment
-        elif forward_alignment is not None and reverse_alignment is not None:
-            forward_distance = sum(forward_alignment.fuzzy_counts)
-            reverse_distance = sum(reverse_alignment.fuzzy_counts)
-            if forward_distance > reverse_distance:
-                strand = '-'
-                alignment = reverse_alignment
-            else:
-                strand = '+'
-                alignment = forward_alignment
+    alignments = list()
+    alignments.append(('+', 'standard', regex.search(query_regex_standard, window_sequence, regex.BESTMATCH)))
+    alignments.append(('-', 'standard', regex.search(query_regex_standard, reverseComplement(window_sequence), regex.BESTMATCH)))
+    alignments.append(('+', 'gapped', regex.search(query_regex_gap, window_sequence, regex.BESTMATCH)))
+    alignments.append(('-', 'gapped', regex.search(query_regex_gap, reverseComplement(window_sequence), regex.BESTMATCH)))
 
-        match_sequence = alignment.group()
-        distance = sum(alignment.fuzzy_counts)
+    lowest_distance_score = 100
+    chosen_alignment = None
+    for i, aln in enumerate(alignments):
+        strand, alignment_type, match = aln
+        if match != None:
+            substitutions, insertions, deletions = match.fuzzy_counts
+            distance_score = substitutions + (insertions + deletions) * 3
+            if distance_score < lowest_distance_score:
+                chosen_alignment = match
+                lowest_distance_score = distance_score
+                # print(match, distance_score)
+
+    if chosen_alignment:
+        match_sequence = chosen_alignment.group()
+        distance = sum(chosen_alignment.fuzzy_counts)
         length = len(match_sequence)
-        start = alignment.start()
-        end = alignment.end()
-
+        start = chosen_alignment.start()
+        end = chosen_alignment.end()
         path = os.path.dirname(os.path.abspath(__file__))
         realigned_match_sequence, realigned_target = nw.global_align(match_sequence, targetsite_sequence,
                                                                      gap_open=-10, gap_extend=-100, matrix='{0}/NUC_SIMPLE'.format(path))
         return [realigned_match_sequence, distance, length, strand, start, end, realigned_target]
+    else:
+        return [''] * 7
+
 
 # def alignSequences(ref_seq, query_seq):
 #     match = 2
