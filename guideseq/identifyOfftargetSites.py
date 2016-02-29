@@ -187,6 +187,7 @@ def alignSequences(targetsite_sequence, window_sequence, max_mismatches=7):
 
     lowest_distance_score = 100
     chosen_alignment = None
+    chosen_alignment_strand = None
     for i, aln in enumerate(alignments):
         strand, alignment_type, match = aln
         if match != None:
@@ -196,7 +197,7 @@ def alignSequences(targetsite_sequence, window_sequence, max_mismatches=7):
                 chosen_alignment = match
                 chosen_alignment_strand = strand
                 lowest_distance_score = distance_score
-                # print(match, distance_score)
+                # print(match, distance_score, chosen_alignment_strand)
 
     if chosen_alignment:
         match_sequence = chosen_alignment.group()
@@ -208,7 +209,7 @@ def alignSequences(targetsite_sequence, window_sequence, max_mismatches=7):
         path = os.path.dirname(os.path.abspath(__file__))
         realigned_match_sequence, realigned_target = nw.global_align(match_sequence, targetsite_sequence,
                                                                      gap_open=-10, gap_extend=-100, matrix='{0}/NUC_SIMPLE'.format(path))
-        return [realigned_match_sequence, distance, length, strand, start, end, realigned_target]
+        return [realigned_match_sequence, distance, length, chosen_alignment_strand, start, end, realigned_target]
     else:
         return [''] * 7
 
