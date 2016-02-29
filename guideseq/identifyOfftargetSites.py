@@ -194,6 +194,7 @@ def alignSequences(targetsite_sequence, window_sequence, max_mismatches=7):
             distance_score = substitutions + (insertions + deletions) * 3
             if distance_score < lowest_distance_score:
                 chosen_alignment = match
+                chosen_alignment_strand = strand
                 lowest_distance_score = distance_score
                 # print(match, distance_score)
 
@@ -201,6 +202,7 @@ def alignSequences(targetsite_sequence, window_sequence, max_mismatches=7):
         match_sequence = chosen_alignment.group()
         distance = sum(chosen_alignment.fuzzy_counts)
         length = len(match_sequence)
+
         start = chosen_alignment.start()
         end = chosen_alignment.end()
         path = os.path.dirname(os.path.abspath(__file__))
