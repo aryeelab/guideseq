@@ -211,7 +211,7 @@ def alignSequences(targetsite_sequence, window_sequence, max_mismatches=7):
                                                                      gap_open=-10, gap_extend=-100, matrix='{0}/NUC_SIMPLE'.format(path))
         return [realigned_match_sequence, distance, length, chosen_alignment_strand, start, end, realigned_target]
     else:
-        return [''] * 7
+        return [''] * 6 + ['none']
 
 
 # def alignSequences(ref_seq, query_seq):
