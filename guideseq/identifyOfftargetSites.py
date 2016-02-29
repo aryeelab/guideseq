@@ -197,7 +197,7 @@ def alignSequences(targetsite_sequence, window_sequence, max_mismatches=7):
                 chosen_alignment = match
                 chosen_alignment_strand = strand
                 lowest_distance_score = distance_score
-                # print(match, distance_score, chosen_alignment_strand)
+                print(match, distance_score, chosen_alignment_strand)
 
     if chosen_alignment:
         match_sequence = chosen_alignment.group()
