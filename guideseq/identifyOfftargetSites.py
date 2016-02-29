@@ -303,6 +303,7 @@ def analyze(sam_filename, reference_genome, outfile, annotations, windowsize, ma
             if target_sequence:
                 sequence, mismatches, length, strand, target_start_relative, target_end_relative, ref_sequence = \
                     alignSequences(target_sequence, window_sequence, max_mismatches)
+                print(target_sequence, sequence, strand, ref_sequence, mismatches, strand)
                 BED_score = 1
                 BED_chromosome = window_chromosome
                 if strand == "+":
