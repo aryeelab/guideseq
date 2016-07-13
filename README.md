@@ -99,7 +99,7 @@ to the ``Miseq Reporter.exe.config`` file located in the Miseq Reporter installa
 ```xml
 <appSettings>
     ... [LEAVE EXISTING LINES UNCHANGED] ...
-    <add key="CreateFastqForIndexReads" value="1"> 
+    <add key="CreateFastqForIndexReads" value="1"/> 
 </appSettings>
 ```
 
