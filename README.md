@@ -99,7 +99,7 @@ to the ``Miseq Reporter.exe.config`` file located in the Miseq Reporter installa
 ```xml
 <appSettings>
     ... [LEAVE EXISTING LINES UNCHANGED] ...
-    <add key="CreateFastqForIndexReads" value="1"> 
+    <add key="CreateFastqForIndexReads" value="1"/> 
 </appSettings>
 ```
 
@@ -133,6 +133,8 @@ When running the end-to-end analysis functionality of the guideseq package, a nu
 - `output_folder`: The absolute path to the folder in which all pipeline outputs will be saved.
 - `bwa`: The absolute path to the `bwa` executable
 - `bedtools`: The absolute path to the `bedtools` executable
+- `window_size`: Window size for search. Set to 10 for Cas9 and 75 for Cpf1.
+- `max_mismatches`: The maximum number of mismatches allowed to report a sequence-matched off-target
 - `undemultiplexed`: The absolute paths to the undemultiplexed paired end sequencing files. The required parameters are:
 	- `forward`: The absolute path to the FASTQ file containing the forward reads.
 	- `reverse`: The absolute path to the FASTQ file containing the reverse reads.
@@ -182,8 +184,9 @@ output_folder: test/output
 
 bwa: bwa
 bedtools: bedtools
-
 demultiplex_min_reads: 1000
+window_size: 75
+max_mismatches: 7
 
 undemultiplexed:
     forward: test/data/undemultiplexed/undemux.r1.fastq.gz
