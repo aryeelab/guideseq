@@ -230,6 +230,11 @@ class GuideSeq:
 
                 self.identified[sample] = os.path.join(self.output_folder, 'identified', sample + '_identifiedOfftargets.txt')
 
+                if not hasattr(self, 'window_size'):
+                    self.window_size = DEFAULT_WINDOW_SIZE
+                if not hasattr(self, 'max_mismatches'):
+                    self.max_mismatches = DEFAULT_MAX_MISMATCHES
+    
                 identifyOfftargetSites.analyze(samfile, self.reference_genome, self.identified[sample], annotations,
                                                self.window_size, self.max_mismatches)
 
