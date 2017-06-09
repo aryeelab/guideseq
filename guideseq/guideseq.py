@@ -26,8 +26,7 @@ import validation
 
 DEFAULT_DEMULTIPLEX_MIN_READS = 10000
 DEFAULT_WINDOW_SIZE = 25
-DEFAULT_MAX_MISMATCHES = 7
-DEFAULT_FILTERING_SCORE = 'Edit_distance'
+DEFAULT_MAX_SCORE = 7
 
 CONSOLIDATE_MIN_QUAL = 15
 CONSOLIDATE_MIN_FREQ = 0.9
@@ -70,15 +69,10 @@ class GuideSeq:
         else:
             self.window_size = DEFAULT_WINDOW_SIZE
         # Allow the user to specify window size for off-target search
-        if 'max_mismatches' in manifest_data:
-            self.max_mismatches = manifest_data['max_mismatches']
+        if 'max_score' in manifest_data:
+            self.max_score = manifest_data['max_score']
         else:
-            self.max_mismatches = DEFAULT_MAX_MISMATCHES
-        # Allow the user to determine if indels are allowed in the local alignment by specifying the filtering score
-        if 'filtering_score' in manifest_data:
-            self.filtering_score = manifest_data['filtering_score']
-        else:
-            self.filtering_score = DEFAULT_FILTERING_SCORE
+            self.max_score = DEFAULT_MAX_SCORE
 
         # Make sure the user has specified a control barcode
         if 'control' not in self.samples.keys():
@@ -237,7 +231,7 @@ class GuideSeq:
                 self.identified[sample] = os.path.join(self.output_folder, 'identified', sample + '_identifiedOfftargets.txt')
 
                 identifyOfftargetSites.analyze(samfile, self.reference_genome, self.identified[sample], annotations,
-                                               self.window_size, self.max_mismatches, self.filtering_score)
+                                               self.window_size, self.max_score)
 
             logger.info('Finished identifying offtarget sites.')
 
@@ -323,8 +317,7 @@ def parse_args():
     identify_parser.add_argument('--outfolder', required=True)
     identify_parser.add_argument('--target_sequence', required=True)
     identify_parser.add_argument('--description', required=False)
-    identify_parser.add_argument('--max_mismatches', required=False, type=int, default=7)
-    identify_parser.add_argument('--filtering_score', required=False, default='Edit_distance')
+    identify_parser.add_argument('--max_score', required=False, type=int, default=7)
     identify_parser.add_argument('--window_size', required=False, type=int, default=25)
 
     filter_parser = subparsers.add_parser('filter', help='Filter identified sites from control sites')
@@ -443,22 +436,17 @@ def main():
     elif args.command == 'identify':
         """
         Run just the identify step
-        python guideseq/guideseq.py identify --genome /Volumes/Media/hg38/hg38.fa --aligned test/output/aligned/EMX1.sam --outfolder test/output/ --target_sequence GAGTCCGAGCAGAAGAAGAANGG --filtering_score Mismatches
+        python guideseq/guideseq.py identify --genome /Volumes/Media/hg38/hg38.fa --aligned test/output/aligned/EMX1.sam --outfolder test/output/ --target_sequence GAGTCCGAGCAGAAGAAGAANGG
         """
         if 'description' in args:
             description = args.description
         else:
             description = ''
 
-        if 'filtering_score' in args:
-            filtering_score = args.filtering_score
+        if 'max_score' in args:
+            max_score = args.max_score
         else:
-            filtering_score = 'Edit_distance'
-
-        if 'max_mismatches' in args:
-            max_mismatches = args.max_mismatches
-        else:
-            max_mismatches = 7
+            max_score = 7
 
         if 'window_size' in args:
             window_size = args.window_size
@@ -471,8 +459,7 @@ def main():
         sample = os.path.basename(args.aligned).split('.')[0]
         g.samples = {sample: {'description': description, 'target': args.target_sequence}}
         g.aligned = {sample: args.aligned}
-        g.filtering_score = filtering_score
-        g.max_mismatches = max_mismatches
+        g.max_score = max_score
         g.window_size = window_size
         g.identifyOfftargetSites()
 
