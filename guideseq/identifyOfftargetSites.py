@@ -196,13 +196,13 @@ def realignedSequences(targetsite_sequence, chosen_alignment, errors=7):
 
     if insertions:  # DNA-bulge
         if targetsite_sequence.index('N') > len(targetsite_sequence)/2:  # PAM is on the right end
-            targetsite_realignments = [targetsite_sequence[:i + 1] + '-' + targetsite_sequence[i + 1:] for i in range(targetsite_sequence.index('N'))]
+            targetsite_realignments = [targetsite_sequence[:i + 1] + '-' + targetsite_sequence[i + 1:] for i in range(targetsite_sequence.index('N') + 1)]
         else:
-            targetsite_realignments = [targetsite_sequence[:i + 1] + '-' + targetsite_sequence[i:] for i in range(targetsite_sequence.index('N'), len(targetsite_sequence))]
+            targetsite_realignments = [targetsite_sequence[:i] + '-' + targetsite_sequence[i:] for i in range(targetsite_sequence.index('N'), len(targetsite_sequence))]
     else:
         targetsite_realignments = [targetsite_sequence]
 
-    realigned_target_sequence, realigned_offtarget_sequence = None, ''  # in case the matching sequence has an indel in the pam
+    realigned_target_sequence, realigned_offtarget_sequence = None, ''  # in case the matching sequence is not founded
 
     for seq in targetsite_realignments:
         if deletions:  # RNA-bulge
@@ -322,12 +322,12 @@ def analyze(sam_filename, reference_genome, outfile, annotations, windowsize, ma
               'WindowIndex', 'WindowChromosome', 'Position', 'WindowSequence',
               '+.mi', '-.mi', 'bi.sum.mi', 'bi.geometric_mean.mi', '+.total', '-.total', 'total.sum', 'total.geometric_mean',
               'primer1.mi', 'primer2.mi', 'primer.geometric_mean', 'position.stdev',
-              'BED_OffTarget_Name', 'BED_Score', 'BED_OffTarget_Chromosome',
-              'OffTargetSequence_MismatchOnly', 'OffTargetSequence_MismatchOnly.Mismatches',  # 24:25
-              'OffTargetSequence_MismatchOnly.Strand', 'OffTargetSequence_MismatchOnly.Start', 'OffTargetSequence_MismatchOnly.End',  # 26:28
-              'OffTargetSequence_bulge', 'OffTargetSequence_bulge.Length', 'OffTargetSequence_bulge.Edit_Distance',  # 29:31
-              'OffTargetSequence_bulge.Substitutions', 'OffTargetSequence_bulge.DNAbulge', 'OffTargetSequence_bulge.RNAbulge',  # 32:34
-              'OffTargetSequence_bulge.Strand', 'OffTargetSequence_bulge.Start', 'OffTargetSequence_bulge.End',  # 35:37
+              'BED_Site_Name', 'BED_Score', 'BED_Site_Chromosome',
+              'Site_SubstitutionsOnly.Sequence', 'Site_SubstitutionsOnly.NumSubstitutions',  # 24:25
+              'Site_SubstitutionsOnly.Strand', 'Site_SubstitutionsOnly.Start', 'Site_SubstitutionsOnly.End',  # 26:28
+              'Site_GapsAllowed.Sequence', 'Site_GapsAllowed.Length', 'Site_GapsAllowed.Edit_Distance',  # 29:31
+              'Site_GapsAllowed.Substitutions', 'Site_GapsAllowed.Insertions', 'Site_GapsAllowed.Deletions',  # 32:34
+              'Site_GapsAllowed.Strand', 'Site_GapsAllowed.Start', 'Site_GapsAllowed.End',  # 35:37
               'Cell', 'Targetsite', 'TargetSequence', 'RealignedTargetSequence', sep='\t', file=f)  # 38:41
 
         # Output summary of each window
