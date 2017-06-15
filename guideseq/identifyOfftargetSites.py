@@ -238,17 +238,7 @@ def alignSequences(targetsite_sequence, window_sequence, max_score=7):
     lowest_distance_score, lowest_mismatch = 100, max_score + 1
     chosen_alignment_b, chosen_alignment_m, chosen_alignment_strand_b, chosen_alignment_strand_m = None, None, '', ''
 
-    for aln_b, aln_m in zip(alignments_bulge, alignments_mm):
-        strand_b, alignment_type_b, match_b = aln_b
-        if match_b != None:
-            substitutions, insertions, deletions = match_b.fuzzy_counts
-            if insertions or deletions:
-                distance_score = substitutions + (insertions + deletions) * 3
-                if distance_score < lowest_distance_score:
-                    chosen_alignment_b = match_b
-                    chosen_alignment_strand_b = strand_b
-                    lowest_distance_score = distance_score
-
+    for aln_m in alignments_mm:
         strand_m, alignment_type_m, match_m = aln_m
         if match_m != None:
             mismatches, insertions, deletions = match_m.fuzzy_counts
@@ -256,6 +246,18 @@ def alignSequences(targetsite_sequence, window_sequence, max_score=7):
                 chosen_alignment_m = match_m
                 chosen_alignment_strand_m = strand_m
                 lowest_mismatch = mismatches
+
+    for aln_b in alignments_bulge:
+        strand_b, alignment_type_b, match_b = aln_b
+        if match_b != None:
+            substitutions, insertions, deletions = match_b.fuzzy_counts
+            if insertions or deletions:
+                distance_score = substitutions + (insertions + deletions) * 3
+                edistance = substitutions + insertions + deletions
+                if distance_score < lowest_distance_score and edistance < lowest_mismatch:
+                    chosen_alignment_b = match_b
+                    chosen_alignment_strand_b = strand_b
+                    lowest_distance_score = distance_score
 
     if chosen_alignment_m:
         offtarget_sequence_no_bulge = chosen_alignment_m.group()
@@ -270,16 +272,16 @@ def alignSequences(targetsite_sequence, window_sequence, max_score=7):
     if chosen_alignment_b:
         realigned_target, bulged_offtarget_sequence = realignedSequences(targetsite_sequence, chosen_alignment_b, max_score)
         if bulged_offtarget_sequence:
-            distance = sum(chosen_alignment_b.fuzzy_counts)
             length = len(chosen_alignment_b.group())
             substitutions, insertions, deletions = chosen_alignment_b.fuzzy_counts
+            score = substitutions + (insertions + deletions) * 3
             bulged_start = chosen_alignment_b.start()
             bulged_end = chosen_alignment_b.end()
         else:
             chosen_alignment_strand_b = ''
 
     return [offtarget_sequence_no_bulge, mismatches, chosen_alignment_strand_m, start_no_bulge, end_no_bulge,
-            bulged_offtarget_sequence, length, distance, substitutions, insertions, deletions, chosen_alignment_strand_b, bulged_start, bulged_end, realigned_target]
+            bulged_offtarget_sequence, length, score, substitutions, insertions, deletions, chosen_alignment_strand_b, bulged_start, bulged_end, realigned_target]
 
 
 """
@@ -325,7 +327,7 @@ def analyze(sam_filename, reference_genome, outfile, annotations, windowsize, ma
               'BED_Site_Name', 'BED_Score', 'BED_Site_Chromosome',
               'Site_SubstitutionsOnly.Sequence', 'Site_SubstitutionsOnly.NumSubstitutions',  # 24:25
               'Site_SubstitutionsOnly.Strand', 'Site_SubstitutionsOnly.Start', 'Site_SubstitutionsOnly.End',  # 26:28
-              'Site_GapsAllowed.Sequence', 'Site_GapsAllowed.Length', 'Site_GapsAllowed.Edit_Distance',  # 29:31
+              'Site_GapsAllowed.Sequence', 'Site_GapsAllowed.Length', 'Site_GapsAllowed.Score',  # 29:31
               'Site_GapsAllowed.Substitutions', 'Site_GapsAllowed.Insertions', 'Site_GapsAllowed.Deletions',  # 32:34
               'Site_GapsAllowed.Strand', 'Site_GapsAllowed.Start', 'Site_GapsAllowed.End',  # 35:37
               'Cell', 'Targetsite', 'TargetSequence', 'RealignedTargetSequence', sep='\t', file=f)  # 38:41
