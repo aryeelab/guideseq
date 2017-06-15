@@ -267,7 +267,7 @@ def alignSequences(targetsite_sequence, window_sequence, max_score=7):
     else:
         offtarget_sequence_no_bulge, mismatches, start_no_bulge, end_no_bulge, chosen_alignment_strand_m = '', '', '', '', ''
 
-    bulged_offtarget_sequence, distance, length, substitutions, insertions, deletions, bulged_start, bulged_end, realigned_target = \
+    bulged_offtarget_sequence, score, length, substitutions, insertions, deletions, bulged_start, bulged_end, realigned_target = \
         '', '', '', '', '', '', '', '', 'none'
     if chosen_alignment_b:
         realigned_target, bulged_offtarget_sequence = realignedSequences(targetsite_sequence, chosen_alignment_b, max_score)
