@@ -3,6 +3,15 @@
 
 The guideseq package implements our data preprocessing and analysis pipeline for GUIDE-Seq data. It takes raw sequencing reads (FASTQ) and a parameter manifest file (.yaml) as input and produces a table of annotated off-target sites as output.
 
+### References
+
+##### The original paper describing the GUIDE-Seq method:
+
+Tsai SQ, Zheng Z, Nguyen NT, Liebers M, Topkar VV, Thapar V, Wyvekens N, Khayter C, Iafrate AJ, Le LP, Aryee MJ, Joung JK. [GUIDE-seq enables genome-wide profiling of off-target cleavage by CRISPR-Cas nucleases](https://www.ncbi.nlm.nih.gov/pubmed/25513782). Nat Biotechnol. 2015 Feb;33(2):187-197
+
+##### A description of this analysis package:
+Tsai SQ, Topkar VV, Joung JK, Aryee MJ. [Open-source guideseq software for analysis of GUIDE-seq data](https://www.ncbi.nlm.nih.gov/pubmed/27153277). Nat Biotechnol. 2016 May 6;34(5):483 
+
 ## Table of Contents
 - [Features](#features)
 - [Dependencies](#dependencies)
