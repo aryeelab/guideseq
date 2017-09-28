@@ -196,9 +196,9 @@ def realignedSequences(targetsite_sequence, chosen_alignment, errors=7):
 
     if insertions:  # DNA-bulge
         if targetsite_sequence.index('N') > len(targetsite_sequence)/2:  # PAM is on the right end
-            targetsite_realignments = [targetsite_sequence[:i + 1] + '-' + targetsite_sequence[i + 1:] for i in range(targetsite_sequence.index('N') + 1)]
+            targetsite_realignments = [targetsite_sequence[:i + 1] + '-' + targetsite_sequence[i + 1:] for i in range(targetsite_sequence.index('N') + 2)]
         else:
-            targetsite_realignments = [targetsite_sequence[:i] + '-' + targetsite_sequence[i:] for i in range(targetsite_sequence.index('N'), len(targetsite_sequence))]
+            targetsite_realignments = [targetsite_sequence[:i] + '-' + targetsite_sequence[i:] for i in range(targetsite_sequence.index('N') - 2, len(targetsite_sequence))]
     else:
         targetsite_realignments = [targetsite_sequence]
 
