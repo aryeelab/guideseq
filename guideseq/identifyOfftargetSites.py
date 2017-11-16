@@ -198,7 +198,7 @@ def (targetsite_sequence, chosen_alignment, errors=7):
         targetsite_realignments = [targetsite_sequence[:i] + '-' + targetsite_sequence[i:] for i in range(1, len(targetsite_sequence))]
     else:
         targetsite_realignments = [targetsite_sequence]
-
+        
     realigned_target_sequence, realigned_offtarget_sequence = None, ''  # in case the matching sequence is not founded
 
     for seq in targetsite_realignments:
