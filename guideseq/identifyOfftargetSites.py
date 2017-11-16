@@ -187,7 +187,7 @@ def extendedPattern(seq, indels=1, errors=7):
     return '(?b:' + realign_pattern + ')' + '{{i<={0},d<={0},s<={1},3i+3d+1s<={1}}}'.format(indels, errors)
 
 
-def realignedSequences(targetsite_sequence, chosen_alignment, errors=7):
+def (targetsite_sequence, chosen_alignment, errors=7):
     match_sequence = chosen_alignment.group()
     substitutions, insertions, deletions = chosen_alignment.fuzzy_counts
 
@@ -195,10 +195,7 @@ def realignedSequences(targetsite_sequence, chosen_alignment, errors=7):
     realigned_fuzzy = (substitutions, max(0, insertions - 1), max(0, deletions - 1))
 
     if insertions:  # DNA-bulge
-        if targetsite_sequence.index('N') > len(targetsite_sequence)/2:  # PAM is on the right end
-            targetsite_realignments = [targetsite_sequence[:i + 1] + '-' + targetsite_sequence[i + 1:] for i in range(targetsite_sequence.index('N') + 2)]
-        else:
-            targetsite_realignments = [targetsite_sequence[:i] + '-' + targetsite_sequence[i:] for i in range(targetsite_sequence.index('N') - 2, len(targetsite_sequence))]
+        targetsite_realignments = [targetsite_sequence[:i] + '-' + targetsite_sequence[i:] for i in range(1, len(targetsite_sequence))]
     else:
         targetsite_realignments = [targetsite_sequence]
 
@@ -427,7 +424,6 @@ def parseReadName(read_name):
         molecular_index, count = m.group(1), m.group(2)
         return molecular_index, int(count)
     else:
-        # print read_name
         return None, None
 
 
@@ -450,7 +446,6 @@ def main():
     parser.add_argument('--outfile', help='File to output identified sites to.', required=True)
     parser.add_argument('--window', help='Window around breakpoint to search for off-target', type=int, default=25)
     parser.add_argument('--max_score', help='Score threshold', type=int, default=7)
-    # parser.add_argument('--demo')
     parser.add_argument('--target', default='')
 
     args = parser.parse_args()
