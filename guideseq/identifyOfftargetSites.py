@@ -187,7 +187,7 @@ def extendedPattern(seq, indels=1, errors=7):
     return '(?b:' + realign_pattern + ')' + '{{i<={0},d<={0},s<={1},3i+3d+1s<={1}}}'.format(indels, errors)
 
 
-def (targetsite_sequence, chosen_alignment, errors=7):
+def realignedSequences(targetsite_sequence, chosen_alignment, errors=7):
     match_sequence = chosen_alignment.group()
     substitutions, insertions, deletions = chosen_alignment.fuzzy_counts
 
@@ -409,7 +409,7 @@ def assignPrimerstoReads(read_sequence, sam_flag):
 
 def loadFileIntoArray(filename):
     with open(filename, 'rU') as f:
-        keys = f.readline().rstrip('\r\n').split('\t')[1:]x
+        keys = f.readline().rstrip('\r\n').split('\t')[1:]
         data = collections.defaultdict(dict)
         for line in f:
             filename, rest = processLine(line)
