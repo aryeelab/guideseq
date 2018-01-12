@@ -135,7 +135,7 @@ class chromosomePosition():
             BED_name = BED_format_chromosome + "_" + str(most_frequent_position) + "_" + str(barcode_sum)
             offtarget_sequence = self.getSequence(self.genome, most_frequent_chromosome, most_frequent_position - search_radius, most_frequent_position + search_radius)
 
-            summary_list = [str(x) for x in [index, most_frequent_chromosome, most_frequent_position, offtarget_sequence,           # pick most frequently occurring chromosome and position
+            summary_list = [str(x) for x in [index, most_frequent_chromosome, most_frequent_position, offtarget_sequence,                        # pick most frequently occurring chromosome and position
                                              BED_format_chromosome, min_position, max_position, BED_name,
                                              barcode_plus, barcode_minus, barcode_sum, barcode_geometric_mean,
                                              total_plus, total_minus, total_sum, total_geometric_mean,
@@ -309,9 +309,12 @@ def analyze(sam_filename, reference_genome, outfile, annotations, search_radius,
                     strand = "+"
                     chromosome_position.addPositionBarcode(chromosome, read_position, strand, barcode, primer, count)
 
+    # Generate barcode position summary
+    stacked_summary = chromosome_position.SummarizeBarcodePositions()
+
     with open(outfile, 'w') as f:
         # Write header
-        print('BED_Chromosome', 'BED_Min.Position', 'BED_Max.Position', 'BED_Name', 'Filename',
+        print('#BED_Chromosome', 'BED_Min.Position', 'BED_Max.Position', 'BED_Name', 'Filename',
               'WindowIndex', 'WindowChromosome', 'Position', 'WindowSequence',
               '+.mi', '-.mi', 'bi.sum.mi', 'bi.geometric_mean.mi', '+.total', '-.total', 'total.sum', 'total.geometric_mean',
               'primer1.mi', 'primer2.mi', 'primer.geometric_mean', 'position.stdev',

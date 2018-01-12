@@ -64,10 +64,10 @@ class GuideSeq:
         else:
             self.demultiplex_min_reads = DEFAULT_DEMULTIPLEX_MIN_READS
         # Allow the user to specify window size for off-target search
-        if 'window_size' in manifest_data:
-            self.window_size = manifest_data['window_size']
+        if 'search_radius' in manifest_data:
+            self.search_radius = manifest_data['search_radius']
         else:
-            self.window_size = DEFAULT_WINDOW_SIZE
+            self.search_radius = DEFAULT_WINDOW_SIZE
         # Allow the user to specify window size for off-target search
         if 'max_score' in manifest_data:
             self.max_score = manifest_data['max_score']
@@ -231,7 +231,7 @@ class GuideSeq:
                 self.identified[sample] = os.path.join(self.output_folder, 'identified', sample + '_identifiedOfftargets.txt')
 
                 identifyOfftargetSites.analyze(samfile, self.reference_genome, self.identified[sample], annotations,
-                                               self.window_size, self.max_score)
+                                               self.search_radius, self.max_score)
 
             logger.info('Finished identifying offtarget sites.')
 
@@ -318,7 +318,7 @@ def parse_args():
     identify_parser.add_argument('--target_sequence', required=True)
     identify_parser.add_argument('--description', required=False)
     identify_parser.add_argument('--max_score', required=False, type=int, default=7)
-    identify_parser.add_argument('--window_size', required=False, type=int, default=25)
+    identify_parser.add_argument('--search_radius', required=False, type=int, default=25)
 
     filter_parser = subparsers.add_parser('filter', help='Filter identified sites from control sites')
     filter_parser.add_argument('--bedtools', required=True)
@@ -448,10 +448,10 @@ def main():
         else:
             max_score = 7
 
-        if 'window_size' in args:
-            window_size = args.window_size
+        if 'search_radius' in args:
+            search_radius = args.search_radius
         else:
-            window_size = 25
+            search_radius = 25
 
         g = GuideSeq()
         g.output_folder = args.outfolder
@@ -460,7 +460,7 @@ def main():
         g.samples = {sample: {'description': description, 'target': args.target_sequence}}
         g.aligned = {sample: args.aligned}
         g.max_score = max_score
-        g.window_size = window_size
+        g.search_radius = search_radius
         g.identifyOfftargetSites()
 
     elif args.command == 'filter':

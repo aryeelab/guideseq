@@ -1,8 +1,10 @@
 from __future__ import print_function
+
 import svgwrite
-import sys
 import os
 import logging
+import argparse
+
 
 logger = logging.getLogger('root')
 logger.propagate = False
@@ -12,7 +14,6 @@ box_size = 15
 v_spacing = 3
 
 colors = {'G': '#F5F500', 'A': '#FF5454', 'T': '#00D118', 'C': '#26A8FF', 'N': '#B3B3B3', '-': '#FFFFFF'}
-
 
 def parseSitesFile(infile):
     offtargets = []
@@ -67,16 +68,24 @@ def visualizeOfftargets(infile, outfile, title=None):
 
     # Draw ticks
     tick_locations = [1, len(target_seq)]  # limits
-    if target_seq.index('N') > len(target_seq)/2:  # PAM on the right end
-        tick_locations += range(len(target_seq) + 1)[::10][1:]  # intermediate values
-        tick_locations += range(len(target_seq) + 1)[len(target_seq) - 2: len(target_seq)]  # complementing PAM
-        tick_locations.sort()
-        tick_legend = [str(x) for x in tick_locations[:-3][::-1]] + ['P', 'A', 'M']
+    if target_seq.find('N') >= 0:
+        if target_seq.index('N') > len(target_seq)/2:  # PAM on the right end
+            tick_locations += range(len(target_seq) + 1)[::10][1:]  # intermediate values
+            tick_locations += range(len(target_seq) + 1)[len(target_seq) - 2: len(target_seq)]  # complementing PAM
+            tick_locations.sort()
+            tick_legend = [str(x) for x in tick_locations[:-3][::-1]] + ['P', 'A', 'M']
+        else:
+            tick_locations += [range(3, len(target_seq) + 1)[::10][1]]
+            tick_locations += range(2, 5)
+            tick_locations.sort()
+            tick_legend = ['P', 'A', 'M'] + [str(x) for x in [str(x-3) for x in tick_locations[3:]]]
+        for x, y in zip(tick_locations, tick_legend):
+            dwg.add(dwg.text(y, insert=(x_offset + (x - 1) * box_size + 2, y_offset - 2), style="font-size:10px; font-family:Courier"))
     else:
-        tick_locations += [range(3, len(target_seq) + 1)[::10][1]]
-        tick_locations += range(2, 5)
-        tick_locations.sort()
-        tick_legend = ['P', 'A', 'M'] + [str(x) for x in [str(x-3) for x in tick_locations[3:]]]
+        tick_locations = [1, len(target_seq)]
+        tick_locations += range(len(target_seq) + 1)[::10][1:]
+        for x in tick_locations:
+            dwg.add(dwg.text(str(x), insert=(x_offset + (x - 1) * box_size + 2, y_offset - 2), style="font-size:10px; font-family:Courier"))
 
     for x,y in zip(tick_locations, tick_legend):
         dwg.add(dwg.text(y, insert=(x_offset + (x - 1) * box_size + 2, y_offset - 2), style="font-size:10px; font-family:Courier"))
@@ -156,15 +165,16 @@ def visualizeOfftargets(infile, outfile, title=None):
 
 
 def main():
-    if len(sys.argv) >= 3:
-        if len(sys.argv) == 4:
-            title = sys.argv[3]
-        else:
-            title = None
-        visualizeOfftargets(sys.argv[1], sys.argv[2], title=title)
-    else:
-        print('Usage: python visualization.py INFILE OUTFILE [TITLE]')
+    parser = argparse.ArgumentParser(description='Plot visualization plots for aligned reads.')
+    parser.add_argument("--identified_file", help="Full path to sample identified output", required=True)
+    parser.add_argument("--outfile", help="Full path to output file", required=True)
+    parser.add_argument("--title", help="Plot title", required=True)
+    args = parser.parse_args()
 
+    print(args)
 
-if __name__ == '__main__':
+    visualizeOfftargets(args.identified_file, args.outfile, title=args.title)
+
+if __name__ == "__main__":
+
     main()
