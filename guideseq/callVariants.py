@@ -8,7 +8,15 @@ import regex
 import re
 import HTSeq
 import pyfaidx
-from findCleavageSites import get_sequence, regexFromSequence, alignSequences, reverseComplement, extendedPattern, realignedSequences
+from identifyOfftargetSites import regexFromSequence, alignSequences, reverseComplement, extendedPattern, realignedSequences
+
+
+def get_sequence(reference_genome, chromosome, start, end, strand="+"):
+    if strand == "+":
+        seq = reference_genome[chromosome][int(start):int(end)]
+    elif strand == "-":
+        seq = reference_genome[chromosome][int(start):int(end)].reverse.complement
+    return str(seq)
 
 
 """
