@@ -23,6 +23,7 @@ from umi import demultiplex, umitag, consolidate
 from visualization import visualizeOfftargets
 import identifyOfftargetSites
 import validation
+import callVariants
 
 DEFAULT_DEMULTIPLEX_MIN_READS = 10000
 DEFAULT_WINDOW_SIZE = 25
@@ -73,6 +74,11 @@ class GuideSeq:
             self.max_score = manifest_data['max_score']
         else:
             self.max_score = DEFAULT_MAX_SCORE
+        # Allow the user to specify window size for off-target search
+        if 'variant_analysis' in manifest_data:
+            self.variant_analysis = manifest_data['variant_analysis']
+        else:
+            self.variant_analysis = False
 
         # Make sure the user has specified a control barcode
         if 'control' not in self.samples.keys():
@@ -275,6 +281,27 @@ class GuideSeq:
             logger.error('Error visualizing off-target sites.')
             logger.error(traceback.format_exc())
 
+    def callVariants(self):
+        logger.info('Identifying genomic variants...')
+
+        try:
+            if self.variant_analysis:
+                # Identify genomic variants for each sample
+                for sample in self.samples:
+                    if sample != 'control':
+                        infile = self.identified[sample]
+                        samfile = os.path.join(self.output_folder, 'aligned', sample + '.sam')
+                        outfile = os.path.join(self.output_folder, 'variants', sample)
+
+                        callVariants.getVariants(infile, self.reference_genome, samfile, outfile, self.search_radius, self.max_score)
+
+                        logger.info('Finished identifying genomic variants.')
+
+        except Exception as e:
+            logger.error('Error identifying genomic variants.')
+            logger.error(traceback.format_exc())
+            quit()
+
 
 def parse_args():
     parser = argparse.ArgumentParser()
@@ -331,6 +358,14 @@ def parse_args():
     visualize_parser.add_argument('--outfolder', required=True)
     visualize_parser.add_argument('--title', required=False)
 
+    variants_parser = subparsers.add_parser('variants', help='Implement samtools:mpileup to identify genomic variants')
+    variants_parser.add_argument('--matched_file', required=True)
+    variants_parser.add_argument('--ref', required=True)
+    variants_parser.add_argument('--bam', required=True)
+    variants_parser.add_argument('--search_radius', required=True)
+    variants_parser.add_argument('--mismatch_threshold', required=True)
+    variants_parser.add_argument('--out', required=True)
+
     return parser.parse_args()
 
 
@@ -367,6 +402,7 @@ def main():
             g.identifyOfftargetSites()
             g.filterBackgroundSites()
             g.visualize()
+            g.variants()
 
     elif args.command == 'demultiplex':
         """
@@ -482,6 +518,12 @@ def main():
         """
         Run just the visualize step
         """
+
+        if 'min_quality' in args:
+            min_qual = args.min_quality
+        else:
+            min_qual = CONSOLIDATE_MIN_QUAL
+
         g = GuideSeq()
         g.output_folder = os.path.dirname(args.outfolder)
         sample = os.path.basename(args.infile).split('.')[0]
@@ -489,6 +531,36 @@ def main():
         g.identified = {}
         g.identified[sample] = args.infile
         g.visualize()
+
+    elif args.command == 'variants':
+        """
+        Run just the visualize step
+        """
+        if 'variant_analysis' in args:
+            variant_analysis = args.max_score
+        else:
+            variant_analysis = False
+        if 'max_score' in args:
+            max_score = args.max_score
+        else:
+            max_score = 7
+
+        if 'search_radius' in args:
+            search_radius = args.search_radius
+        else:
+            search_radius = 25
+
+        g = GuideSeq()
+        g.variant_analysis = variant_analysis
+        sample = os.path.basename(args.infile).split('.')[0]
+        g.samples = {sample: {}}
+        g.identified = {}
+        g.identified[sample] = args.infile
+        g.output_folder = os.path.dirname(args.outfolder)
+        g.reference_genome = args.genome
+        g.max_score = max_score
+        g.search_radius = search_radius
+        g.callVariants()
 
 
 if __name__ == '__main__':
