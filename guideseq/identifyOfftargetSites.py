@@ -309,6 +309,9 @@ def analyze(sam_filename, reference_genome, outfile, annotations, search_radius,
                     strand = "+"
                     chromosome_position.addPositionBarcode(chromosome, read_position, strand, barcode, primer, count)
 
+    # Generate barcode position summary
+    stacked_summary = chromosome_position.SummarizeBarcodePositions()
+
     with open(outfile, 'w') as f:
         # Write header
         print('BED_Chromosome', 'BED_Min.Position', 'BED_Max.Position', 'BED_Name', 'Filename',
