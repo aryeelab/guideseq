@@ -402,7 +402,7 @@ def main():
             g.identifyOfftargetSites()
             g.filterBackgroundSites()
             g.visualize()
-            g.variants()
+            g.callVariants()
 
     elif args.command == 'demultiplex':
         """
