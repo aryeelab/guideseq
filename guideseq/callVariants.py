@@ -276,7 +276,7 @@ def sortSAM(sam_file):
     sam_name = os.path.basename(sam_file)
     bam_file = os.path.join(sam_folder, sam_name[:-4] + '.bam')
 
-    samtools_sam_to_bam_command = 'samtools sort {0}'.format(bam_file, sam_file)
+    samtools_sam_to_bam_command = 'samtools sort -o {0} {1}'.format(bam_file, sam_file)
     samtools_index_command = 'samtools index {0}'.format(bam_file)
 
     # Convert SAM to BAM file
