@@ -174,16 +174,20 @@ def regexFromSequence(seq, lookahead=True, indels=1, errors=7):
     return pattern_standard, pattern_gap
 
 """
-Realigned TargetSequence and OffTargetSequence 
+Allow for '-' in our search, but do not allow insertions or deletions. 
 """
-def extendedPattern(seq, errors, indels=1):
+def extendedPattern(seq, errors):
     IUPAC_notation_regex_extended = {'N': '[ATCGN]','-': '[ATCGN]','Y': '[CTY]','R': '[AGR]','W': '[ATW]','S': '[CGS]','A': 'A','T': 'T','C': 'C','G': 'G'}
     realign_pattern = ''
     for c in seq:
         realign_pattern += IUPAC_notation_regex_extended[c]
-    return '(?b:' + realign_pattern + ')' + '{{i<={0},d<={0},s<={1},3i+3d+1s<={1}}}'.format(indels, errors)
+    return '(?b:' + realign_pattern + ')' + '{{s<={0}}}'.format(errors)
 
 
+"""
+Recreate A!!! sequence in the window_sequence that matches the conditions given for the fuzzy regex. 
+Currently only working for off-targets with at most one bulge !!! 
+"""
 def realignedSequences(targetsite_sequence, chosen_alignment, errors):
     match_sequence = chosen_alignment.group()
     substitutions, insertions, deletions = chosen_alignment.fuzzy_counts
@@ -191,7 +195,8 @@ def realignedSequences(targetsite_sequence, chosen_alignment, errors):
     # get the .fuzzy_counts associated to the matching sequence after adjusting for indels, where 0 <= INS, DEL <= 1
     realigned_fuzzy = (substitutions, max(0, insertions - 1), max(0, deletions - 1))
 
-    if insertions:  # DNA-bulge
+    #  recreate the target sequence, with a '-' in the case of an DNA-bulge
+    if insertions:
         targetsite_realignments = [targetsite_sequence[:i] + '-' + targetsite_sequence[i:] for i in range(1, len(targetsite_sequence))]
     else:
         targetsite_realignments = [targetsite_sequence]
@@ -199,7 +204,8 @@ def realignedSequences(targetsite_sequence, chosen_alignment, errors):
     realigned_target_sequence, realigned_offtarget_sequence = None, ''  # in case the matching sequence is not founded
 
     for seq in targetsite_realignments:
-        if deletions:  # RNA-bulge
+        # recreate off-target sequence (with a '-' in the case of an RNA-bulge) and pattern matching the realigned target sequence
+        if deletions:
             match_realignments = [match_sequence[:i + 1] + '-' + match_sequence[i + 1:] for i in range(len(match_sequence) - 1)]
             match_pattern = [match_sequence[:i + 1] + seq[i + 1] + match_sequence[i + 1:] for i in range(len(match_sequence) - 1)]
         else:
