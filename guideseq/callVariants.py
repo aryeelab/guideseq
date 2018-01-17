@@ -169,14 +169,12 @@ def arrayOffTargets(matched_file, search_radius):
 
 def snpAdjustment(matched_file, snp_file, out, mismatch_threshold, search_radius):
     output_file = open(out + '_Variants.txt', 'w')
-    print('Chromosome', 'Start', 'End', 'Name', 'ReadCount',
-          'Variant_WindowSequence',
-          'Variant_Site_SubstitutionsOnly.Sequence', 'Variant_Site_SubstitutionsOnly.NumSubstitutions',
-          'Variant_Site_SubstitutionsOnly.Strand',
-          'Variant_Site_GapsAllowed.Sequence', 'Variant_Site_GapsAllowed.Length', 'Variant_Site_GapsAllowed.Score',
-          'Variant_Site_GapsAllowed.Substitutions', 'Variant_Site_GapsAllowed.Insertions', 'Variant_Site_GapsAllowed.Deletions',
-          'Variant_Site_GapsAllowed.Strand',
-          'Cell', 'Targetsite', 'TargetSequence', 'Variant_RealignedTargetSequence',
+    print('Chromosome', 'Start', 'End', 'Name', 'ReadCount', 'Variant_WindowSequence',
+          'Variant.Site.SubstitutionsOnly.Sequence', 'Variant.Site.SubstitutionsOnly.NumSubstitutions', 'Variant.Site.SubstitutionsOnly.Strand',
+          'Variant.Site.GapsAllowed.Sequence', 'Variant.Site.GapsAllowed.Length',
+          'Variant.Site.GapsAllowed.Substitutions', 'Variant.Site.GapsAllowed.Insertions', 'Variant.Site.GapsAllowed.Deletions',
+          'Variant.Site.GapsAllowed.Strand',
+          'Cell', 'Targetsite', 'TargetSequence', 'Variant.RealignedTargetSequence',
           'Reference', 'Variant', 'Genotype', 'Quality',
           sep='\t', file=output_file)
     output_file.close()
