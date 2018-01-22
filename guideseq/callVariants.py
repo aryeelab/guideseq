@@ -11,6 +11,11 @@ import pyfaidx
 from identifyOfftargetSites import regexFromSequence, alignSequences, reverseComplement, extendedPattern, realignedSequences
 
 
+def reverseComplement(seq):
+    compl = dict({'A': 'T', 'T': 'A', 'C': 'G', 'G': 'C', 'N': 'N', 'a': 't', 't': 'a', 'c': 'g', 'g': 'c', 'n': 'n', '.': '.', '-': '-', '_': '_'})
+    out_list = [compl[bp] for bp in seq]
+    return ''.join(out_list[::-1])
+
 def get_sequence(reference_genome, chromosome, start, end, strand="+"):
     if strand == "+":
         seq = reference_genome[chromosome][int(start):int(end)]
