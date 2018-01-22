@@ -225,9 +225,9 @@ def snpAdjustment(matched_file, snp_file, out, mismatch_threshold, search_radius
         #  variant off-target sequences: only proceed if there is a variant in the window sequence
         window_sequence_var = window_sequence_variant.upper()
         if window_sequence_var != window_sequence:
-            offtarget_sequence_no_bulge, mismatches, chosen_alignment_strand_m, start_no_bulge, end_no_bulge, \
-            bulged_offtarget_sequence, length, score, substitutions, insertions, deletions, \
-            chosen_alignment_strand_b, bulged_start, bulged_end, realigned_target = \
+            offtarget_sequence_no_bulge, mismatches, offtarget_sequence_length, chosen_alignment_strand_m, start_no_bulge, end_no_bulge, \
+            realigned_target, \
+            bulged_offtarget_sequence, length, score, substitutions, insertions, deletions, chosen_alignment_strand_b, bulged_start, bulged_end = \
                 alignSequences(TargetSequence, window_sequence_var, max_score=mismatch_threshold)
 
             variant_ots_no_bulge, variant_ots_bulge = '', ''

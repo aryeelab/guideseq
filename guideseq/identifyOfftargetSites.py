@@ -238,6 +238,7 @@ def alignSequences(targetsite_sequence, window_sequence, max_score=7):
     lowest_distance_score, lowest_mismatch = 100, max_score + 1
     chosen_alignment_b, chosen_alignment_m, chosen_alignment_strand_b, chosen_alignment_strand_m = None, None, '', ''
 
+    # Use regex to find the best match allowing only for mismatches
     for aln_m in alignments_mm:
         strand_m, alignment_type_m, match_m = aln_m
         if match_m != None:
@@ -247,6 +248,8 @@ def alignSequences(targetsite_sequence, window_sequence, max_score=7):
                 chosen_alignment_strand_m = strand_m
                 lowest_mismatch = mismatches
 
+    # Use regex to find the best match allowing for gaps, so that its edit distance is strictly lower than the
+    # total number of mismatches of the sequence founded (if any) allowing only for mismatches.
     for aln_b in alignments_bulge:
         strand_b, alignment_type_b, match_b = aln_b
         if match_b != None:
@@ -280,8 +283,9 @@ def alignSequences(targetsite_sequence, window_sequence, max_score=7):
         else:
             chosen_alignment_strand_b = ''
 
-    return [offtarget_sequence_no_bulge, mismatches, chosen_alignment_strand_m, start_no_bulge, end_no_bulge,
-            bulged_offtarget_sequence, length, score, substitutions, insertions, deletions, chosen_alignment_strand_b, bulged_start, bulged_end, realigned_target]
+    return [offtarget_sequence_no_bulge, mismatches, len(offtarget_sequence_no_bulge), chosen_alignment_strand_m, start_no_bulge, end_no_bulge,
+            realigned_target,
+            bulged_offtarget_sequence, length, score, substitutions, insertions, deletions, chosen_alignment_strand_b, bulged_start, bulged_end]
 
 
 """
@@ -343,9 +347,10 @@ def analyze(sam_filename, reference_genome, outfile, annotations, search_radius,
 
             non_bulged_target_start_absolute, bulged_target_start_absolute = '', ''
             if target_sequence:
-                offtarget_sequence_no_bulge, mismatches, chosen_alignment_strand_m, start_no_bulge, end_no_bulge, \
-                bulged_offtarget_sequence, length, distance, substitutions, insertions, deletions, chosen_alignment_strand_b, bulged_start, bulged_end, \
-                realigned_target_sequence = alignSequences(target_sequence, window_sequence, max_score)
+                offtarget_sequence_no_bulge, mismatches, offtarget_sequence_length, chosen_alignment_strand_m, start_no_bulge, end_no_bulge, \
+                realigned_target, \
+                bulged_offtarget_sequence, length, score, substitutions, insertions, deletions, chosen_alignment_strand_b, bulged_start, bulged_end = \
+                    alignSequences(target_sequence, window_sequence, max_score=max_score)
 
                 if chosen_alignment_strand_m == "+":
                     non_bulged_target_start_absolute = start_no_bulge + int(row[2]) - search_radius
@@ -368,9 +373,9 @@ def analyze(sam_filename, reference_genome, outfile, annotations, search_radius,
                 output_row = [row[1]] + row[5:8] + [filename_tail] + row[2:4] + row[8:] + \
                              [str(x) for x in offtarget_sequence_no_bulge, mismatches, chosen_alignment_strand_m,
                                               non_bulged_target_start_absolute, non_bulged_target_end_absolute,
-                                              bulged_offtarget_sequence, length, distance, substitutions, insertions, deletions,
+                                              bulged_offtarget_sequence, length, score, substitutions, insertions, deletions,
                                               chosen_alignment_strand_b, bulged_target_start_absolute, bulged_target_end_absolute] + \
-                             [str(x) for x in annotation] + [realigned_target_sequence]
+                             [str(x) for x in annotation] + [realigned_target]
             else:
                 output_row = [row[1]] + row[5:8] + [filename_tail] + row[2:4] + row[8:] + [""] * 14 + [str(x) for x in annotation] + ['none']
 
