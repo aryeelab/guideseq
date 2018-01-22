@@ -238,6 +238,7 @@ def alignSequences(targetsite_sequence, window_sequence, max_score=7):
     lowest_distance_score, lowest_mismatch = 100, max_score + 1
     chosen_alignment_b, chosen_alignment_m, chosen_alignment_strand_b, chosen_alignment_strand_m = None, None, '', ''
 
+    # Use regex to find the best match allowing only for mismatches
     for aln_m in alignments_mm:
         strand_m, alignment_type_m, match_m = aln_m
         if match_m != None:
@@ -247,6 +248,8 @@ def alignSequences(targetsite_sequence, window_sequence, max_score=7):
                 chosen_alignment_strand_m = strand_m
                 lowest_mismatch = mismatches
 
+    # Use regex to find the best match allowing for gaps, so that its edit distance is strictly lower than the
+    # total number of mismatches of the sequence founded (if any) allowing only for mismatches.
     for aln_b in alignments_bulge:
         strand_b, alignment_type_b, match_b = aln_b
         if match_b != None:
@@ -280,8 +283,9 @@ def alignSequences(targetsite_sequence, window_sequence, max_score=7):
         else:
             chosen_alignment_strand_b = ''
 
-    return [offtarget_sequence_no_bulge, mismatches, chosen_alignment_strand_m, start_no_bulge, end_no_bulge,
-            bulged_offtarget_sequence, length, score, substitutions, insertions, deletions, chosen_alignment_strand_b, bulged_start, bulged_end, realigned_target]
+    return [offtarget_sequence_no_bulge, mismatches, len(offtarget_sequence_no_bulge), chosen_alignment_strand_m, start_no_bulge, end_no_bulge,
+            realigned_target,
+            bulged_offtarget_sequence, length, score, substitutions, insertions, deletions, chosen_alignment_strand_b, bulged_start, bulged_end]
 
 
 """
@@ -320,17 +324,15 @@ def analyze(sam_filename, reference_genome, outfile, annotations, search_radius,
 
     with open(outfile, 'w') as f:
         # Write header
-        print('BED_Chromosome', 'BED_Min.Position', 'BED_Max.Position', 'BED_Name', 'Filename',
-              'WindowIndex', 'WindowChromosome', 'Position', 'WindowSequence',
-              '+.mi', '-.mi', 'bi.sum.mi', 'bi.geometric_mean.mi', '+.total', '-.total', 'total.sum', 'total.geometric_mean',
-              'primer1.mi', 'primer2.mi', 'primer.geometric_mean', 'position.stdev',
-              'BED_Site_Name', 'BED_Score', 'BED_Site_Chromosome',
-              'Site_SubstitutionsOnly.Sequence', 'Site_SubstitutionsOnly.NumSubstitutions',  # 24:25
-              'Site_SubstitutionsOnly.Strand', 'Site_SubstitutionsOnly.Start', 'Site_SubstitutionsOnly.End',  # 26:28
-              'Site_GapsAllowed.Sequence', 'Site_GapsAllowed.Length', 'Site_GapsAllowed.Score',  # 29:31
-              'Site_GapsAllowed.Substitutions', 'Site_GapsAllowed.Insertions', 'Site_GapsAllowed.Deletions',  # 32:34
-              'Site_GapsAllowed.Strand', 'Site_GapsAllowed.Start', 'Site_GapsAllowed.End',  # 35:37
-              'Cell', 'Targetsite', 'TargetSequence', 'RealignedTargetSequence', sep='\t', file=f)  # 38:41
+        print('Chromosome', 'Min.Position', 'Max.Position', 'Name', 'Filename', 'Position', 'WindowSequence',  # 0:6
+              '+.mi', '-.mi', 'bi.sum.mi', 'bi.geometric_mean.mi', '+.total', '-.total', 'total.sum', 'total.geometric_mean',  # 7:14
+              'primer1.mi', 'primer2.mi', 'primer.geometric_mean', 'position.stdev',  # 15:18
+              'Site_SubstitutionsOnly.Sequence', 'Site_SubstitutionsOnly.NumSubstitutions',  # 19:20
+              'Site_SubstitutionsOnly.Strand', 'Site_SubstitutionsOnly.Start', 'Site_SubstitutionsOnly.End',  # 21:23
+              'Site_GapsAllowed.Sequence', 'Site_GapsAllowed.Length', 'Site_GapsAllowed.Score',  # 24:26
+              'Site_GapsAllowed.Substitutions', 'Site_GapsAllowed.Insertions', 'Site_GapsAllowed.Deletions',  # 27:29
+              'Site_GapsAllowed.Strand', 'Site_GapsAllowed.Start', 'Site_GapsAllowed.End',  # 30:32
+              'Cell', 'Targetsite', 'TargetSequence', 'RealignedTargetSequence', sep='\t', file=f)  # 33:36
 
         # Output summary of each window
         summary = chromosome_position.SummarizeBarcodeIndex(search_radius)
@@ -341,16 +343,15 @@ def analyze(sam_filename, reference_genome, outfile, annotations, search_radius,
         output_dict = {}
 
         for row in summary:
-            window_sequence, window_chromosome, window_start, window_end, BED_name = row[3:8]
+            window_sequence, window_chromosome, window_start, window_end = row[3:7]
 
             non_bulged_target_start_absolute, bulged_target_start_absolute = '', ''
             if target_sequence:
-                offtarget_sequence_no_bulge, mismatches, chosen_alignment_strand_m, start_no_bulge, end_no_bulge, \
-                bulged_offtarget_sequence, length, distance, substitutions, insertions, deletions, chosen_alignment_strand_b, bulged_start, bulged_end, \
-                realigned_target_sequence = alignSequences(target_sequence, window_sequence, max_score)
+                offtarget_sequence_no_bulge, mismatches, offtarget_sequence_length, chosen_alignment_strand_m, start_no_bulge, end_no_bulge, \
+                realigned_target, \
+                bulged_offtarget_sequence, length, score, substitutions, insertions, deletions, chosen_alignment_strand_b, bulged_start, bulged_end = \
+                    alignSequences(target_sequence, window_sequence, max_score=max_score)
 
-                BED_score = 1
-                BED_chromosome = window_chromosome
                 if chosen_alignment_strand_m == "+":
                     non_bulged_target_start_absolute = start_no_bulge + int(row[2]) - search_radius
                     non_bulged_target_end_absolute = end_no_bulge + int(row[2]) - search_radius
@@ -369,27 +370,24 @@ def analyze(sam_filename, reference_genome, outfile, annotations, search_radius,
                 else:
                     bulged_target_start_absolute, bulged_target_end_absolute = [""] * 2
 
-                if not (chosen_alignment_strand_m or chosen_alignment_strand_b):
-                    BED_chromosome, BED_score, BED_name = [""] * 3
-
-                output_row = row[4:8] + [filename_tail] + row[0:4] + row[8:] + \
-                             [str(x) for x in BED_name, BED_score, BED_chromosome,
-                                              offtarget_sequence_no_bulge, mismatches, chosen_alignment_strand_m,
+                output_row = [row[1]] + row[5:8] + [filename_tail] + row[2:4] + row[8:] + \
+                             [str(x) for x in offtarget_sequence_no_bulge, mismatches, chosen_alignment_strand_m,
                                               non_bulged_target_start_absolute, non_bulged_target_end_absolute,
-                                              bulged_offtarget_sequence, length, distance, substitutions, insertions, deletions,
+                                              bulged_offtarget_sequence, length, score, substitutions, insertions, deletions,
                                               chosen_alignment_strand_b, bulged_target_start_absolute, bulged_target_end_absolute] + \
-                             [str(x) for x in annotation] + [realigned_target_sequence]
+                             [str(x) for x in annotation] + [realigned_target]
             else:
-                output_row = [str(x) for x in row[4:8] + [filename_tail] + row[0:4] + row[8:] + [""] * 17 + annotation + ['none']]
+                output_row = [row[1]] + row[5:8] + [filename_tail] + row[2:4] + row[8:] + [""] * 14 + [str(x) for x in annotation] + ['none']
 
             if non_bulged_target_start_absolute != '' or bulged_target_start_absolute != '':
                 output_row_key = '{0}_{1}_{2}'.format(window_chromosome, min(non_bulged_target_start_absolute, bulged_target_start_absolute), max(non_bulged_target_end_absolute, bulged_target_end_absolute))
             else:
                 output_row_key = '{0}_{1}_{2}'.format(window_chromosome, window_start, window_end)
 
+            #  update read count
             if output_row_key in output_dict.keys():
-                read_count_total = int(output_row[11]) + int(output_dict[output_row_key][11])
-                output_dict[output_row_key][11] = str(read_count_total)
+                read_count_total = int(output_row[9]) + int(output_dict[output_row_key][9])
+                output_dict[output_row_key][9] = str(read_count_total)
             else:
                 output_dict[output_row_key] = output_row
 

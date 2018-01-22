@@ -23,11 +23,11 @@ def parseSitesFile(infile):
         for line in f:
             line = line.rstrip('\n')
             line_items = line.split('\t')
-            offtarget_reads = line_items[11]
-            no_bulge_offtarget_sequence = line_items[24]
-            bulge_offtarget_sequence = line_items[29]
-            target_seq = line_items[40]
-            realigned_target_seq = line_items[41]
+            offtarget_reads = line_items[9]
+            no_bulge_offtarget_sequence = line_items[19]
+            bulge_offtarget_sequence = line_items[24]
+            target_seq = line_items[35]
+            realigned_target_seq = line_items[36]
 
             if no_bulge_offtarget_sequence != '' or bulge_offtarget_sequence != '':
                 if no_bulge_offtarget_sequence:
@@ -166,14 +166,14 @@ def visualizeOfftargets(infile, outfile, title=None):
 
 def main():
     parser = argparse.ArgumentParser(description='Plot visualization plots for aligned reads.')
-    parser.add_argument("--identified_file", help="Full path to sample identified output", required=True)
+    parser.add_argument("--identified", help="Full path to sample identified output", required=True)
     parser.add_argument("--outfile", help="Full path to output file", required=True)
     parser.add_argument("--title", help="Plot title", required=True)
     args = parser.parse_args()
 
     print(args)
 
-    visualizeOfftargets(args.identified_file, args.outfile, title=args.title)
+    visualizeOfftargets(args.identified, args.outfile, title=args.title)
 
 if __name__ == "__main__":
 
