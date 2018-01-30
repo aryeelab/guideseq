@@ -37,7 +37,7 @@ def snpCall(matched_file, reference, bam_file, out, search_radius):
         f.readline()
         for line in f:
             site = line.strip().split('\t')
-            regions.append([site[0], int(site[1]) - search_radius, int(site[2]) + search_radius, '*', bam_file, '_'.join([site[34], site[3]])])
+            regions.append([site[0], int(site[5]) - search_radius, int(site[5]) + search_radius, '*', bam_file, '_'.join([site[34], site[3]])])
 
     print('Running samtools:mpileup for %s' % basename, file=sys.stderr)
     out_vcf = os.path.join(output_folder, basename + '_mpileup_output')
@@ -162,8 +162,8 @@ def arrayOffTargets(matched_file, search_radius):
             site = line.strip().split('\t')
 
             Chromosome = site[0]
-            start = int(site[1]) - search_radius
-            end = int(site[2]) + search_radius
+            start = int(site[5]) - search_radius
+            end = int(site[5]) + search_radius
             Name = site[3]
 
             offtargets_dict[Name] = site
