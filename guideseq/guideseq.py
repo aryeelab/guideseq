@@ -361,7 +361,7 @@ def parse_args():
     variants_parser = subparsers.add_parser('variants', help='Implement samtools:mpileup to identify genomic variants')
     variants_parser.add_argument('--matched_file', required=True)
     variants_parser.add_argument('--ref', required=True)
-    variants_parser.add_argument('--bam', required=True)
+    variants_parser.add_argument('--sam', required=True)
     variants_parser.add_argument('--search_radius', required=True)
     variants_parser.add_argument('--mismatch_threshold', required=True)
     variants_parser.add_argument('--out', required=True)
@@ -534,10 +534,10 @@ def main():
 
     elif args.command == 'variants':
         """
-        Run just the visualize step
+        Run just the call variants step
         """
         if 'variant_analysis' in args:
-            variant_analysis = args.max_score
+            variant_analysis = args.variant_analysis
         else:
             variant_analysis = False
         if 'max_score' in args:

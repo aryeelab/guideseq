@@ -311,7 +311,7 @@ def main():
     parser = argparse.ArgumentParser(description='Implement samtools:mpileup to identify genomic variants and adjust the off-target sequence when required.')
     parser.add_argument('--matched_file', help="full_path_to/matched file in 'identified' folder", required=True)
     parser.add_argument('--ref', help="Reference Genome Fasta", required=True)
-    parser.add_argument('--sam', help="SAM file", required=True)
+    parser.add_argument('--sam', help="SAM file", nargs='*')
     parser.add_argument('--search_radius', help="Search radius around the position window", default=20, type=int)
     parser.add_argument('--mismatch_threshold', help='Maximum score threshold', default=7, type=int)
     parser.add_argument('--out', help="Output file basename, with full path", required=True)
