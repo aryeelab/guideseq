@@ -75,10 +75,10 @@ def visualizeOfftargets(infile, outfile, title=None):
             tick_locations.sort()
             tick_legend = [str(x) for x in tick_locations[:-3][::-1]] + ['P', 'A', 'M']
         else:
-            tick_locations += [range(3, len(target_seq) + 1)[::10][1]]
-            tick_locations += range(2, 5)
+            tick_locations += [range(4, len(target_seq) + 1)[::10][1]]
+            tick_locations += range(2, 4) + [5]
             tick_locations.sort()
-            tick_legend = ['P', 'A', 'M'] + [str(x) for x in [str(x-3) for x in tick_locations[3:]]]
+            tick_legend = ['P', 'A', 'M'] + [str(x) for x in [str(x - 4) for x in tick_locations[3:]]]
         for x, y in zip(tick_locations, tick_legend):
             dwg.add(dwg.text(y, insert=(x_offset + (x - 1) * box_size + 2, y_offset - 2), style="font-size:10px; font-family:Courier"))
     else:
