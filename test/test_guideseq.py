@@ -110,7 +110,7 @@ class FullPipelineTestCase(unittest.TestCase):
 
     def tearDown(self):
         # Delete temp output
-        shutil.rmtree(TEST_OUTPUT_PATH)
+        #shutil.rmtree(TEST_OUTPUT_PATH)
         pass
 
 if __name__ == '__main__':
