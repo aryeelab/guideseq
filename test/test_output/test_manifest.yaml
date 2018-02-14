@@ -1,0 +1,21 @@
+bedtools: bedtools
+bwa: bwa
+demultiplex_min_reads: 1000
+output_folder: test_output
+reference_genome: test_genome.fa
+samples:
+  EMX1:
+    barcode1: TAGGCATG
+    barcode2: TAGATCGC
+    description: EMX_site1
+    target: GAGTCCGAGCAGAAGAAGAANGG
+  control:
+    barcode1: CTCTCTAC
+    barcode2: CTCTCTAT
+    description: Control
+    target: null
+undemultiplexed:
+  forward: data/undemultiplexed/undemux.r1.fastq.gz
+  index1: data/undemultiplexed/undemux.i1.fastq.gz
+  index2: data/undemultiplexed/undemux.i2.fastq.gz
+  reverse: data/undemultiplexed/undemux.r2.fastq.gz
