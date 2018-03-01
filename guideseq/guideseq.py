@@ -74,10 +74,6 @@ class GuideSeq:
         else:
             self.max_score = DEFAULT_MAX_SCORE
 
-        # Make sure the user has specified a control barcode
-        if 'control' not in self.samples.keys():
-            raise AssertionError('Your manifest must have a control sample specified.')
-
         # Make sure the user has both a sample and a control
         if len(self.samples) < 2:
             raise AssertionError('Your manifest must have at least one control and one treatment sample.')
