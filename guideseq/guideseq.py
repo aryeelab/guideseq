@@ -282,6 +282,9 @@ def parse_args():
     all_parser = subparsers.add_parser('all', help='Run all steps of the pipeline')
     all_parser.add_argument('--manifest', '-m', help='Specify the manifest Path', required=True)
     all_parser.add_argument('--identifyAndFilter', action='store_true', default=False)
+    
+    step1_parser = subparsers.add_parser('step1', help='Run demultiplex, umitag and consolidate steps of the pipeline')
+    step1_parser.add_argument('--manifest', '-m', help='Specify the manifest Path', required=True)
 
     demultiplex_parser = subparsers.add_parser('demultiplex', help='Demultiplex undemultiplexed FASTQ files')
     demultiplex_parser.add_argument('--manifest', '-m', help='Specify the manifest path', required=True)
@@ -363,6 +366,13 @@ def main():
             g.identifyOfftargetSites()
             g.filterBackgroundSites()
             g.visualize()
+
+    elif args.command == 'step1':
+            g = GuideSeq()
+            g.parseManifest(args.manifest)
+            g.demultiplex()
+            g.umitag()
+            g.consolidate()
 
     elif args.command == 'demultiplex':
         """
