@@ -27,4 +27,4 @@ install:
 
 # command to run tests, e.g. python setup.py test
 script:
-    cd test && python guideseq/guideseq/guideseq.py step1 -m guideseq/test/test_manifest.yaml && python guideseq/guideseq/guideseq.py step2 -m guideseq/test/test_manifest_step2.yaml
+    python guideseq/guideseq/guideseq.py step1 -m guideseq/test/test_manifest.yaml && python guideseq/guideseq/guideseq.py step2 -m guideseq/test/test_manifest_step2.yaml
