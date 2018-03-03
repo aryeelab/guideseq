@@ -95,6 +95,8 @@ def checkIfValidSamplesStep2(samples):
             logger.error('target sequence must be specified for {0} sample'.format(sample))
             sys.exit()
 
+	exists(os.path.abspath(samples[sample]['consolidated_R1_fastq']))
+	exists(os.path.abspath(samples[sample]['consolidated_R2_fastq']))
 
 def validateManifest(manifest_data):
     # Check if manifest contains the required fields
