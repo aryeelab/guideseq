@@ -7,7 +7,8 @@ python:
 
 before_install:
   - ls guideseq/guideseq.py
-  - ls test/test_manifest.yaml
+  - ls test/test_manifest_travis.yaml
+  - ls test/test_manifest_travis_step2.yaml
   - cd test
   - git clone https://github.com/lh3/bwa.git
   - cd bwa
@@ -29,4 +30,4 @@ install:
 
 # command to run tests, e.g. python setup.py test
 script:
-    python guideseq/guideseq.py step1 -m test/test_manifest.yaml && python guideseq/guideseq.py step2 -m test/test_manifest_step2.yaml
+    python guideseq/guideseq.py step1 -m test/test_manifest_travis.yaml && python guideseq/guideseq.py step2 -m test/test_manifest_step2_travis.yaml
