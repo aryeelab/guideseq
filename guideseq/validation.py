@@ -89,10 +89,21 @@ def checkIfValidSamplesStep2(samples):
     if len(samples.keys()) == 0:
         logger.error('No samples defined')
         sys.exit()
+    if 'control' not in samples:
+        logger.error('A control sample must be specified')
+        sys.exit()
 
     for sample in samples:
         if 'target' not in samples[sample]:
             logger.error('target sequence must be specified for {0} sample'.format(sample))
+            sys.exit()
+
+        if 'consolidated_R1_fastq' not in samples[sample]:
+            logger.error('consolidated_R1_fastq must be specified for {0} sample'.format(sample))
+            sys.exit()
+
+        if 'consolidated_R2_fastq' not in samples[sample]:
+            logger.error('consolidated_R2_fastq must be specified for {0} sample'.format(sample))
             sys.exit()
 
 	exists(os.path.abspath(samples[sample]['consolidated_R1_fastq']))
