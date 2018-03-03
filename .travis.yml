@@ -6,6 +6,8 @@ python:
   - "2.7"
 
 before_install:
+  - ls guideseq/guideseq.py
+  - ls test/test_manifest.yaml
   - cd test
   - git clone https://github.com/lh3/bwa.git
   - cd bwa
@@ -27,4 +29,4 @@ install:
 
 # command to run tests, e.g. python setup.py test
 script:
-    python guideseq/guideseq/guideseq.py step1 -m guideseq/test/test_manifest.yaml && python guideseq/guideseq/guideseq.py step2 -m guideseq/test/test_manifest_step2.yaml
+    python guideseq/guideseq.py step1 -m test/test_manifest.yaml && python guideseq/guideseq.py step2 -m guideseq/test/test_manifest_step2.yaml
