@@ -79,6 +79,44 @@ class GuideSeq:
             raise AssertionError('Your manifest must have at least one control and one treatment sample.')
 
         logger.info('Successfully loaded manifest.')
+    
+    def parseManifestStep2(self, manifest_path):
+        logger.info('Loading manifest for step 2 of pipeline...')
+
+        with open(manifest_path, 'r') as f:
+            manifest_data = yaml.load(f)
+
+        try:
+            # Validate manifest data
+            validation.validateManifestStep2(manifest_data)
+
+            self.BWA_path = manifest_data['bwa']
+            self.bedtools = manifest_data['bedtools']
+            self.reference_genome = manifest_data['reference_genome']
+            self.output_folder = manifest_data['output_folder']
+            self.samples = manifest_data['samples']
+        
+	except Exception as e:
+            logger.error('Incorrect or malformed manifest file. Please ensure your manifest contains all required fields.')
+            sys.exit()
+        logger.info('END Loading manifest for step 2 of pipeline...')
+
+        # Allow the user to specify window size for off-target search
+        if 'search_radius' in manifest_data:
+            self.search_radius = manifest_data['search_radius']
+        else:
+            self.search_radius = DEFAULT_WINDOW_SIZE
+        # Allow the user to specify window size for off-target search
+        if 'max_score' in manifest_data:
+            self.max_score = manifest_data['max_score']
+        else:
+            self.max_score = DEFAULT_MAX_SCORE
+
+        # Make sure the user has both a sample and a control
+        if len(self.samples) < 2:
+            raise AssertionError('Your manifest must have at least one control and one treatment sample.')
+
+        logger.info('Successfully loaded manifest.')
 
     def parseManifestDemultiplex(self, manifest_path):
         logger.info('Loading manifest for demultiplexing...')
@@ -286,6 +324,9 @@ def parse_args():
     step1_parser = subparsers.add_parser('step1', help='Run demultiplex, umitag and consolidate steps of the pipeline')
     step1_parser.add_argument('--manifest', '-m', help='Specify the manifest Path', required=True)
 
+    step2_parser = subparsers.add_parser('step2', help='Run align,identify,filter and visualize steps of the pipeline')
+    step2_parser.add_argument('--manifest', '-m', help='Specify the manifest Path', required=True)
+
     demultiplex_parser = subparsers.add_parser('demultiplex', help='Demultiplex undemultiplexed FASTQ files')
     demultiplex_parser.add_argument('--manifest', '-m', help='Specify the manifest path', required=True)
 
@@ -373,6 +414,19 @@ def main():
             g.demultiplex()
             g.umitag()
             g.consolidate()
+
+    elif args.command == 'step2':
+            g = GuideSeq()
+            g.parseManifestStep2(args.manifest)
+            g.consolidated = {}
+            for sample in g.samples:
+                g.consolidated[sample] = {}
+                g.consolidated[sample]['read1'] = g.samples[sample]['consolidated_R1_fastq']
+                g.consolidated[sample]['read2'] = g.samples[sample]['consolidated_R2_fastq']
+            g.alignReads()
+            g.identifyOfftargetSites()
+            g.filterBackgroundSites()
+            g.visualize()
 
     elif args.command == 'demultiplex':
         """

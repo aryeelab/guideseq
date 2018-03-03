@@ -84,6 +84,17 @@ def checkIfValidSamples(samples):
             logger.error('target sequence must be specified for {0} sample'.format(sample))
             sys.exit()
 
+def checkIfValidSamplesStep2(samples):
+
+    if len(samples.keys()) == 0:
+        logger.error('No samples defined')
+        sys.exit()
+
+    for sample in samples:
+        if 'target' not in samples[sample]:
+            logger.error('target sequence must be specified for {0} sample'.format(sample))
+            sys.exit()
+
 
 def validateManifest(manifest_data):
     # Check if manifest contains the required fields
@@ -104,3 +115,22 @@ def validateManifest(manifest_data):
     checkIfFasta(manifest_data['reference_genome'])
     checkIfValidUndemultiplexed(manifest_data['undemultiplexed'])
     checkIfValidSamples(manifest_data['samples'])
+
+def validateManifestStep2(manifest_data):
+    # Check if manifest contains the required fields
+    fields = ['bwa', 'bedtools', 'reference_genome', 'output_folder', 'samples']
+    missing_fields = False
+
+    for field in fields:
+        if field not in manifest_data.keys():
+            logger.error('"{0}" field must be specified in manifest'.format(field))
+            missing_fields = True
+
+    if missing_fields:
+        sys.exit()
+
+    # Now validate each field
+    checkIfBinary(manifest_data['bwa'])
+    checkIfBinary(manifest_data['bedtools'])
+    checkIfFasta(manifest_data['reference_genome'])
+    checkIfValidSamplesStep2(manifest_data['samples'])
