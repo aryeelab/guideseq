@@ -8,7 +8,7 @@ python:
 before_install:
   - ls guideseq/guideseq.py
   - ls test/test_manifest_travis.yaml
-  - ls test/test_manifest_travis_step2.yaml
+  - ls test/test_manifest_step2_travis.yaml
   - cd test
   - git clone https://github.com/lh3/bwa.git
   - cd bwa
