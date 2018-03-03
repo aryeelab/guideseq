@@ -27,4 +27,4 @@ install:
 
 # command to run tests, e.g. python setup.py test
 script:
-  diff test/test_output/identified/control_identifiedOfftargets.txt test/data/identified/control_identifiedOfftargets.txt 
+  python guideseq/guideseq.py all -m test/test_manifest_travis.yaml 
