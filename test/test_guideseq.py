@@ -40,7 +40,7 @@ TEST_SAMPLES = {
                }
 
 TEST_SAMPLE_NAME = 'EMX1'
-TEST_OUTPUT_PATH = 'test_output'
+TEST_OUTPUT_PATH = 'test_output2'
 TEST_MIN_READS = 1000
 TEST_DEMULTIPLEX_MANIFEST_PATH = os.path.join(TEST_OUTPUT_PATH, 'demultiplex_manifest.yaml')
 TEST_MANIFEST_PATH = os.path.join(TEST_OUTPUT_PATH, 'test_manifest.yaml')
