@@ -40,7 +40,7 @@ TEST_SAMPLES = {
                }
 
 TEST_SAMPLE_NAME = 'EMX1'
-TEST_OUTPUT_PATH = 'test_output2'
+TEST_OUTPUT_PATH = 'test_output3'
 TEST_MIN_READS = 1000
 TEST_DEMULTIPLEX_MANIFEST_PATH = os.path.join(TEST_OUTPUT_PATH, 'demultiplex_manifest.yaml')
 TEST_MANIFEST_PATH = os.path.join(TEST_OUTPUT_PATH, 'test_manifest.yaml')
@@ -101,8 +101,8 @@ class FullPipelineTestCase(unittest.TestCase):
 
         # Identify offtargets and test the output
         g.identifyOfftargetSites()
-        f1 = CORRECT_IDENTIFIED_OUTPUT + 'identified/control_identifiedOfftargets.txt'
-        f2 = TEST_OUTPUT_PATH + 'identified/control_identifiedOfftargets.txt'
+        f1 = CORRECT_IDENTIFIED_OUTPUT + '/identified/control_identifiedOfftargets.txt'
+        f2 = TEST_OUTPUT_PATH + '/identified/control_identifiedOfftargets.txt'
         cmd = 'diff '+ f1 +' ' + f2
         os.system(cmd)
         self.assertTrue(utils.checkFolderEquality(os.path.join(TEST_OUTPUT_PATH, 'identified'), CORRECT_IDENTIFIED_OUTPUT))
