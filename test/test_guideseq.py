@@ -40,7 +40,7 @@ TEST_SAMPLES = {
                }
 
 TEST_SAMPLE_NAME = 'EMX1'
-TEST_OUTPUT_PATH = 'test_output3'
+TEST_OUTPUT_PATH = 'test_output4'
 TEST_MIN_READS = 1000
 TEST_DEMULTIPLEX_MANIFEST_PATH = os.path.join(TEST_OUTPUT_PATH, 'demultiplex_manifest.yaml')
 TEST_MANIFEST_PATH = os.path.join(TEST_OUTPUT_PATH, 'test_manifest.yaml')
@@ -114,7 +114,7 @@ class FullPipelineTestCase(unittest.TestCase):
 
     def tearDown(self):
         # Delete temp output
-        #shutil.rmtree(TEST_OUTPUT_PATH)
+        shutil.rmtree(TEST_OUTPUT_PATH)
         pass
 
 if __name__ == '__main__':
