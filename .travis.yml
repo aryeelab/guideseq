@@ -27,4 +27,4 @@ install:
 
 # command to run tests, e.g. python setup.py test
 script:
-  python guideseq/guideseq.py all -m test/test_manifest_travis.yaml 
+  cd test && nosetests --exe -v
