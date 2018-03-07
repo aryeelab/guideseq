@@ -5,3 +5,4 @@ nwalign==0.3.1
 pyfaidx==0.2.7
 svgwrite==1.1.6
 regex
+numpy==1.14.1
