@@ -26,15 +26,15 @@ TEST_DEMULTIPLEXED_FILES = {'read1': 'data/demultiplexed/EMX1.r1.fastq',
                             'index2': 'data/demultiplexed/EMX1.i2.fastq'}
 TEST_STEP2_SAMPLES = {
                 'control':{
-                 'consolidated_R1_fastq':'test/output/consolidated/control.r1.consolidated.fastq',
+                 'consolidated_R1_fastq':'test_output/consolidated/control.r1.consolidated.fastq',
                  'description':'Control',
-                 'consolidated_R2_fastq':'test/output/consolidated/control.r2.consolidated.fastq',
+                 'consolidated_R2_fastq':'test_output/consolidated/control.r2.consolidated.fastq',
                  'target':None
                 },
                 'EMX1':{
-                 'consolidated_R1_fastq':'test/output/consolidated/EMX1.r1.consolidated.fastq',
+                 'consolidated_R1_fastq':'test_output/consolidated/EMX1.r1.consolidated.fastq',
                  'description':'EMX_site1',
-                 'consolidated_R2_fastq':'test/output/consolidated/EMX1.r2.consolidated.fastq',
+                 'consolidated_R2_fastq':'test_output/consolidated/EMX1.r2.consolidated.fastq',
                  'target':'GAGTCCGAGCAGAAGAAGAANGG'
                 }
                }
@@ -128,7 +128,7 @@ class FullPipelineTestCase(unittest.TestCase):
         self.assertTrue(utils.checkFolderEquality(os.path.join(TEST_OUTPUT_PATH, 'filtered'), CORRECT_FILTERED_OUTPUT))
 
 
-	# Test step1_preprocessRun'
+	# Test step1_preprocessRun
         g = guideseq.GuideSeq()
         g.parseManifest(TEST_MANIFEST_PATH)
         g.demultiplex()
@@ -136,7 +136,7 @@ class FullPipelineTestCase(unittest.TestCase):
         g.consolidate()
 	self.assertTrue(utils.checkFolderEquality(os.path.join(TEST_OUTPUT_PATH, 'consolidated'), CORRECT_CONSOLDIATED_OUTPUT))
 
-        # Test step2_processSamples'
+        # Test step2_processSamples
         g = guideseq.GuideSeq()
         g.parseManifestStep2(TEST_STEP2_MANIFEST_PATH)
         g.consolidated = {}
