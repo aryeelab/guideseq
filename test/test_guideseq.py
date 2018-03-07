@@ -13,6 +13,7 @@ import unittest
 import os
 import shutil
 import utils
+import numpy
 from guideseq import guideseq
 
 TEST_SAMPLE_BARCODES = {'AGGCATGAGATCGC': 'mysample', 'GACTCCTGCGATAT': 'sample2'}
