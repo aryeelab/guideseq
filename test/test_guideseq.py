@@ -129,7 +129,7 @@ class FullPipelineTestCase(unittest.TestCase):
 
 
 	# Test step1_preprocessRun'
-        g = GuideSeq()
+        g = guideseq.GuideSeq()
         g.parseManifest(TEST_MANIFEST_PATH)
         g.demultiplex()
         g.umitag()
@@ -137,7 +137,7 @@ class FullPipelineTestCase(unittest.TestCase):
 	self.assertTrue(utils.checkFolderEquality(os.path.join(TEST_OUTPUT_PATH, 'consolidated'), CORRECT_CONSOLDIATED_OUTPUT))
 
         # Test step2_processSamples'
-        g = GuideSeq()
+        g = guideseq.GuideSeq()
         g.parseManifestStep2(TEST_STEP2_MANIFEST_PATH)
         g.consolidated = {}
         for sample in g.samples:
