@@ -24,6 +24,21 @@ TEST_DEMULTIPLEXED_FILES = {'read1': 'data/demultiplexed/EMX1.r1.fastq',
                             'read2': 'data/demultiplexed/EMX1.r2.fastq',
                             'index1': 'data/demultiplexed/EMX1.i1.fastq',
                             'index2': 'data/demultiplexed/EMX1.i2.fastq'}
+TEST_STEP2_SAMPLES = {
+                'control':{
+                 'consolidated_R1_fastq':'test/output/consolidated/control.r1.consolidated.fastq',
+                 'description':'Control',
+                 'consolidated_R2_fastq':'test/output/consolidated/control.r2.consolidated.fastq',
+                 'target':None
+                },
+                'EMX1':{
+                 'consolidated_R1_fastq':'test/output/consolidated/EMX1.r1.consolidated.fastq',
+                 'description':'EMX_site1',
+                 'consolidated_R2_fastq':'test/output/consolidated/EMX1.r2.consolidated.fastq',
+                 'target':'GAGTCCGAGCAGAAGAAGAANGG'
+                }
+               }
+
 TEST_SAMPLES = {
                 'control':{
                  'barcode1':'CTCTCTAC',
@@ -44,6 +59,7 @@ TEST_OUTPUT_PATH = 'test_output'
 TEST_MIN_READS = 1000
 TEST_DEMULTIPLEX_MANIFEST_PATH = os.path.join(TEST_OUTPUT_PATH, 'demultiplex_manifest.yaml')
 TEST_MANIFEST_PATH = os.path.join(TEST_OUTPUT_PATH, 'test_manifest.yaml')
+TEST_STEP2_MANIFEST_PATH = os.path.join(TEST_OUTPUT_PATH, 'test_manifest_step2_travis.yaml')
 
 TEST_BWA_PATH = 'bwa'
 TEST_BEDTOOLS_PATH = 'bedtools'
@@ -78,6 +94,10 @@ class FullPipelineTestCase(unittest.TestCase):
         with open(TEST_MANIFEST_PATH, 'w') as f:
             f.write(yaml.dump(test_manifest_data, default_flow_style=False))
 
+	test_step2_manifest_data = test_manifest_data
+	test_step2_manifest_data['samples'] = TEST_STEP2_SAMPLES
+	with open(TEST_STEP2_MANIFEST_PATH, 'w') as f:
+            f.write(yaml.dump(test_step2_manifest_data, default_flow_style=False))
 
     def testFullPipeline(self):
         g = guideseq.GuideSeq()
@@ -106,6 +126,28 @@ class FullPipelineTestCase(unittest.TestCase):
         # Filter background sites and test if correct
         g.filterBackgroundSites()
         self.assertTrue(utils.checkFolderEquality(os.path.join(TEST_OUTPUT_PATH, 'filtered'), CORRECT_FILTERED_OUTPUT))
+
+
+	# Test step1_preprocessRun'
+        g = GuideSeq()
+        g.parseManifest(TEST_MANIFEST_PATH)
+        g.demultiplex()
+        g.umitag()
+        g.consolidate()
+	self.assertTrue(utils.checkFolderEquality(os.path.join(TEST_OUTPUT_PATH, 'consolidated'), CORRECT_CONSOLDIATED_OUTPUT))
+
+        # Test step2_processSamples'
+        g = GuideSeq()
+        g.parseManifestStep2(TEST_STEP2_MANIFEST_PATH)
+        g.consolidated = {}
+        for sample in g.samples:
+        	g.consolidated[sample] = {}
+                g.consolidated[sample]['read1'] = g.samples[sample]['consolidated_R1_fastq']
+                g.consolidated[sample]['read2'] = g.samples[sample]['consolidated_R2_fastq']
+        g.alignReads()
+        g.identifyOfftargetSites()
+        g.filterBackgroundSites()
+	self.assertTrue(utils.checkFolderEquality(os.path.join(TEST_OUTPUT_PATH, 'filtered'), CORRECT_FILTERED_OUTPUT))
 
 
     def tearDown(self):

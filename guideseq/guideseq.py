@@ -321,10 +321,10 @@ def parse_args():
     all_parser.add_argument('--manifest', '-m', help='Specify the manifest Path', required=True)
     all_parser.add_argument('--identifyAndFilter', action='store_true', default=False)
     
-    step1_parser = subparsers.add_parser('step1', help='Run demultiplex, umitag and consolidate steps of the pipeline')
+    step1_parser = subparsers.add_parser('step1_preprocessRun', help='Run demultiplex, umitag and consolidate steps of the pipeline')
     step1_parser.add_argument('--manifest', '-m', help='Specify the manifest Path', required=True)
 
-    step2_parser = subparsers.add_parser('step2', help='Run align,identify,filter and visualize steps of the pipeline')
+    step2_parser = subparsers.add_parser('step2_processSamples', help='Run align,identify,filter and visualize steps of the pipeline')
     step2_parser.add_argument('--manifest', '-m', help='Specify the manifest Path', required=True)
 
     demultiplex_parser = subparsers.add_parser('demultiplex', help='Demultiplex undemultiplexed FASTQ files')
@@ -408,14 +408,14 @@ def main():
             g.filterBackgroundSites()
             g.visualize()
 
-    elif args.command == 'step1':
+    elif args.command == 'step1_preprocessRun':
             g = GuideSeq()
             g.parseManifest(args.manifest)
             g.demultiplex()
             g.umitag()
             g.consolidate()
 
-    elif args.command == 'step2':
+    elif args.command == 'step2_processSamples':
             g = GuideSeq()
             g.parseManifestStep2(args.manifest)
             g.consolidated = {}
