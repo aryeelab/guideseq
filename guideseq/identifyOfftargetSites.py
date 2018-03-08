@@ -287,7 +287,7 @@ def parseReadName(read_name):
         return molecular_index, int(count)
     else:
         # print read_name
-        return None, None
+        return None, 0
 
 
 def processLine(line):
