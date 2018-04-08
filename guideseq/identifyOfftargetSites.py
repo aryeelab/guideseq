@@ -378,7 +378,7 @@ def analyze(sam_filename, reference_genome, outfile, annotations, search_radius,
             else:
                 output_row = [row[1]] + row[5:8] + [filename_tail] + row[2:4] + row[8:] + [""] * 14 + [str(x) for x in annotation] + ['none']
 
-            print(output_row, sep='\t', file=f)
+            print(*output_row, sep='\t', file=f)
 
 def assignPrimerstoReads(read_sequence, sam_flag):
     # Get 20-nucleotide sequence from beginning or end of sequence depending on orientation
