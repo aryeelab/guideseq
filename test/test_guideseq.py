@@ -121,7 +121,6 @@ class FullPipelineTestCase(unittest.TestCase):
 
         # Identify offtargets and test the output
         g.identifyOfftargetSites()
-	numpy.__version__
         f1 = CORRECT_IDENTIFIED_OUTPUT + '/control_identifiedOfftargets.txt'
         f2 = TEST_OUTPUT_PATH + '/identified/control_identifiedOfftargets.txt'
         cmd = 'diff '+ f1 +' ' + f2
