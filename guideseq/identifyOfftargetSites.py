@@ -340,7 +340,6 @@ def analyze(sam_filename, reference_genome, outfile, annotations, search_radius,
         annotation = [annotations['Description'],
                       annotations['Targetsite'],
                       annotations['Sequence']]
-        output_dict = {}
 
         for row in summary:
             window_sequence, window_chromosome, window_start, window_end = row[3:7]
