@@ -379,20 +379,7 @@ def analyze(sam_filename, reference_genome, outfile, annotations, search_radius,
             else:
                 output_row = [row[1]] + row[5:8] + [filename_tail] + row[2:4] + row[8:] + [""] * 14 + [str(x) for x in annotation] + ['none']
 
-            if non_bulged_target_start_absolute != '' or bulged_target_start_absolute != '':
-                output_row_key = '{0}_{1}_{2}'.format(window_chromosome, min(non_bulged_target_start_absolute, bulged_target_start_absolute), max(non_bulged_target_end_absolute, bulged_target_end_absolute))
-            else:
-                output_row_key = '{0}_{1}_{2}'.format(window_chromosome, window_start, window_end)
-
-            #  update read count
-            if output_row_key in output_dict.keys():
-                read_count_total = int(output_row[9]) + int(output_dict[output_row_key][9])
-                output_dict[output_row_key][9] = str(read_count_total)
-            else:
-                output_dict[output_row_key] = output_row
-
-        for key in sorted(output_dict.keys()):
-            print(*output_dict[key], sep='\t', file=f)
+            print(output_row, sep='\t', file=f)
 
 def assignPrimerstoReads(read_sequence, sam_flag):
     # Get 20-nucleotide sequence from beginning or end of sequence depending on orientation
