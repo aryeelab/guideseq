@@ -321,8 +321,13 @@ def analyze(sam_filename, reference_genome, outfile, annotations, search_radius,
 
     # Generate barcode position summary
     stacked_summary = chromosome_position.SummarizeBarcodePositions()
-
-    with open(outfile, 'w') as f:
+   
+   # Open file handles to two files to write merged and unmerged versions of output 
+    outfile_basename = os.path.basename(outfile)
+    outfile_unmerged = os.path.join(output_folder, outfile_basename + '.unmerged')
+    
+    
+    with open(outfile, 'w') as f, open(outfile_unmerged, 'w') as f_unmerged:
         # Write header
         print('Chromosome', 'Min.Position', 'Max.Position', 'Name', 'Filename', 'Position', 'WindowSequence',  # 0:6
               '+.mi', '-.mi', 'bi.sum.mi', 'bi.geometric_mean.mi', '+.total', '-.total', 'total.sum', 'total.geometric_mean',  # 7:14
@@ -334,12 +339,23 @@ def analyze(sam_filename, reference_genome, outfile, annotations, search_radius,
               'Site_GapsAllowed.Strand', 'Site_GapsAllowed.Start', 'Site_GapsAllowed.End',  # 30:32
               'Cell', 'Targetsite', 'TargetSequence', 'RealignedTargetSequence', sep='\t', file=f)  # 33:36
 
+        print('Window.key','Chromosome', 'Min.Position', 'Max.Position', 'Name', 'Filename', 'Position', 'WindowSequence',  # 0:6
+              '+.mi', '-.mi', 'bi.sum.mi', 'bi.geometric_mean.mi', '+.total', '-.total', 'total.sum', 'total.geometric_mean',  # 7:14
+              'primer1.mi', 'primer2.mi', 'primer.geometric_mean', 'position.stdev',  # 15:18
+              'Site_SubstitutionsOnly.Sequence', 'Site_SubstitutionsOnly.NumSubstitutions',  # 19:20
+              'Site_SubstitutionsOnly.Strand', 'Site_SubstitutionsOnly.Start', 'Site_SubstitutionsOnly.End',  # 21:23
+              'Site_GapsAllowed.Sequence', 'Site_GapsAllowed.Length', 'Site_GapsAllowed.Score',  # 24:26
+              'Site_GapsAllowed.Substitutions', 'Site_GapsAllowed.Insertions', 'Site_GapsAllowed.Deletions',  # 27:29
+              'Site_GapsAllowed.Strand', 'Site_GapsAllowed.Start', 'Site_GapsAllowed.End',  # 30:32
+              'Cell', 'Targetsite', 'TargetSequence', 'RealignedTargetSequence', sep='\t', file=f_unmerged)  # 33:36
+
         # Output summary of each window
         summary = chromosome_position.SummarizeBarcodeIndex(search_radius)
         target_sequence = annotations["Sequence"]
         annotation = [annotations['Description'],
                       annotations['Targetsite'],
                       annotations['Sequence']]
+        output_dict = {}
 
         for row in summary:
             window_sequence, window_chromosome, window_start, window_end = row[3:7]
@@ -378,7 +394,25 @@ def analyze(sam_filename, reference_genome, outfile, annotations, search_radius,
             else:
                 output_row = [row[1]] + row[5:8] + [filename_tail] + row[2:4] + row[8:] + [""] * 14 + [str(x) for x in annotation] + ['none']
 
-            print(*output_row, sep='\t', file=f)
+            if non_bulged_target_start_absolute != ''  and non_bulged_target_end_absolute != '':
+                output_row_key = '{0}_{1}_{2}'.format(window_chromosome, non_bulged_target_start_absolute, non_bulged_target_end_absolute)
+	    elif bulged_target_start_absolute != '' and bulged_target_end_absolute != '':
+                output_row_key = '{0}_{1}_{2}'.format(window_chromosome, bulged_target_start_absolute, bulged_target_end_absolute)
+            else:
+                output_row_key = '{0}_{1}_{2}'.format(window_chromosome, window_start, window_end)
+
+            #  update read count
+            if output_row_key in output_dict.keys():
+                read_count_total = int(output_row[9]) + int(output_dict[output_row_key][9])
+                output_dict[output_row_key][9] = str(read_count_total)
+            else:
+                output_dict[output_row_key] = output_row
+	
+	    output_row = [output_row_key] + output_row
+	    print(*output_row, sep='\t', file=f_unmerged)
+
+        for key in sorted(output_dict.keys()):
+            print(*output_dict[key], sep='\t', file=f)
 
 def assignPrimerstoReads(read_sequence, sam_flag):
     # Get 20-nucleotide sequence from beginning or end of sequence depending on orientation
