@@ -329,7 +329,7 @@ def analyze(sam_filename, reference_genome, outfile, annotations, search_radius,
     
     with open(outfile, 'w') as f, open(outfile_unmerged, 'w') as f_unmerged:
         # Write header
-        print('Chromosome', 'Min.Position', 'Max.Position', 'Name', 'Filename', 'Position', 'WindowSequence',  # 0:6
+        print('Window.key','Chromosome', 'Min.Position', 'Max.Position', 'Name', 'Filename', 'Position', 'WindowSequence',  # 0:6
               '+.mi', '-.mi', 'bi.sum.mi', 'bi.geometric_mean.mi', '+.total', '-.total', 'total.sum', 'total.geometric_mean',  # 7:14
               'primer1.mi', 'primer2.mi', 'primer.geometric_mean', 'position.stdev',  # 15:18
               'Site_SubstitutionsOnly.Sequence', 'Site_SubstitutionsOnly.NumSubstitutions',  # 19:20
@@ -403,16 +403,23 @@ def analyze(sam_filename, reference_genome, outfile, annotations, search_radius,
 
             #  update read count
             if output_row_key in output_dict.keys():
+                plus_read_count = int(output_row[7]) + int(output_dict[output_row_key][7])
+                minus_read_count = int(output_row[8]) + int(output_dict[output_row_key][8])
                 read_count_total = int(output_row[9]) + int(output_dict[output_row_key][9])
+                sites = output_dict[output_row_key][3] + "," + output_row[3]
+                output_dict[output_row_key][7] = str(plus_read_count)
+                output_dict[output_row_key][8] = str(minus_read_count)
                 output_dict[output_row_key][9] = str(read_count_total)
+                output_dict[output_row_key][3] = sites
             else:
                 output_dict[output_row_key] = output_row
 	
-	    output_row = [output_row_key] + output_row
-	    print(*output_row, sep='\t', file=f_unmerged)
+	    output_row_with_key = [output_row_key] + output_row
+	    print(*output_row_with_key, sep='\t', file=f_unmerged)
 
         for key in sorted(output_dict.keys()):
-            print(*output_dict[key], sep='\t', file=f)
+	    output_dict[key].insert(0, key)
+	    print(*output_dict[key], sep='\t', file=f)
 
 def assignPrimerstoReads(read_sequence, sam_flag):
     # Get 20-nucleotide sequence from beginning or end of sequence depending on orientation
