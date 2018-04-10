@@ -329,7 +329,7 @@ def analyze(sam_filename, reference_genome, outfile, annotations, search_radius,
     
     with open(outfile, 'w') as f, open(outfile_unmerged, 'w') as f_unmerged:
         # Write header
-        print('Window.key','Chromosome', 'Min.Position', 'Max.Position', 'Name', 'Filename', 'Position', 'WindowSequence',  # 0:6
+        print('Chromosome', 'Min.Position', 'Max.Position', 'Name', 'Filename', 'Position', 'WindowSequence',  # 0:6
               '+.mi', '-.mi', 'bi.sum.mi', 'bi.geometric_mean.mi', '+.total', '-.total', 'total.sum', 'total.geometric_mean',  # 7:14
               'primer1.mi', 'primer2.mi', 'primer.geometric_mean', 'position.stdev',  # 15:18
               'Site_SubstitutionsOnly.Sequence', 'Site_SubstitutionsOnly.NumSubstitutions',  # 19:20
@@ -337,7 +337,7 @@ def analyze(sam_filename, reference_genome, outfile, annotations, search_radius,
               'Site_GapsAllowed.Sequence', 'Site_GapsAllowed.Length', 'Site_GapsAllowed.Score',  # 24:26
               'Site_GapsAllowed.Substitutions', 'Site_GapsAllowed.Insertions', 'Site_GapsAllowed.Deletions',  # 27:29
               'Site_GapsAllowed.Strand', 'Site_GapsAllowed.Start', 'Site_GapsAllowed.End',  # 30:32
-              'Cell', 'Targetsite', 'TargetSequence', 'RealignedTargetSequence', sep='\t', file=f)  # 33:36
+              'Cell', 'Targetsite', 'TargetSequence', 'RealignedTargetSequence', 'Window.key',sep='\t', file=f)  # 33:36
 
         print('Window.key','Chromosome', 'Min.Position', 'Max.Position', 'Name', 'Filename', 'Position', 'WindowSequence',  # 0:6
               '+.mi', '-.mi', 'bi.sum.mi', 'bi.geometric_mean.mi', '+.total', '-.total', 'total.sum', 'total.geometric_mean',  # 7:14
@@ -418,7 +418,7 @@ def analyze(sam_filename, reference_genome, outfile, annotations, search_radius,
 	    print(*output_row_with_key, sep='\t', file=f_unmerged)
 
         for key in sorted(output_dict.keys()):
-	    output_dict[key].insert(0, key)
+	    output_dict[key].append(key)
 	    print(*output_dict[key], sep='\t', file=f)
 
 def assignPrimerstoReads(read_sequence, sam_flag):
