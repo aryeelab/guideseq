@@ -67,28 +67,28 @@ def visualizeOfftargets(infile, outfile, title=None):
         y_offset = 20
 
     # Draw ticks
-    tick_locations = [1, len(target_seq)]  # limits
     if target_seq.find('N') >= 0:
-        if target_seq.index('N') > len(target_seq)/2:  # PAM on the right end
-            tick_locations += range(len(target_seq) + 1)[::10][1:]  # intermediate values
-            tick_locations += range(len(target_seq) + 1)[len(target_seq) - 2: len(target_seq)]  # complementing PAM
+        p = target_seq.index('N')
+        if p > len(target_seq) / 2:  # PAM on the right end
+            tick_locations = [1, len(target_seq)] + range(p, len(target_seq))  # limits and PAM
+            tick_locations += [x + p - 20 + 1 for x in range(p)[::10][1:]]  # intermediate values
+            tick_locations = list(set(tick_locations))
             tick_locations.sort()
-            tick_legend = [str(x) for x in tick_locations[:-3][::-1]] + ['P', 'A', 'M']
+            tick_legend = [p, 10, 1] + ['P', 'A', 'M']
         else:
-            tick_locations += [range(4, len(target_seq) + 1)[::10][1]]
-            tick_locations += range(2, 4) + [5]
-            tick_locations.sort()
-            tick_legend = ['P', 'A', 'M'] + [str(x) for x in [str(x - 4) for x in tick_locations[3:]]]
-        for x, y in zip(tick_locations, tick_legend):
-            dwg.add(dwg.text(y, insert=(x_offset + (x - 1) * box_size + 2, y_offset - 2), style="font-size:10px; font-family:Courier"))
-    else:
-        tick_locations = [1, len(target_seq)]
-        tick_locations += range(len(target_seq) + 1)[::10][1:]
-        for x in tick_locations:
-            dwg.add(dwg.text(str(x), insert=(x_offset + (x - 1) * box_size + 2, y_offset - 2), style="font-size:10px; font-family:Courier"))
+            tick_locations = range(2, 6) + [14, len(target_seq)]  # complementing PAM and limits
+            tick_legend = ['P', 'A', 'M', '1', '10'] + [str(len(target_seq) - 4)]
 
-    for x,y in zip(tick_locations, tick_legend):
-        dwg.add(dwg.text(y, insert=(x_offset + (x - 1) * box_size + 2, y_offset - 2), style="font-size:10px; font-family:Courier"))
+        for x, y in zip(tick_locations, tick_legend):
+            dwg.add(dwg.text(y, insert=(x_offset + (x - 1) * box_size + 2, y_offset - 2),
+                             style="font-size:10px; font-family:Courier"))
+    else:
+        tick_locations = [1, len(target_seq)]  # limits
+        tick_locations += range(len(target_seq) + 1)[::10][1:]
+        tick_locations.sort()
+        for x in tick_locations:
+            dwg.add(dwg.text(str(x), insert=(x_offset + (x - 1) * box_size + 2, y_offset - 2),
+                             style="font-size:10px; font-family:Courier"))
 
     # Draw reference sequence row
     for i, c in enumerate(target_seq):

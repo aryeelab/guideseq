@@ -23,6 +23,7 @@ from umi import demultiplex, umitag, consolidate
 from visualization import visualizeOfftargets
 import identifyOfftargetSites
 import validation
+import callVariants
 
 DEFAULT_DEMULTIPLEX_MIN_READS = 10000
 DEFAULT_WINDOW_SIZE = 25
@@ -73,6 +74,11 @@ class GuideSeq:
             self.max_score = manifest_data['max_score']
         else:
             self.max_score = DEFAULT_MAX_SCORE
+        # Allow the user to specify whether or not to run the variant analysis
+        if 'variant_analysis' in manifest_data:
+            self.variant_analysis = manifest_data['variant_analysis']
+        else:
+            self.variant_analysis = False
 
         # Make sure the user has both a sample and a control
         if len(self.samples) < 2:
@@ -111,6 +117,11 @@ class GuideSeq:
             self.max_score = manifest_data['max_score']
         else:
             self.max_score = DEFAULT_MAX_SCORE
+        # Allow the user to specify whether or not to run the variant analysis
+        if 'variant_analysis' in manifest_data:
+            self.variant_analysis = manifest_data['variant_analysis']
+        else:
+            self.variant_analysis = False
 
         # Make sure the user has both a sample and a control
         if len(self.samples) < 2:
@@ -309,6 +320,27 @@ class GuideSeq:
             logger.error('Error visualizing off-target sites.')
             logger.error(traceback.format_exc())
 
+    def callVariants(self):
+        try:
+            if self.variant_analysis:
+                logger.info('Identifying genomic variants...')
+
+                # Identify genomic variants for each sample
+                for sample in self.samples:
+                    if sample != 'control':
+                        infile = self.identified[sample]
+                        samfile = os.path.join(self.output_folder, 'aligned', sample + '.sam')
+                        outfile = os.path.join(self.output_folder, 'variants', sample)
+
+                        callVariants.getVariants(infile, self.reference_genome, samfile, outfile, self.search_radius, self.max_score)
+
+                        logger.info('Finished identifying genomic variants.')
+
+        except Exception as e:
+            logger.error('Error identifying genomic variants.')
+            logger.error(traceback.format_exc())
+            quit()
+
 
 def parse_args():
     parser = argparse.ArgumentParser()
@@ -371,6 +403,14 @@ def parse_args():
     visualize_parser.add_argument('--outfolder', required=True)
     visualize_parser.add_argument('--title', required=False)
 
+    variants_parser = subparsers.add_parser('variants', help='Implement samtools:mpileup to identify genomic variants')
+    variants_parser.add_argument('--matched_file', required=True)
+    variants_parser.add_argument('--ref', required=True)
+    variants_parser.add_argument('--sam', required=True)
+    variants_parser.add_argument('--search_radius', required=True)
+    variants_parser.add_argument('--mismatch_threshold', required=True)
+    variants_parser.add_argument('--out', required=True)
+
     return parser.parse_args()
 
 
@@ -392,6 +432,7 @@ def main():
                 g.identifyOfftargetSites()
                 g.filterBackgroundSites()
                 g.visualize()
+                g.callVariants()
 
             except Exception as e:
                 print 'Error running only identify and filter.'
@@ -407,6 +448,7 @@ def main():
             g.identifyOfftargetSites()
             g.filterBackgroundSites()
             g.visualize()
+            g.callVariants()
 
     elif args.command == 'step1_preprocessRun':
             g = GuideSeq()
@@ -427,6 +469,7 @@ def main():
             g.identifyOfftargetSites()
             g.filterBackgroundSites()
             g.visualize()
+            g.callVariants()
 
     elif args.command == 'demultiplex':
         """
@@ -537,6 +580,37 @@ def main():
         g.identified[sample] = args.identified
         g.identified['control'] = args.background
         g.filterBackgroundSites()
+
+    elif args.command == 'variants':
+        """
+        Run just the call variants step
+        """
+        if 'variant_analysis' in args:
+            variant_analysis = args.variant_analysis
+        else:
+            variant_analysis = False
+
+        if 'max_score' in args:
+            max_score = args.max_score
+        else:
+            max_score = 7
+
+        if 'search_radius' in args:
+            search_radius = args.search_radius
+        else:
+            search_radius = 25
+
+            g = GuideSeq()
+            g.variant_analysis = variant_analysis
+            sample = os.path.basename(args.infile).split('.')[0]
+            g.samples = {sample: {}}
+            g.identified = {}
+            g.identified[sample] = args.infile
+            g.output_folder = os.path.dirname(args.outfolder)
+            g.reference_genome = args.genome
+            g.max_score = max_score
+            g.search_radius = search_radius
+            g.callVariants()
 
     elif args.command == 'visualize':
         """
