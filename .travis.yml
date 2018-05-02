@@ -23,6 +23,11 @@ before_install:
   - cd ..
   - PATH=`pwd`/bedtools2/bin:$PATH
   - cd ..
+  - git clone https://github.com/samtools/htslib.git
+  - cd htslib
+  - git checkout tags/1.7
+  - make
+  - cd ..
   - git clone https://github.com/samtools/samtools.git
   - cd samtools
   - git checkout tags/1.7
