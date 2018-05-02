@@ -1,3 +1,0 @@
-targetsite	site_name	chromosome	one_based_position	reference	variant	quality	genotype	depth	PL
-EMX1	EMX1_chr1:236259170-236261754_1486_7	1:236259170-236261754	1472	C	T	134.008	0|1	368	164_0_255
-EMX1	EMX1_chr1:236259170-236261754_1486_7	1:236259170-236261754	1474	A	G	60.0073	0|1	316	90_0_255
