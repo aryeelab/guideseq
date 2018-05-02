@@ -72,6 +72,7 @@ CORRECT_CONSOLDIATED_OUTPUT = 'data/consolidated'
 CORRECT_ALIGNED_OUTPUT = 'data/aligned'
 CORRECT_IDENTIFIED_OUTPUT = 'data/identified'
 CORRECT_FILTERED_OUTPUT = 'data/filtered'
+CORRECT_VARIANT_OUTPUT = 'data/variants'
 
 CORRECT_ALL_OUTPUT = 'data'
 
@@ -90,6 +91,7 @@ class FullPipelineTestCase(unittest.TestCase):
         test_manifest_data['bwa'] = TEST_BWA_PATH
         test_manifest_data['bedtools'] = TEST_BEDTOOLS_PATH
         test_manifest_data['reference_genome'] = TEST_REFERENCE_GENOME
+        test_manifest_data['variant_analysis'] = True
 
         with open(TEST_MANIFEST_PATH, 'w') as f:
             f.write(yaml.dump(test_manifest_data, default_flow_style=False))
@@ -150,8 +152,11 @@ class FullPipelineTestCase(unittest.TestCase):
                 g.consolidated[sample]['read2'] = g.samples[sample]['consolidated_R2_fastq']
         g.alignReads()
         g.identifyOfftargetSites()
+	self.assertTrue(utils.checkFolderEquality(os.path.join(TEST_OUTPUT_PATH, 'identified'), CORRECT_IDENTIFIED_OUTPUT))
         g.filterBackgroundSites()
 	self.assertTrue(utils.checkFolderEquality(os.path.join(TEST_OUTPUT_PATH, 'filtered'), CORRECT_FILTERED_OUTPUT))
+	g.callVariants()
+	self.assertTrue(utils.checkFolderEquality(os.path.join(TEST_OUTPUT_PATH, 'variants'), CORRECT_VARIANT_OUTPUT))
 
 
     def tearDown(self):
