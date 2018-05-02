@@ -23,6 +23,23 @@ before_install:
   - cd ..
   - PATH=`pwd`/bedtools2/bin:$PATH
   - cd ..
+  - git clone https://github.com/samtools/samtools.git
+  - cd samtools
+  - git checkout tags/1.7
+  - make
+  - cd ..
+  - PATH=`pwd`/samtools:$PATH
+  - cd ..
+  - git clone git://github.com/samtools/htslib.git
+  - cd htslib
+  - git checkout tags/1.7
+  - cd ..
+  - git clone git://github.com/samtools/bcftools.git
+  - cd bcftools
+  - git checkout tags/1.6
+  - make
+  - cd ..
+  - PATH=`pwd`/bcftools:$PATH
 
 # command to install dependencies, e.g. pip install -r requirements.txt --use-mirrors
 install: 
