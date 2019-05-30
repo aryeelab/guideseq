@@ -298,7 +298,7 @@ def processLine(line):
 
 
 def reverseComplement(sequence):
-    transtab = string.maketrans("ACGT", "TGCA")
+    transtab = string.maketrans("ACGTacgt", "TGCATGCA")
     return sequence.translate(transtab)[::-1]
 
 
