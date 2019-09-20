@@ -26,7 +26,7 @@ cd ..
 PATH=`pwd`/bedtools2/bin:$PATH
 
 # Download test data FASTQs and manifest
-wget http://aryee.mgh.harvard.edu/guideseq/data/guideseq_test_fastq.zip
+wget https://storage.googleapis.com/aryeelab/guideseq/guideseq_test_fastq.zip
 unzip guideseq_test_fastq.zip
 
 # Download the reference genome
