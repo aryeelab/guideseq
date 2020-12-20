@@ -11,10 +11,8 @@ boxWidth = 10
 box_size = 15
 v_spacing = 3
 
-# colors = {'G': '#F5F500', 'A': '#FF5454', 'T': '#00D118', 'C': '#26A8FF', 'N': '#B3B3B3', 'R': '#B3B3B3', '-': '#FFFFFF'}
-colors = {'G': '#F5F500', 'A': '#FF5454', 'T': '#00D118', 'C': '#26A8FF', 'N': '#B3B3B3', 'R': '#B3B3B3', '-': '#B3B3B3'}
-for c in ['Y','S','W','K','M','B','D','H','V','.']:
-    colors[c] = "#B3B3B3"
+colors = {'G': '#F5F500', 'A': '#FF5454', 'T': '#00D118', 'C': '#26A8FF', 'N': '#B3B3B3', 'R': '#B3B3B3', '-': '#FFFFFF'}
+
 
 def parseSitesFile(infile):
 	offtargets = []
@@ -44,20 +42,6 @@ def parseSitesFile(infile):
 	offtargets = sorted(offtargets, key=lambda x: x['reads'], reverse=True)
 	return offtargets, target_seq, total_seq
 
-# 3/6/2020
-def check_mismatch(a,b):
-	from Bio.Data import IUPACData
-	try:
-		dna_dict = IUPACData.ambiguous_dna_values
-		set_a = dna_dict[a.upper()]
-		set_b = dna_dict[b.upper()]
-		overlap = list(set(list(set_a)).intersection(list(set_b)))
-	except:
-		return True
-	if len(overlap) == 0:
-		return True
-	else:
-		return False
 
 def visualizeOfftargets(infile, outfile, title,PAM):
 
@@ -97,8 +81,10 @@ def visualizeOfftargets(infile, outfile, title,PAM):
 	tick_locations = []
 	tick_legend = []
 	PAM_index = target_seq.index(PAM)
+	print (PAM_index)
 	count = 0
 	for i in range(PAM_index,0,-1):
+		print (i)
 		count = count+1
 		if count % 10 == 0:
 			tick_legend.append(count)
@@ -140,8 +126,7 @@ def visualizeOfftargets(infile, outfile, title,PAM):
 				if r == '-':
 					if 0 < k < len(target_seq):
 						x = x_offset + (k - 0.25) * box_size
-						# if i < PAM_index:
-						if check_mismatch(c,r):
+						if i < PAM_index:
 							dwg.add(dwg.rect((x, box_size * 1.4 + y), (box_size*0.6, box_size*0.6), fill=colors[c]))
 						else:
 							dwg.add(dwg.rect((x, box_size * 1.4 + y), (box_size*0.6, box_size*0.6), fill="#FFFFFF"))
@@ -153,7 +138,7 @@ def visualizeOfftargets(infile, outfile, title,PAM):
 					dwg.add(dwg.text(c, insert=(x + 3, 2 * box_size + y - 3), fill='black', style="font-size:15px; font-family:Courier"))
 					k += 1
 				else:
-					if check_mismatch(c,r):
+					if i < PAM_index:
 						dwg.add(dwg.rect((x, box_size + y), (box_size, box_size), fill=colors[c]))
 					else:
 						dwg.add(dwg.rect((x, box_size + y), (box_size, box_size), fill="#FFFFFF"))
@@ -168,7 +153,7 @@ def visualizeOfftargets(infile, outfile, title,PAM):
 				if r == '-':
 					if 0 < k < len(realigned_target_seq):
 						x = x_offset + (k - 0.25) * box_size
-						if check_mismatch(c,r):
+						if i < PAM_index:
 							dwg.add(dwg.rect((x, box_size * 1.4 + y), (box_size*0.6, box_size*0.6), fill=colors[c]))
 						else:
 							dwg.add(dwg.rect((x, box_size * 1.4 + y), (box_size*0.6, box_size*0.6), fill="#FFFFFF"))
@@ -180,7 +165,7 @@ def visualizeOfftargets(infile, outfile, title,PAM):
 					dwg.add(dwg.text(c, insert=(x + 3, 2 * box_size + y - 3), fill='black', style="font-size:15px; font-family:Courier"))
 					k += 1
 				else:
-					if check_mismatch(c,r):
+					if i < PAM_index:
 						dwg.add(dwg.rect((x, box_size + y), (box_size, box_size), fill=colors[c]))
 					else:
 						dwg.add(dwg.rect((x, box_size + y), (box_size, box_size), fill="#FFFFFF"))
@@ -202,16 +187,12 @@ def visualizeOfftargets(infile, outfile, title,PAM):
 
 
 def main():
-	if len(sys.argv) >= 3:
-		if len(sys.argv) == 5:
-			title = sys.argv[3]
-			PAM = sys.argv[4]
-		else:
-			title = None
-			PAM="NGG"
-		visualizeOfftargets(sys.argv[1], sys.argv[2], title=title,PAM=PAM)
-	else:
-		print('Usage: python visualization.py INFILE OUTFILE [TITLE]')
+	try:
+	
+		visualizeOfftargets(sys.argv[1], sys.argv[2], sys.argv[3],sys.argv[4])
+	except:
+		print('Usage: python visualization.py INFILE OUTFILE TITLE PAM')
+
 
 if __name__ == '__main__':
 	main()

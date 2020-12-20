@@ -264,8 +264,8 @@ class GuideSeq:
             logger.error('Error filtering background sites.')
             logger.error(traceback.format_exc())
 
-    def visualize(self):
-        logger.info('Visualizing off-target sites')
+    # def visualize(self):
+        # logger.info('Visualizing off-target sites')
 
         # try:
             # for sample in self.samples:
@@ -279,17 +279,15 @@ class GuideSeq:
         # except Exception as e:
             # logger.error('Error visualizing off-target sites.')
             # logger.error(traceback.format_exc())
+    def visualize(self):
+        logger.info('Visualizing off-target sites')
 
         for sample in self.samples: ## 3/6/2020 Yichao solved: visualization stopped when one sample failed
             if sample != 'control':
                 try:
                     infile = self.identified[sample]
                     outfile = os.path.join(self.output_folder, 'visualization', sample + '_offtargets')
-                    try:
-                        self.PAM
-                        visualizeOfftargets(infile, outfile, title=sample,PAM=self.PAM)
-                    except:
-                        visualizeOfftargets(infile, outfile, title=sample,PAM="NGG")
+                    visualizeOfftargets(infile, outfile, title=sample,PAM=self.PAM)
                 except Exception as e:
                     logger.error('Error visualizing off-target sites: %s'%(sample))
                     logger.error(traceback.format_exc())
@@ -305,7 +303,6 @@ def parse_args():
     all_parser = subparsers.add_parser('all', help='Run all steps of the pipeline')
     all_parser.add_argument('--manifest', '-m', help='Specify the manifest Path', required=True)
     all_parser.add_argument('--identifyAndFilter', action='store_true', default=False)
-    all_parser.add_argument('--skip_demultiplex', action='store_true', default=False)
 
     demultiplex_parser = subparsers.add_parser('demultiplex', help='Demultiplex undemultiplexed FASTQ files')
     demultiplex_parser.add_argument('--manifest', '-m', help='Specify the manifest path', required=True)
@@ -377,56 +374,15 @@ def main():
                 print 'Error running only identify and filter.'
                 print traceback.format_exc()
                 quit()
-        elif args.skip_demultiplex:
-            try:
-                g = GuideSeq()
-                g.parseManifest(args.manifest)
-                g.demultiplexed = {}
-                for sample in g.samples:
-                    g.demultiplexed[sample] = {}
-                    g.demultiplexed[sample]['read1'] = os.path.join(g.output_folder, 'demultiplexed', sample + '.r1.fastq')
-                    g.demultiplexed[sample]['read2'] = os.path.join(g.output_folder, 'demultiplexed', sample + '.r2.fastq')
-                    g.demultiplexed[sample]['index1'] = os.path.join(g.output_folder, 'demultiplexed', sample + '.i1.fastq')
-                    g.demultiplexed[sample]['index2'] = os.path.join(g.output_folder, 'demultiplexed', sample + '.i2.fastq')
-                    if not os.path.isfile(g.demultiplexed[sample]['read1']):
-                        print ("Can't find ",g.demultiplexed[sample]['read1'])
-                        exit()
-                    if not os.path.isfile(g.demultiplexed[sample]['read2']):
-                        print ("Can't find ",g.demultiplexed[sample]['read2'])
-                        exit()
-                    if not os.path.isfile(g.demultiplexed[sample]['index1']):
-                        print ("Can't find ",g.demultiplexed[sample]['index1'])
-                        exit()
-                    if not os.path.isfile(g.demultiplexed[sample]['index2']):
-                        print ("Can't find ",g.demultiplexed[sample]['index2'])
-                        exit()
-
-                # Bootstrap the aligned samfile paths
-                # g.aligned = {}
-                # for sample in g.samples:
-                    # g.aligned[sample] = os.path.join(g.output_folder, 'aligned', sample + '.sam')
-
-
-                g.umitag()
-                g.consolidate()
-                g.alignReads()
-                g.identifyOfftargetSites()
-                g.filterBackgroundSites()
-                g.visualize()
-
-            except Exception as e:
-                print 'Error running only identify and filter.'
-                print traceback.format_exc()
-                quit()
         else:
             g = GuideSeq()
             g.parseManifest(args.manifest)
-            g.demultiplex()
-            g.umitag()
-            g.consolidate()
-            g.alignReads()
-            g.identifyOfftargetSites()
-            g.filterBackgroundSites()
+#            g.demultiplex()
+#            g.umitag()
+#            g.consolidate()
+#            g.alignReads()
+#            g.identifyOfftargetSites()
+#            g.filterBackgroundSites()
             g.visualize()
 
     elif args.command == 'demultiplex':
