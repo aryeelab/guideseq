@@ -441,5 +441,5 @@ See page 29 of the Miseq Reporter User Guide for further instructions.
 [version-url]: https://anaconda.org/tsailabSJ/guide_seq
 [python-shield]: https://img.shields.io/pypi/pyversions/guide_seq.svg
 [python-url]: https://pypi.python.org/pypi/guide_seq
-[platform-shield]: https://anaconda.org/tsailabsj/guide_seq/badges/platforms.svg
+[platform-shield]: https://img.shields.io/badge/Platforms-linux--64,osx--64,linux--32-orange.svg?style=flat-square
 
