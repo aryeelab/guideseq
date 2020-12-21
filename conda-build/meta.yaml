@@ -1,29 +1,25 @@
 {% set name = "guide_seq" %}
-{% set version = "1.0.1" %}
-{% set file_ext = "tar.gz" %}
-{% set hash_type = "sha256" %}
-{% set hash_value = "6e857a849a546e5257618b592a3668572e83710e71f1a10727e01945d630c23f" %}
+{% set version = "1.0.2" %}
 
 package:
-  name: '{{ name|lower }}'
-  version: '{{ version }}'
+  name: "{{ name|lower }}"
+  version: "{{ version }}"
 
 source:
-  fn: '{{ name }}-{{ version }}.{{ file_ext }}'
-  url: https://pypi.io/packages/source/{{ name[0] }}/{{ name }}/{{ name }}-{{ version }}.{{ file_ext }}
-  '{{ hash_type }}': '{{ hash_value }}'
+  url: https://pypi.io/packages/source/{{ name[0] }}/{{ name }}/{{ name }}-{{ version }}.tar.gz
+  sha256: 733c04ad671727aeb9559ada2eb464d5e270ab41fa572827fb5f281e4c303f40
 
 build:
   number: 0
-  script: python setup.py install --single-version-externally-managed --record=record.txt
+  script: "{{ PYTHON }} -m pip install . --no-deps --ignore-installed -vv "
 
 requirements:
   host:
     - pip
     - python
-    - setuptools
   run:
     - python
+    - biopython
     - bwa=0.7.17
     - htseq
     - matplotlib
