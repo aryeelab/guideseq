@@ -24,6 +24,7 @@ def parseSitesFile(infile):
 		for line in f:
 			line = line.rstrip('\n')
 			line_items = line.split('\t')
+			# print (line_items)
 			offtarget_reads = line_items[11]
 			no_bulge_offtarget_sequence = line_items[24]
 			bulge_offtarget_sequence = line_items[29]
@@ -211,7 +212,7 @@ def main():
 			PAM="NGG"
 		visualizeOfftargets(sys.argv[1], sys.argv[2], title=title,PAM=PAM)
 	else:
-		print('Usage: python visualization.py INFILE OUTFILE [TITLE]')
+		print('Usage: python visualization.py INFILE OUTFILE [TITLE] [PAM]')
 
 if __name__ == '__main__':
 	main()

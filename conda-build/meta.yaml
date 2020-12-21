@@ -1,0 +1,64 @@
+{% set name = "guide_seq" %}
+{% set version = "1.0.1" %}
+{% set file_ext = "tar.gz" %}
+{% set hash_type = "sha256" %}
+{% set hash_value = "6e857a849a546e5257618b592a3668572e83710e71f1a10727e01945d630c23f" %}
+
+package:
+  name: '{{ name|lower }}'
+  version: '{{ version }}'
+
+source:
+  fn: '{{ name }}-{{ version }}.{{ file_ext }}'
+  url: https://pypi.io/packages/source/{{ name[0] }}/{{ name }}/{{ name }}-{{ version }}.{{ file_ext }}
+  '{{ hash_type }}': '{{ hash_value }}'
+
+build:
+  number: 0
+  script: python setup.py install --single-version-externally-managed --record=record.txt
+
+requirements:
+  host:
+    - pip
+    - python
+    - setuptools
+  run:
+    - python
+    - bwa=0.7.17
+    - htseq
+    - matplotlib
+    - numpy
+    - pandas
+    - pyfaidx
+    - pygments
+    - pysam
+    - pyyaml
+    - regex
+    - scipy
+    - setuptools
+    - sqlite
+    - statsmodels
+    - svgwrite
+    - yaml
+    - zlib
+    - htslib=1.9
+    - samtools=1.9
+    - bedtools
+
+test:
+  imports:
+    - guideseq
+    - umi
+
+about:
+  home: https://github.com/tsailabSJ/guideseq
+  license: GNU General Public License v2 (GPLv2)
+  license_family: GPL2
+  license_file: ''
+  summary: An easy to use bioinformatic pipeline for the GUIDE-seq assay.
+  description: "guide-seq\n\n\n"
+  doc_url: ''
+  dev_url: ''
+
+extra:
+  recipe-maintainers: ''

@@ -374,8 +374,8 @@ def main():
                 g.visualize()
 
             except Exception as e:
-                print 'Error running only identify and filter.'
-                print traceback.format_exc()
+                print ('Error running only identify and filter.')
+                print (traceback.format_exc())
                 quit()
         elif args.skip_demultiplex:
             try:
@@ -415,8 +415,8 @@ def main():
                 g.visualize()
 
             except Exception as e:
-                print 'Error running only identify and filter.'
-                print traceback.format_exc()
+                print ('Error running only identify and filter.')
+                print (traceback.format_exc())
                 quit()
         else:
             g = GuideSeq()

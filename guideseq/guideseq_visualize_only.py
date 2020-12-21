@@ -371,8 +371,8 @@ def main():
                 g.visualize()
 
             except Exception as e:
-                print 'Error running only identify and filter.'
-                print traceback.format_exc()
+                print ('Error running only identify and filter.')
+                print (traceback.format_exc())
                 quit()
         else:
             g = GuideSeq()

@@ -13,13 +13,20 @@ else:
 
 
 setup(
-	name='guideseq',
+	name='guide_seq',
 	version=str(guideseq.__version__),
 	description="An easy to use bioinformatic pipeline for the GUIDE-seq assay.",
 	author="Shengdar Q Tsai, Martin Aryee, Ved V Topkar",
 	author_email='STSAI4@mgh.harvard.edu, Aryee.Martin@mgh.harvard.edu, vedtopkar@gmail.com',
 	url='https://github.com/tsailabSJ/guideseq',
-	packages=find_packages(),
+	# packages=find_packages(),
+	packages=[
+		'guideseq',
+		'umi',
+	],
+	package_dir={'guideseq':
+				 'guideseq','umi':'guideseq/umi'},
+	
 	scripts=['guideseq/guideseq.py','guideseq/alignReads.py','guideseq/visualization.py',
 		'guideseq/filterBackgroundSites.py','guideseq/identifyOfftargetSites.py','guideseq/log.py',
 		'guideseq/validation.py'],

@@ -1,7 +1,6 @@
 HTSeq
 PyYAML
 swalign
-nwalign
 pyfaidx
 svgwrite
 regex
