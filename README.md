@@ -65,7 +65,7 @@ The most easiest way to install guideseq pipeline is via conda.
 
 ```
 
-conda create -n guideseq -c conda-forge -c bioconda -c anaconda -c omnia -c tsailabSJ guide_seq
+conda create -n guideseq -c conda-forge -c bioconda -c anaconda -c tsailabSJ guide_seq
 
 source activate guideseq
 
