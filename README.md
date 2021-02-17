@@ -1,6 +1,10 @@
 # guideseq: The GUIDE-Seq Analysis Package
 [![travis badge](https://travis-ci.org/aryeelab/guideseq.svg?branch=master)](https://travis-ci.org/aryeelab/guideseq)
 
+**Note that an updated version of this package, including Python 3 support, is maintained by the Tsai Lab: https://github.com/tsailabSJ/guideseq**
+
+------
+
 The guideseq package implements our data preprocessing and analysis pipeline for GUIDE-Seq data. It takes raw sequencing reads (FASTQ) and a parameter manifest file (.yaml) as input and produces a table of annotated off-target sites as output.
 
 ## Table of Contents
