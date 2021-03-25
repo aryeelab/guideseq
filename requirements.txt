@@ -1,5 +1,5 @@
 HTSeq==0.6.1p1
-PyYAML==3.11
+PyYAML==5.4
 swalign==0.3.1
 pyfaidx==0.2.7
 svgwrite==1.1.6
