@@ -1,5 +1,9 @@
+
+[![Version][version-shield]][version-url]
+[![Python versions][python-shield]][python-url]
+[![Platforms][platform-shield]][python-url]
+
 # guideseq: The GUIDE-Seq Analysis Package
-[![travis badge](https://travis-ci.org/aryeelab/guideseq.svg?branch=master)](https://travis-ci.org/aryeelab/guideseq)
 
 **Note that an updated version of this package, including Python 3 support, is maintained by the Tsai Lab: https://github.com/tsailabSJ/guideseq**
 
@@ -11,10 +15,8 @@ The guideseq package implements our data preprocessing and analysis pipeline for
 - [Features](#features)
 - [Dependencies](#dependencies)
 - [Getting Set Up](#setup)
-	- [Installing Dependencies](#install_dependencies)
-	- [Download Reference Genome](#reference_genome)
-	- [Download and Set Up guideseq](#guideseq_setup)
-	- [Configuring a MiSeq to Output Index Reads](#miseq)
+	- [Installation](#Installation)
+	- [Quickstart](#Quickstart)
 - [Running the Full Analysis Pipeline](#full_pipeline)
 	- [Quickstart](#quickstart)
 	- [Writing A Manifest File](#write_manifest)
@@ -28,10 +30,6 @@ The guideseq package implements our data preprocessing and analysis pipeline for
 	- [Identify](#identify)
 	- [Filter](#filter)
 	- [Visualize](#visualize)
-- [Testing the guideseq Package](#testing)
-	- [Single-Step Regression Tests](#regression_tests)
-	- [Full Large Test](#full_test)
-	- [Manual Testing](#manual_test)
 - [Frequently Asked Questions](#FAQ)
 	- [How do I Run the Pipeline with Demultiplexed Data?](#demultiplexed_run)
 	- [Can I analyze data without UMIs?](#no_umis)
@@ -57,7 +55,7 @@ The individual pipeline steps are:
 ![guideseq_flowchart](EMX1_visualization.png)
 
 ## Dependencies<a name="dependencies"></a>
-* Python (2.7)
+* Python 2 or 3
 * Reference genome fasta file ([Example](http://www.broadinstitute.org/ftp/pub/seq/references/Homo_sapiens_assembly19.fasta))
 * [`bwa`](<http://bio-bwa.sourceforge.net/>) alignment tool
 * [`bedtools`](<http://bedtools.readthedocs.org/en/latest/>) genome arithmetic utility
@@ -65,52 +63,59 @@ The individual pipeline steps are:
 
 ## Getting Set Up<a name="setup"></a>
 
-### Install Dependencies<a name="install_dependencies"></a>
+### Installation<a name="Installation"></a>
 
-To run guideseq, you must first install all necessary dependencies:
+The most easiest way to install guideseq pipeline is via conda.
 
-- **Python 2.7**: If a version does not come bundled with your operating system, we recommend the [Anaconda](https://www.continuum.io/downloads) scientific Python package.
+```
+
+conda create -n guideseq -c conda-forge -c bioconda -c anaconda -c tsailabSJ guide_seq
+
+source activate guideseq
+
+guideseq.py -h
+
+## BWA and bedtools are automatically installed
+
+
+```
+
+Alternatively, you can git clone this repository and install
+
+```
+
+git clone https://github.com/tsailabSJ/guideseq
+
+cd guideseq
+
+pip install -r requirements.txt
+
+python setup.py install
+
+guideseq.py -h
+
+## Please install BWA and bedtools if you choose this option
+
+```
+
 - **Burrows-Wheeler Aligner (bwa)**: You can either install bwa with a package manager (e.g. `brew` on OSX or `apt-get` on Ubuntu/Debian), or you can download it from the [project page](http://bio-bwa.sourceforge.net/) and compile it from source.
 - **Bedtools**: You can either install bwa with a package manager (e.g. `brew` or `apt-get`), or you can download it from the [project page](http://bedtools.readthedocs.org/en/latest/content/installation.html) and compile it from source.
 
 For both bwa and bedtools, make sure you know the path to the respective executables, as they need to be specified in the pipeline manifest file.
 
 
-### Download Reference Genome<a name="reference_genome"></a>
 
-The guideseq package requires a reference genome for read mapping. You can use any genome of your choosing, but for all of our testing and original GUIDE-seq analyses (Tsai et al. *Nature Biotechnol* 2015) we use hg19 ([download](http://www.broadinstitute.org/ftp/pub/seq/references/Homo_sapiens_assembly19.fasta)). Be sure to (g)unzip the FASTA file before use if it is compressed.
+### Quickstart <a name="Quickstart"></a>
 
-### Download and Set Up guideseq<a name="guideseq_setup"></a>
-
-Once all dependencies are installed, there are a few easy steps to download and set up the guideseq package:
-
-1. Obtain a copy of the guideseq package source code. You can either download and unzip the latest source from the github [release page](https://github.com/aryeelab/guideseq/releases), or you use git to clone the repository by running `git clone --recursive https://github.com/aryeelab/guideseq.git`
-2. Install guideseq dependencies by entering the guideseq directory and running `pip install -r requirements.txt`
-
-Once all guideseq dependencies are installed, you will be ready to start using guideseq.
-
-### Configuring a MiSeq to Output Index Reads<a name="miseq"></a>
-
-The guideseq package requires index reads from the MiSeq sequencing run for read consolidation. The default MiSeq Reporter settings do not generate index (I1, I2) reads. This feature can be enabled by adding the line 
-
-```xml
-<add key="CreateFastqForIndexReads" value="1"> 
 ```
 
-to the ``Miseq Reporter.exe.config`` file located in the Miseq Reporter installation folder. The default installation folder is  ``C:\Illumina\MiSeqReporter``. After modifying the config file it should look like this:
+git clone https://github.com/tsailabSJ/guideseq
 
+cd guideseq/test
 
-```xml
-<appSettings>
-    ... [LEAVE EXISTING LINES UNCHANGED] ...
-    <add key="CreateFastqForIndexReads" value="1"> 
-</appSettings>
+guideseq.py all -m test_manifest.yaml
+
 ```
-
-The MiSeq Reporter service needs to be restarted for the change to take effect. Future runs of the GenerateFASTQ workflow (and probably other workflows) will generate I1 and I2 reads in addition to R1 and R2. All four of these reads files will be needed for guideseq analysis.
-
-See page 29 of the Miseq Reporter User Guide for further instructions.
-
 
 ## Running the Full Analysis Pipeline<a name="full_pipeline"></a>
 
@@ -119,14 +124,19 @@ See page 29 of the Miseq Reporter User Guide for further instructions.
 To run the full guideseq analysis pipeline, you must first create a manifest YAML file that describes all pipeline inputs. Once you have done so, you can simply run
 
 ```
-python /path/to/guideseq.py all -m /path/to/manifest.yaml
+guideseq.py all -m /path/to/manifest.yaml
 ```
+
 to run the entire pipeline. Below are specific instructions detailing how to write the manifest file.
 
 If you wish to run an example on our abridged test data, you can simply run
 
 ```
-python guideseq/guideseq.py all -m test/test_manifest.yaml
+
+cd guideseq/test
+
+
+guideseq.py all -m test_manifest.yaml
 ```
 from the guideseq root directory. The `test_manifest` assumes that both the `bwa` and `bedtools`executables are in your system PATH. You will see the pipeline results outputted to the `test/output` folder.
 
@@ -137,6 +147,7 @@ When running the end-to-end analysis functionality of the guideseq package, a nu
 - `output_folder`: The absolute path to the folder in which all pipeline outputs will be saved.
 - `bwa`: The absolute path to the `bwa` executable
 - `bedtools`: The absolute path to the `bedtools` executable
+- `PAM`: PAM sequence (optional), default is NGG.
 - `undemultiplexed`: The absolute paths to the undemultiplexed paired end sequencing files. The required parameters are:
 	- `forward`: The absolute path to the FASTQ file containing the forward reads.
 	- `reverse`: The absolute path to the FASTQ file containing the reverse reads.
@@ -186,7 +197,7 @@ output_folder: test/output
 
 bwa: bwa
 bedtools: bedtools
-
+PAM: NGG
 demultiplex_min_reads: 1000
 
 undemultiplexed:
@@ -386,56 +397,6 @@ In addition to end-to-end pipeline analysis functionality, the guideseq package 
 	 --outfolder test/output/ --title EMX1
 	```
 
-## Testing the guideseq Package<a name="testing"></a>
-
-In the spirit of Test-Driven Development, we have written end-to-end tests for each step of the pipeline. These can be used to ensure that the software is running with expected functionality.
-
-NOTE: Due to differences in sorting between different versions of the `bwa` package, you must be using `bwa v0.7.9a` for these tests to work. We also recommend that you use `bedtools v2.25.0` when running these tests for consistency's sake.
-
-### Single-Step Regression Tests<a name="regression_tests"></a>
-
-For ongoing testing and development, we have created an abridged set of input data and expected output data for each step of the pipeline. This way, changes to the pipeline can be quickly tested for feature regression.
-
-To run these tests, you must first install the `nose` testing Python package.
-
-```
-pip install nose
-```
-
-Then, from the guideseq root directory, simply run
-
-```
-nosetests
-```
-
-and the regression tests for each pipeline step will be run.
-
-### Full Large Test<a name="full_test"></a>
-
-If you have more time, we have prepared a bash script that downloads and compiles all dependencies from source, downloads a fresh reference genome and a full GUIDE-seq sequencing data run, and performs a full test of the entire pipeline. This test takes a long time, but we require that it be run before we tag a new release.
-
-To run the full large test, enter the `guideseq/test` folder and run
-
-```
-./large_test.sh
-```
-
-Then, sit back and watch the full large testing process unfold automatically in the terminal.
-
-### Manual Testing<a name="manual_test"></a>
-
-If you wish to run a full GUIDE-Seq dataset through the analysis pipeline, you may find it and a test manifest (to be altered depending on your dependency locations) here:
-
-```
-http://aryee.mgh.harvard.edu/guideseq/data/guideseq_test_fastq.zip
-```
-
-which should be used with the following reference genome:
-
-```
-http://www.broadinstitute.org/ftp/pub/seq/references/Homo_sapiens_assembly19.fasta
-```
-
 ## Frequently Asked Questions<a name="FAQ"></a>
 
 ### How do I Run the Pipeline with Demultiplexed Data?<a name="demultiplexed_run"></a>
@@ -452,3 +413,37 @@ If you already have demultiplexed data, you can run the pipeline on the data by 
 ### Can I analyze data without UMIs?<a name="no_umis"></a>
 
 Yes. If your reads do not have UMIs, you can run the pipeline on previously demultiplexed data as described in the "Running Analysis Steps Individually" section above, starting with the `align` step. **Note that we have not analyzed such data ourselves!** We suspect that PCR duplication bias may affect the quantitative interpretion of GUIDE-Seq read counts, but have not explored this.
+
+### Download Reference Genome<a name="reference_genome"></a>
+
+The guideseq package requires a reference genome for read mapping. You can use any genome of your choosing, but for all of our testing and original GUIDE-seq analyses (Tsai et al. *Nature Biotechnol* 2015) we use hg19 ([download](http://www.broadinstitute.org/ftp/pub/seq/references/Homo_sapiens_assembly19.fasta)). Be sure to (g)unzip the FASTA file before use if it is compressed.
+
+
+### Configuring a MiSeq to Output Index Reads<a name="miseq"></a>
+
+The guideseq package requires index reads from the MiSeq sequencing run for read consolidation. The default MiSeq Reporter settings do not generate index (I1, I2) reads. This feature can be enabled by adding the line 
+
+```xml
+<add key="CreateFastqForIndexReads" value="1"> 
+```
+
+to the ``Miseq Reporter.exe.config`` file located in the Miseq Reporter installation folder. The default installation folder is  ``C:\Illumina\MiSeqReporter``. After modifying the config file it should look like this:
+
+
+```xml
+<appSettings>
+    ... [LEAVE EXISTING LINES UNCHANGED] ...
+    <add key="CreateFastqForIndexReads" value="1"> 
+</appSettings>
+```
+
+The MiSeq Reporter service needs to be restarted for the change to take effect. Future runs of the GenerateFASTQ workflow (and probably other workflows) will generate I1 and I2 reads in addition to R1 and R2. All four of these reads files will be needed for guideseq analysis.
+
+See page 29 of the Miseq Reporter User Guide for further instructions.
+
+[version-shield]: https://img.shields.io/conda/v/tsailabsj/guide_seq.svg
+[version-url]: https://anaconda.org/tsailabSJ/guide_seq
+[python-shield]: https://img.shields.io/pypi/pyversions/guide_seq.svg
+[python-url]: https://pypi.python.org/pypi/guide_seq
+[platform-shield]: https://img.shields.io/badge/Platforms-linux--64,osx--64,linux--32-orange.svg?style=flat-square
+

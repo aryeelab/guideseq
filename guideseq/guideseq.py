@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """
 
@@ -25,7 +26,8 @@ import identifyOfftargetSites
 import validation
 
 DEFAULT_DEMULTIPLEX_MIN_READS = 10000
-MAX_MISMATCHES = 6
+DEFAULT_WINDOW_SIZE = 25
+DEFAULT_MAX_SCORE = 7
 
 CONSOLIDATE_MIN_QUAL = 15
 CONSOLIDATE_MIN_FREQ = 0.9
@@ -62,6 +64,21 @@ class GuideSeq:
             self.demultiplex_min_reads = manifest_data['demultiplex_min_reads']
         else:
             self.demultiplex_min_reads = DEFAULT_DEMULTIPLEX_MIN_READS
+        # Allow the user to specify window size for off-target search
+        if 'window_size' in manifest_data:
+            self.window_size = manifest_data['window_size']
+        else:
+            self.window_size = DEFAULT_WINDOW_SIZE
+        # Allow the user to specify window size for off-target search
+        if 'max_score' in manifest_data:
+            self.max_score = manifest_data['max_score']
+        else:
+            self.max_score = DEFAULT_MAX_SCORE
+        # Allow the user to specify PAM seq. Yichao 3/6/2020
+        if 'PAM' in manifest_data:
+            self.PAM = manifest_data['PAM']
+        else:
+            self.PAM = "NGG"
 
         # Make sure the user has specified a control barcode
         if 'control' not in self.samples.keys():
@@ -215,11 +232,12 @@ class GuideSeq:
                 else:
                     annotations['Sequence'] = sample_data['target']
 
-                samfile = self.aligned[sample]
+                samfile = os.path.join(self.output_folder, 'aligned', sample + '.sam')
 
                 self.identified[sample] = os.path.join(self.output_folder, 'identified', sample + '_identifiedOfftargets.txt')
 
-                identifyOfftargetSites.analyze(samfile, self.reference_genome, self.identified[sample], annotations)
+                identifyOfftargetSites.analyze(samfile, self.reference_genome, self.identified[sample], annotations,
+                                               self.window_size, self.max_score)
 
             logger.info('Finished identifying offtarget sites.')
 
@@ -250,19 +268,33 @@ class GuideSeq:
     def visualize(self):
         logger.info('Visualizing off-target sites')
 
-        try:
-            for sample in self.samples:
-                if sample != 'control':
+        # try:
+            # for sample in self.samples:
+                # if sample != 'control':
+                    # infile = self.identified[sample]
+                    # outfile = os.path.join(self.output_folder, 'visualization', sample + '_offtargets')
+                    # visualizeOfftargets(infile, outfile, title=sample)
+
+            # logger.info('Finished visualizing off-target sites')
+
+        # except Exception as e:
+            # logger.error('Error visualizing off-target sites.')
+            # logger.error(traceback.format_exc())
+
+        for sample in self.samples: ## 3/6/2020 Yichao solved: visualization stopped when one sample failed
+            if sample != 'control':
+                try:
                     infile = self.identified[sample]
                     outfile = os.path.join(self.output_folder, 'visualization', sample + '_offtargets')
-                    visualizeOfftargets(infile, outfile, title=sample)
-
-            logger.info('Finished visualizing off-target sites')
-
-        except Exception as e:
-            logger.error('Error visualizing off-target sites.')
-            logger.error(traceback.format_exc())
-
+                    try:
+                        self.PAM
+                        visualizeOfftargets(infile, outfile, title=sample,PAM=self.PAM)
+                    except:
+                        visualizeOfftargets(infile, outfile, title=sample,PAM="NGG")
+                except Exception as e:
+                    logger.error('Error visualizing off-target sites: %s'%(sample))
+                    logger.error(traceback.format_exc())
+        logger.info('Finished visualizing off-target sites')
 
 def parse_args():
     parser = argparse.ArgumentParser()
@@ -274,6 +306,7 @@ def parse_args():
     all_parser = subparsers.add_parser('all', help='Run all steps of the pipeline')
     all_parser.add_argument('--manifest', '-m', help='Specify the manifest Path', required=True)
     all_parser.add_argument('--identifyAndFilter', action='store_true', default=False)
+    all_parser.add_argument('--skip_demultiplex', action='store_true', default=False)
 
     demultiplex_parser = subparsers.add_parser('demultiplex', help='Demultiplex undemultiplexed FASTQ files')
     demultiplex_parser.add_argument('--manifest', '-m', help='Specify the manifest path', required=True)
@@ -305,6 +338,8 @@ def parse_args():
     identify_parser.add_argument('--outfolder', required=True)
     identify_parser.add_argument('--target_sequence', required=True)
     identify_parser.add_argument('--description', required=False)
+    identify_parser.add_argument('--max_score', required=False, type=int, default=7)
+    identify_parser.add_argument('--window_size', required=False, type=int, default=25)
 
     filter_parser = subparsers.add_parser('filter', help='Filter identified sites from control sites')
     filter_parser.add_argument('--bedtools', required=True)
@@ -340,8 +375,49 @@ def main():
                 g.visualize()
 
             except Exception as e:
-                print 'Error running only identify and filter.'
-                print traceback.format_exc()
+                print ('Error running only identify and filter.')
+                print (traceback.format_exc())
+                quit()
+        elif args.skip_demultiplex:
+            try:
+                g = GuideSeq()
+                g.parseManifest(args.manifest)
+                g.demultiplexed = {}
+                for sample in g.samples:
+                    g.demultiplexed[sample] = {}
+                    g.demultiplexed[sample]['read1'] = os.path.join(g.output_folder, 'demultiplexed', sample + '.r1.fastq')
+                    g.demultiplexed[sample]['read2'] = os.path.join(g.output_folder, 'demultiplexed', sample + '.r2.fastq')
+                    g.demultiplexed[sample]['index1'] = os.path.join(g.output_folder, 'demultiplexed', sample + '.i1.fastq')
+                    g.demultiplexed[sample]['index2'] = os.path.join(g.output_folder, 'demultiplexed', sample + '.i2.fastq')
+                    if not os.path.isfile(g.demultiplexed[sample]['read1']):
+                        print ("Can't find ",g.demultiplexed[sample]['read1'])
+                        exit()
+                    if not os.path.isfile(g.demultiplexed[sample]['read2']):
+                        print ("Can't find ",g.demultiplexed[sample]['read2'])
+                        exit()
+                    if not os.path.isfile(g.demultiplexed[sample]['index1']):
+                        print ("Can't find ",g.demultiplexed[sample]['index1'])
+                        exit()
+                    if not os.path.isfile(g.demultiplexed[sample]['index2']):
+                        print ("Can't find ",g.demultiplexed[sample]['index2'])
+                        exit()
+
+                # Bootstrap the aligned samfile paths
+                # g.aligned = {}
+                # for sample in g.samples:
+                    # g.aligned[sample] = os.path.join(g.output_folder, 'aligned', sample + '.sam')
+
+
+                g.umitag()
+                g.consolidate()
+                g.alignReads()
+                g.identifyOfftargetSites()
+                g.filterBackgroundSites()
+                g.visualize()
+
+            except Exception as e:
+                print ('Error running only identify and filter.')
+                print (traceback.format_exc())
                 quit()
         else:
             g = GuideSeq()
@@ -429,12 +505,24 @@ def main():
         else:
             description = ''
 
+        if 'max_score' in args:
+            max_score = args.max_score
+        else:
+            max_score = 7
+
+        if 'window_size' in args:
+            window_size = args.window_size
+        else:
+            window_size = 25
+
         g = GuideSeq()
         g.output_folder = args.outfolder
         g.reference_genome = args.genome
         sample = os.path.basename(args.aligned).split('.')[0]
         g.samples = {sample: {'description': description, 'target': args.target_sequence}}
         g.aligned = {sample: args.aligned}
+        g.max_score = max_score
+        g.window_size = window_size
         g.identifyOfftargetSites()
 
     elif args.command == 'filter':
