@@ -289,7 +289,7 @@ def alignSequences(targetsite_sequence, window_sequence, max_score=7):
 """
 annotation is in the format:
 """
-def analyze(sam_filename, reference_genome, outfile, annotations, windowsize, max_score):
+def analyze(sam_filename, reference_genome, outfile, annotations, windowsize, max_score, primer1, primer2):
 
 	output_folder = os.path.dirname(outfile)
 	if not os.path.exists(output_folder):
@@ -307,7 +307,7 @@ def analyze(sam_filename, reference_genome, outfile, annotations, windowsize, ma
 			if int(mapq) >= 50 and int(sam_flag) & 128 and not int(sam_flag) & 2048:
 				# Second read in pair
 				barcode, count = parseReadName(full_read_name)
-				primer = assignPrimerstoReads(read_sequence, sam_flag)
+				primer = assignPrimerstoReads(read_sequence, sam_flag, primer1, primer2)
 				if int(template_length) < 0:  # Reverse read
 					read_position = int(position_of_mate) + abs(int(template_length)) - 1
 					strand = "-"
@@ -411,15 +411,15 @@ def py2max(myList):
 	out = [i  for i in myList if i != "" ]
 	return max(out)
 
-def assignPrimerstoReads(read_sequence, sam_flag):
+def assignPrimerstoReads(read_sequence, sam_flag, primer1, primer2):
 	# Get 20-nucleotide sequence from beginning or end of sequence depending on orientation
 	if int(sam_flag) & 16:
 		readstart = reverseComplement(read_sequence[-20:])
 	else:
 		readstart = read_sequence[:20]
-	if readstart == "TTGAGTTGTCATATGTTAAT":
+	if readstart == primer1:
 		return "primer1"
-	elif readstart == "ACATATGACAACTCAATTAA":
+	elif readstart == primer2:
 		return "primer2"
 	else:
 		return "nomatch"
@@ -468,13 +468,15 @@ def main():
 	parser.add_argument('--outfile', help='File to output identified sites to.', required=True)
 	parser.add_argument('--window', help='Window around breakpoint to search for off-target', type=int, default=25)
 	parser.add_argument('--max_score', help='Score threshold', type=int, default=7)
+	parser.add_argument('--primer1', help='Primer 1 sequence', default="TTGAGTTGTCATATGTTAAT")
+	parser.add_argument('--primer2', help='Primer 2 sequence', default="ACATATGACAACTCAATTAA")
 	# parser.add_argument('--demo')
 	parser.add_argument('--target', default='')
 
 	args = parser.parse_args()
 
 	annotations = {'Description': 'test description', 'Targetsite': 'dummy targetsite', 'Sequence': args.target}
-	analyze(args.samfile[0], args.ref, args.outfile, annotations, args.window, args.max_score)
+	analyze(args.samfile[0], args.ref, args.outfile, annotations, args.window, args.max_score, primer1, primer2)
 
 
 if __name__ == "__main__":
