@@ -44,6 +44,9 @@ class GuideSeq:
         with open(manifest_path, 'r') as f:
             manifest_data = yaml.safe_load(f)
         
+        if not "cores" in manifest_data:
+            manifest_data['cores'] = 4
+        
         # Set default tag/primer sequences if not specified
         if not "primer1" in manifest_data:
             manifest_data['primer1'] = 'TTGAGTTGTCATATGTTAAT'
@@ -54,6 +57,7 @@ class GuideSeq:
             # Validate manifest data
             validation.validateManifest(manifest_data)
 
+            self.cores = manifest_data['cores']
             self.BWA_path = manifest_data['bwa']
             self.bedtools = manifest_data['bedtools']
             self.reference_genome = manifest_data['reference_genome']
@@ -207,7 +211,8 @@ class GuideSeq:
             self.aligned = {}
             for sample in self.samples:
                 sample_alignment_path = os.path.join(self.output_folder, 'aligned', sample + '.sam')
-                alignReads(self.BWA_path,
+                alignReads(self.cores,
+                           self.BWA_path,
                            self.reference_genome,
                            self.consolidated[sample]['read1'],
                            self.consolidated[sample]['read2'],
