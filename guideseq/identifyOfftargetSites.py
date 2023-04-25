@@ -295,28 +295,28 @@ def analyze(sam_filename, reference_genome, outfile, annotations, search_radius,
     output_folder = os.path.dirname(outfile)
     if not os.path.exists(output_folder):
         os.makedirs(output_folder)
-	
-	logger.info("Processing SAM file %s", sam_filename)
-	file = open(sam_filename, 'rU')
-	__, filename_tail = os.path.split(sam_filename)
-	chromosome_position = chromosomePosition(reference_genome)
-	for line in file:
-		fields = line.split('\t')
-		if len(fields) >= 10:
-			# These are strings--need to be cast as ints for comparisons.
-			full_read_name, sam_flag, chromosome, position, mapq, cigar, name_of_mate, position_of_mate, template_length, read_sequence, read_quality = fields[:11]
-			if int(mapq) >= 50 and int(sam_flag) & 128 and not int(sam_flag) & 2048:
-				# Second read in pair
-				barcode, count = parseReadName(full_read_name)
-				primer = assignPrimerstoReads(read_sequence, sam_flag, primer1, primer2)
-				if int(template_length) < 0:  # Reverse read
-					read_position = int(position_of_mate) + abs(int(template_length)) - 1
-					strand = "-"
-					chromosome_position.addPositionBarcode(chromosome, read_position, strand, barcode, primer, count)
-				elif int(template_length) > 0:  # Forward read
-					read_position = int(position)
-					strand = "+"
-					chromosome_position.addPositionBarcode(chromosome, read_position, strand, barcode, primer, count)
+    
+    logger.info("Processing SAM file %s", sam_filename)
+    file = open(sam_filename, 'rU')
+    __, filename_tail = os.path.split(sam_filename)
+    chromosome_position = chromosomePosition(reference_genome)
+    for line in file:
+        fields = line.split('\t')
+        if len(fields) >= 10:
+            # These are strings--need to be cast as ints for comparisons.
+            full_read_name, sam_flag, chromosome, position, mapq, cigar, name_of_mate, position_of_mate, template_length, read_sequence, read_quality = fields[:11]
+            if int(mapq) >= 50 and int(sam_flag) & 128 and not int(sam_flag) & 2048:
+                # Second read in pair
+                barcode, count = parseReadName(full_read_name)
+                primer = assignPrimerstoReads(read_sequence, sam_flag, primer1, primer2)
+                if int(template_length) < 0:  # Reverse read
+                    read_position = int(position_of_mate) + abs(int(template_length)) - 1
+                    strand = "-"
+                    chromosome_position.addPositionBarcode(chromosome, read_position, strand, barcode, primer, count)
+                elif int(template_length) > 0:  # Forward read
+                    read_position = int(position)
+                    strand = "+"
+                    chromosome_position.addPositionBarcode(chromosome, read_position, strand, barcode, primer, count)
 
     # Generate barcode position summary
     stacked_summary = chromosome_position.SummarizeBarcodePositions()
@@ -370,10 +370,10 @@ def analyze(sam_filename, reference_genome, outfile, annotations, search_radius,
                     bulged_target_start_absolute, bulged_target_end_absolute = [""] * 2
 
                 output_row = [row[1]] + row[5:8] + [filename_tail] + row[2:4] + row[8:] + \
-                             [str(x) for x in offtarget_sequence_no_bulge, mismatches, chosen_alignment_strand_m,
+                             [str(x) for x in (offtarget_sequence_no_bulge, mismatches, chosen_alignment_strand_m,
                                               non_bulged_target_start_absolute, non_bulged_target_end_absolute,
                                               bulged_offtarget_sequence, length, score, substitutions, insertions, deletions,
-                                              chosen_alignment_strand_b, bulged_target_start_absolute, bulged_target_end_absolute] + \
+                                              chosen_alignment_strand_b, bulged_target_start_absolute, bulged_target_end_absolute)] + \
                              [str(x) for x in annotation] + [realigned_target]
             else:
                 output_row = [row[1]] + row[5:8] + [filename_tail] + row[2:4] + row[8:] + [""] * 14 + [str(x) for x in annotation] + ['none']
@@ -394,17 +394,17 @@ def analyze(sam_filename, reference_genome, outfile, annotations, search_radius,
             print(*output_dict[key], sep='\t', file=f)
 
 def assignPrimerstoReads(read_sequence, sam_flag, primer1, primer2):
-	len1 = len(primer1)
-	len2 = len(primer2)
-	# Get nucleotide sequence from beginning or end of sequence depending on orientation
-	if int(sam_flag) & 16:
-		read_sequence = reverseComplement(read_sequence)
-	if read_sequence[:len1] == primer1:
-		return "primer1"
-	elif read_sequence[:len2] == primer2:
-		return "primer2"
-	else:
-		return "nomatch"
+    len1 = len(primer1)
+    len2 = len(primer2)
+    # Get nucleotide sequence from beginning or end of sequence depending on orientation
+    if int(sam_flag) & 16:
+        read_sequence = reverseComplement(read_sequence)
+    if read_sequence[:len1] == primer1:
+        return "primer1"
+    elif read_sequence[:len2] == primer2:
+        return "primer2"
+    else:
+        return "nomatch"
 
 
 def loadFileIntoArray(filename):
@@ -440,16 +440,16 @@ def reverseComplement(sequence):
 
 
 def main():
-	parser = argparse.ArgumentParser(description='Identify off-target candidates from Illumina short read sequencing data.')
-	parser.add_argument('--ref', help='Reference Genome Fasta', required=True)
-	parser.add_argument('--samfile', help='SAM file', nargs='*')
-	parser.add_argument('--outfile', help='File to output identified sites to.', required=True)
+    parser = argparse.ArgumentParser(description='Identify off-target candidates from Illumina short read sequencing data.')
+    parser.add_argument('--ref', help='Reference Genome Fasta', required=True)
+    parser.add_argument('--samfile', help='SAM file', nargs='*')
+    parser.add_argument('--outfile', help='File to output identified sites to.', required=True)
     parser.add_argument('--search_radius', help='Window around breakpoint to search for off-target', type=int, default=25)
-	parser.add_argument('--max_score', help='Score threshold', type=int, default=7)
-	parser.add_argument('--primer1', help='Primer 1 sequence', default="TTGAGTTGTCATATGTTAAT")
-	parser.add_argument('--primer2', help='Primer 2 sequence', default="ACATATGACAACTCAATTAA")
-	# parser.add_argument('--demo')
-	parser.add_argument('--target', default='')
+    parser.add_argument('--max_score', help='Score threshold', type=int, default=7)
+    parser.add_argument('--primer1', help='Primer 1 sequence', default="TTGAGTTGTCATATGTTAAT")
+    parser.add_argument('--primer2', help='Primer 2 sequence', default="ACATATGACAACTCAATTAA")
+    # parser.add_argument('--demo')
+    parser.add_argument('--target', default='')
 
     args = parser.parse_args()
 
