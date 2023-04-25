@@ -42,18 +42,30 @@ class GuideSeq:
         logger.info('Loading manifest...')
 
         with open(manifest_path, 'r') as f:
-            manifest_data = yaml.load(f)
+            manifest_data = yaml.safe_load(f)
+        
+        if not "cores" in manifest_data:
+            manifest_data['cores'] = 4
+        
+        # Set default tag/primer sequences if not specified
+        if not "primer1" in manifest_data:
+            manifest_data['primer1'] = 'TTGAGTTGTCATATGTTAAT'
+        if not "primer2" in manifest_data:
+            manifest_data['primer2'] = 'ACATATGACAACTCAATTAA'
 
         try:
             # Validate manifest data
             validation.validateManifest(manifest_data)
 
+            self.cores = manifest_data['cores']
             self.BWA_path = manifest_data['bwa']
             self.bedtools = manifest_data['bedtools']
             self.reference_genome = manifest_data['reference_genome']
             self.output_folder = manifest_data['output_folder']
             self.undemultiplexed = manifest_data['undemultiplexed']
             self.samples = manifest_data['samples']
+            self.primer1 = manifest_data['primer1']
+            self.primer2 = manifest_data['primer2']
 
         except Exception as e:
             logger.error('Incorrect or malformed manifest file. Please ensure your manifest contains all required fields.')
@@ -199,7 +211,8 @@ class GuideSeq:
             self.aligned = {}
             for sample in self.samples:
                 sample_alignment_path = os.path.join(self.output_folder, 'aligned', sample + '.sam')
-                alignReads(self.BWA_path,
+                alignReads(self.cores,
+                           self.BWA_path,
                            self.reference_genome,
                            self.consolidated[sample]['read1'],
                            self.consolidated[sample]['read2'],
@@ -227,7 +240,7 @@ class GuideSeq:
                 annotations['Description'] = sample_data['description']
                 annotations['Targetsite'] = sample
 
-                if sample is 'control':
+                if sample == 'control':
                     annotations['Sequence'] = ''
                 else:
                     annotations['Sequence'] = sample_data['target']
@@ -237,7 +250,7 @@ class GuideSeq:
                 self.identified[sample] = os.path.join(self.output_folder, 'identified', sample + '_identifiedOfftargets.txt')
 
                 identifyOfftargetSites.analyze(samfile, self.reference_genome, self.identified[sample], annotations,
-                                               self.search_radius, self.max_score)
+                                               self.search_radius, self.max_score, self.primer1, self.primer2)
 
             logger.info('Finished identifying offtarget sites.')
 
