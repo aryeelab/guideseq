@@ -412,14 +412,14 @@ def py2max(myList):
 	return max(out)
 
 def assignPrimerstoReads(read_sequence, sam_flag, primer1, primer2):
-	# Get 20-nucleotide sequence from beginning or end of sequence depending on orientation
+	len1 = len(primer1)
+	len2 = len(primer2)
+	# Get nucleotide sequence from beginning or end of sequence depending on orientation
 	if int(sam_flag) & 16:
-		readstart = reverseComplement(read_sequence[-20:])
-	else:
-		readstart = read_sequence[:20]
-	if readstart == primer1:
+		read_sequence = reverseComplement(read_sequence)
+	if read_sequence[:len1] == primer1:
 		return "primer1"
-	elif readstart == primer2:
+	elif read_sequence[:len2] == primer2:
 		return "primer2"
 	else:
 		return "nomatch"
