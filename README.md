@@ -7,6 +7,8 @@
 
 **Note that an updated version of this package, including Python 3 support, is maintained by the Tsai Lab: https://github.com/tsailabSJ/guideseq**
 
+This repo (aryeelab/guideseq) contains experimental features.
+
 ------
 
 The guideseq package implements our data preprocessing and analysis pipeline for GUIDE-Seq data. It takes raw sequencing reads (FASTQ) and a parameter manifest file (.yaml) as input and produces a table of annotated off-target sites as output.
@@ -74,31 +76,15 @@ The individual pipeline steps are:
 
 ### Installation<a name="Installation"></a>
 
-The most easiest way to install guideseq pipeline is via conda.
-
 ```
+# It's recommended (but not essential) to set up a conda environment to manage dependencies
+conda create -n guideseq python=3.8
+conda activate guideseq
 
-conda create -n guideseq -c conda-forge -c bioconda -c anaconda -c tsailabSJ guide_seq
-
-source activate guideseq
-
-guideseq.py -h
-
-## BWA and bedtools are automatically installed
-
-
-```
-
-Alternatively, you can git clone this repository and install
-
-```
-
-git clone https://github.com/tsailabSJ/guideseq
-
+git clone --recursive https://github.com/aryeelab/guideseq
 cd guideseq
 
 pip install -r requirements.txt
-
 python setup.py install
 
 guideseq.py -h
@@ -114,26 +100,14 @@ For both bwa and bedtools, make sure you know the path to the respective executa
 
 
 
-### Quickstart <a name="Quickstart"></a>
+## Quickstart <a name="Quickstart"></a>
 
 ```
-
-git clone https://github.com/tsailabSJ/guideseq
-
-cd guideseq/test
-
 guideseq.py all -m test_manifest.yaml
-
-```xml
-<appSettings>
-    ... [LEAVE EXISTING LINES UNCHANGED] ...
-    <add key="CreateFastqForIndexReads" value="1"/> 
-</appSettings>
 ```
 
 ## Running the Full Analysis Pipeline<a name="full_pipeline"></a>
 
-### Quickstart<a name="quickstart"></a>
 
 To run the full guideseq analysis pipeline, you must first create a manifest YAML file that describes all pipeline inputs. Once you have done so, you can simply run
 
