@@ -10,7 +10,6 @@ import argparse
 import collections
 import numpy
 import os
-import string
 import operator
 import pyfaidx
 import re
@@ -378,8 +377,10 @@ def analyze(sam_filename, reference_genome, outfile, annotations, search_radius,
             else:
                 output_row = [row[1]] + row[5:8] + [filename_tail] + row[2:4] + row[8:] + [""] * 14 + [str(x) for x in annotation] + ['none']
 
-            if non_bulged_target_start_absolute != '' or bulged_target_start_absolute != '':
-                output_row_key = '{0}_{1}_{2}'.format(window_chromosome, min(non_bulged_target_start_absolute, bulged_target_start_absolute), max(non_bulged_target_end_absolute, bulged_target_end_absolute))
+            if non_bulged_target_start_absolute != '':
+                output_row_key = '{0}_{1}_{2}'.format(window_chromosome, non_bulged_target_start_absolute, non_bulged_target_end_absolute)
+            elif bulged_target_start_absolute != '':
+                output_row_key = '{0}_{1}_{2}'.format(window_chromosome, bulged_target_start_absolute, bulged_target_end_absolute) 
             else:
                 output_row_key = '{0}_{1}_{2}'.format(window_chromosome, window_start, window_end)
 
@@ -435,7 +436,7 @@ def processLine(line):
 
 
 def reverseComplement(sequence):
-    transtab = string.maketrans("ACGTacgt", "TGCATGCA")
+    transtab = str.maketrans("ACGTacgt", "TGCATGCA")
     return sequence.translate(transtab)[::-1]
 
 
