@@ -44,8 +44,8 @@ def parseSitesFile(infile):
     return offtargets, target_seq, total_seq
 
 
-def visualizeOfftargets(infile, outfile, title=None):
-
+def visualizeOfftargets(infile, outfile, title=None, PAM="NGG"):
+    # Note: PAM is not currently used
     output_folder = os.path.dirname(outfile)
     if not os.path.exists(output_folder):
         os.makedirs(output_folder)
