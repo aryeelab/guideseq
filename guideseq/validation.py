@@ -71,11 +71,6 @@ def checkIfValidUndemultiplexed(undemultiplexed):
 
 
 def checkIfValidSamples(samples):
-    # Check if control is one of the samples
-    if 'control' not in samples:
-        logger.error('A control sample must be specified')
-        sys.exit()
-
     if len(samples.keys()) == 0:
         logger.error('No samples defined')
         sys.exit()
