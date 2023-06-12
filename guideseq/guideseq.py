@@ -320,6 +320,7 @@ def parse_args():
     all_parser.add_argument('--manifest', '-m', help='Specify the manifest Path', required=True)
     all_parser.add_argument('--identifyAndFilter', action='store_true', default=False)
     all_parser.add_argument('--skip_demultiplex', action='store_true', default=False)
+    all_parser.add_argument('--skip_filter', action='store_true', default=False)
 
     demultiplex_parser = subparsers.add_parser('demultiplex', help='Demultiplex undemultiplexed FASTQ files')
     demultiplex_parser.add_argument('--manifest', '-m', help='Specify the manifest path', required=True)
@@ -432,6 +433,23 @@ def main():
                 print ('Error running only identify and filter.')
                 print (traceback.format_exc())
                 quit()
+
+        elif args.skip_filter:
+            try:
+                g = GuideSeq()
+                g.parseManifest(args.manifest)
+                g.demultiplex()
+                g.umitag()
+                g.consolidate()
+                g.alignReads()
+                g.identifyOfftargetSites()
+                g.visualize()
+
+            except Exception as e:
+                print ('Error running only skip filter.')
+                print (traceback.format_exc())
+                quit()
+
         else:
             g = GuideSeq()
             g.parseManifest(args.manifest)
