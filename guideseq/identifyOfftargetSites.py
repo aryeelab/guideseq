@@ -290,7 +290,7 @@ def alignSequences(targetsite_sequence, window_sequence, max_score=7):
 """
 annotation is in the format:
 """
-def analyze(sam_filename, reference_genome, outfile, annotations, search_radius, max_score, primer1, primer2):
+def analyze(sam_filename, reference_genome, outfile, annotations, search_radius, max_score, primer1, primer2, require_primer_at_start):
     output_folder = os.path.dirname(outfile)
     if not os.path.exists(output_folder):
         os.makedirs(output_folder)
@@ -307,7 +307,7 @@ def analyze(sam_filename, reference_genome, outfile, annotations, search_radius,
             if int(mapq) >= 50 and int(sam_flag) & 128 and not int(sam_flag) & 2048:
                 # Second read in pair
                 barcode, count = parseReadName(full_read_name)
-                primer = assignPrimerstoReads(read_sequence, sam_flag, primer1, primer2)
+                primer = assignPrimerstoReads(read_sequence, sam_flag, primer1, primer2, require_primer_at_start)
                 if int(template_length) < 0:  # Reverse read
                     read_position = int(position_of_mate) + abs(int(template_length)) - 1
                     strand = "-"
@@ -394,18 +394,27 @@ def analyze(sam_filename, reference_genome, outfile, annotations, search_radius,
         for key in sorted(output_dict.keys()):
             print(*output_dict[key], sep='\t', file=f)
 
-def assignPrimerstoReads(read_sequence, sam_flag, primer1, primer2):
+def assignPrimerstoReads(read_sequence, sam_flag, primer1, primer2, require_primer_at_start):
     len1 = len(primer1)
     len2 = len(primer2)
     # Get nucleotide sequence from beginning or end of sequence depending on orientation
     if int(sam_flag) & 16:
         read_sequence = reverseComplement(read_sequence)
-    if read_sequence[:len1] == primer1:
-        return "primer1"
-    elif read_sequence[:len2] == primer2:
-        return "primer2"
-    else:
-        return "nomatch"
+    if require_primer_at_start:
+        if read_sequence[:len1] == primer1:
+            return "primer1"
+        elif read_sequence[:len2] == primer2:
+            return "primer2"
+        else:
+            return "nomatch"
+    else: # Allow primer to be anywhere in the read   
+        if primer1 in read_sequence:
+            return "primer1"
+        elif primer2 in read_sequence:
+            return "primer2"
+        else:
+            return "nomatch"            
+
 
 
 def loadFileIntoArray(filename):

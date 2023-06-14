@@ -7,6 +7,7 @@ bedtools: bedtools
 demultiplex_min_reads: 1000
 window_size: 25
 max_mismatches: 7
+require_primer_at_start: True
 
 undemultiplexed:
     forward: data/undemultiplexed/undemux.r1.fastq.gz

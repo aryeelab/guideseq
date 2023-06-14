@@ -46,13 +46,16 @@ class GuideSeq:
         
         if not "cores" in manifest_data:
             manifest_data['cores'] = 4
-        
+            
         # Set default tag/primer sequences if not specified
         if not "primer1" in manifest_data:
             manifest_data['primer1'] = 'TTGAGTTGTCATATGTTAAT'
         if not "primer2" in manifest_data:
             manifest_data['primer2'] = 'ACATATGACAACTCAATTAA'
-
+        
+        if not "require_primer_at_start" in manifest_data:
+            manifest_data['require_primer_at_start'] = True
+        
         try:
             # Validate manifest data
             validation.validateManifest(manifest_data)
@@ -66,6 +69,7 @@ class GuideSeq:
             self.samples = manifest_data['samples']
             self.primer1 = manifest_data['primer1']
             self.primer2 = manifest_data['primer2']
+            self.require_primer_at_start = manifest_data['require_primer_at_start']
 
         except Exception as e:
             logger.error('Incorrect or malformed manifest file. Please ensure your manifest contains all required fields.')
@@ -242,7 +246,7 @@ class GuideSeq:
                 self.identified[sample] = os.path.join(self.output_folder, 'identified', sample + '_identifiedOfftargets.txt')
 
                 identifyOfftargetSites.analyze(samfile, self.reference_genome, self.identified[sample], annotations,
-                                               self.search_radius, self.max_score, self.primer1, self.primer2)
+                                               self.search_radius, self.max_score, self.primer1, self.primer2, self.require_primer_at_start)
 
             logger.info('Finished identifying offtarget sites.')
 
